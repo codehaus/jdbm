@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordFile.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: RecordFile.java,v 1.2 2000/05/23 21:54:25 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -157,8 +157,7 @@ public final class RecordFile {
          node = getNewNode(blockid);
          long offset = blockid * BLOCK_SIZE;
          if (file.length() > 0 && offset <= file.length()) {
-             file.seek(offset);
-             file.read(node.getData());
+             read(file, offset, node.getData(), BLOCK_SIZE);
          } else {
              System.arraycopy(cleanData, 0, node.getData(), 0, BLOCK_SIZE);
          }
@@ -166,6 +165,7 @@ public final class RecordFile {
          node.setClean();
          return node;
      }
+
 
     /**
      *  Releases a block.
@@ -367,4 +367,25 @@ public final class RecordFile {
     void sync() throws IOException {
         file.getFD().sync();
     }
+
+
+    /**
+     * Utility method: Read a block from a RandomAccessFile
+     */
+    private static void read(RandomAccessFile file, long offset, 
+                             byte[] buffer, int nBytes) throws IOException {
+        file.seek(offset);
+        int remaining = nBytes;
+        int pos = 0;
+        while (remaining > 0) {
+            int read = file.read(buffer, pos, remaining);
+            if (read == -1) {
+                System.arraycopy(cleanData, 0, buffer, pos, remaining);
+                break;
+            }
+            remaining -= read;
+            pos += read;
+        }
+    }
+
 }
