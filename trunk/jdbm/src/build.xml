@@ -17,6 +17,7 @@
     <property name="build.compiler" value="modern" />
     <property name="deprecation" value="true" />
     <property file="VERSION" />
+    <property name="version" value="unspecified" description="default value; should never happen"/>
     <property name="archive" value="${project}-${version}" />
   </target>
 
@@ -108,7 +109,10 @@
     <javadoc  sourcepath="${main}" destdir="${build}/doc/javadoc"
               doctitle="JDBM JavaDoc" windowtitle="JDBM JavaDoc" bottom="${copyright}"
               package="true" author="true" version="true" noindex="true"
-              packagenames="jdbm.*" />
+              packagenames="jdbm.*">
+        <link href="http://java.sun.com/products/jdk/1.2/docs/api"/>
+        <link href="http://www.junit.org/junit/javadoc/3.8"/>
+    </javadoc>
   </target>
 
   <!-- Build the API JavaDocs -->
@@ -120,7 +124,9 @@
     <javadoc  sourcepath="${main}" destdir="${build}/doc/api"
               doctitle="JDBM JavaDoc" windowtitle="JDBM JavaDoc" bottom="${copyright}"
               public="true" author="true"
-              packagenames="jdbm.*" />
+              packagenames="jdbm.*">
+        <link href="http://java.sun.com/products/jdk/1.2/docs/api"/>
+    </javadoc>
   </target>
 
   <!-- Build the docs, API and full JavaDocs, doc archives -->
