@@ -1,0 +1,120 @@
+#
+#  Makerules
+#
+#  $Id: Makerules.top,v 1.1 2000/04/03 12:12:46 cdegroot Exp $
+#
+#  Make rules for top-level makefiles.
+#
+#  Copyright (C) 1999, 2000 Cees de Groot <cg@cdegroot.com>
+#
+#  This library is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU Library General Public 
+#  License as published by the Free Software Foundation; either 
+#  version 2 of the License, or (at your option) any later version.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Library General Public License for more details.
+#
+#  You should have received a copy of the GNU Library General Public 
+#  License along with this program; if not, write to the Free 
+#  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+
+PRODREL = $(subst .,/,$(PRODUCT))
+TMP     = /tmp
+REL     = $(shell cat VERSION)
+DEPS    = $(shell cat deps)
+TARGDIR = $(PRODUCT)-$(REL)
+CVSROOT = $(shell cat CVS/Root)
+CVSBASE = repository/myjava
+CVSTHIS = $(shell cat CVS/Repository)
+PRODDIR = $(notdir $(CVSTHIS))
+TAG     = v$(shell echo $(REL) | sed 's,\.,_,g')
+
+.PHONY: jars
+jars: all
+	cd $(CLASSDIR); \
+	    jar cvf $(TMP)/$(PRODUCT).jar \
+		`find $(PRODREL) -name '*.class' | grep -v Test`; \
+	    jar cvf $(TMP)/$(PRODUCT)-test.jar \
+		`find $(PRODREL) -name '*.class' | grep Test`
+
+.PHONY: showjars
+showjars:
+	@echo $(PRODUCT).jar $(PRODUCT)-test.jar
+
+.PHONY: release
+release: jars
+	cvs tag -cR $(TAG)
+	for i in $(DEPS); do \
+	    cd ../$$i; \
+	    cvs tag -cR $(PRODDIR)_$(TAG) || exit 1; \
+	    make jars; done
+	-rm $(TMP)/$(PRODUCT).depjars
+	for i in $(DEPS); do \
+	    cd ../$$i; \
+	    make DEPFILE=$(TMP)/$(PRODUCT).depjars showjars; done 
+	cd $(TMP); mkdir $(TARGDIR) 2>/dev/null || rm -rf $(TARGDIR)/*
+	cd $(TMP)/$(TARGDIR); \
+	    mkdir src lib doc
+	cd $(TMP)/$(TARGDIR)/lib; \
+	    cp $(TMP)/$(PRODUCT)*.jar .; \
+	    for i in `cat $(TMP)/$(PRODUCT).depjars`; do \
+		cp $$i .; done
+	cd $(TMP)/$(TARGDIR)/src; \
+	    CVSROOT=$(CVSROOT) cvs export -d $(PRODDIR) -r $(TAG) $(CVSTHIS)
+	cd $(TMP)/$(TARGDIR)/src; \
+	    for i in $(DEPS); do \
+	        CVSROOT=$(CVSROOT) cvs export -d $$i -r $(PRODDIR)_$(TAG) $(CVSBASE)/$$i; done
+	make releasedoc
+	for i in `ls -1d [A-Z][A-Z]*|egrep -v 'GNUmakefile|CVS'`; do \
+	    cp $$i $(TMP)/$(TARGDIR); done
+	for d in $(DEPS); do cd ../$$d; \
+	    for i in `ls -1d [A-Z][A-Z]*|egrep -v 'GNUmakefile|CVS'`; do \
+		cp $$i $(TMP)/$(TARGDIR)/$$i.$$d; done; done
+	cp ../common/topdoc/{COPYING*,README.FIRST} $(TMP)/$(TARGDIR)
+	rm $(TMP)/$(TARGDIR)/*~
+	cd $(TMP); tar cvfz $(TARGDIR).tar.gz $(TARGDIR)
+	make webupdate
+
+#
+#  Website updating stuff.
+#
+WEBBASE := $(HOME)/public_html/cdegroot/software
+
+.PHONY: webupdate
+webupdate:
+	if [ -d $(WEBBASE)/$(PRODDIR) ]; then \
+	   for i in `ls -1d [A-Z][A-Z]*|egrep -v 'GNUmakefile|CVS'`; do \
+	      cp $$i $(WEBBASE)/$(PRODDIR); done; \
+	   cp index.html $(WEBBASE)/$(PRODDIR)/doc.html; \
+	   cd $(TMP)/$(TARGDIR); \
+	   find doc|cpio -pdmv $(WEBBASE)/$(PRODDIR); \
+	   mkdir $(WEBBASE)/$(PRODDIR)/download 2>/dev/null; \
+	   cp $(TMP)/$(TARGDIR).tar.gz $(WEBBASE)/$(PRODDIR)/download; \
+	   echo 'Download <A href="download/$(TARGDIR).tar.gz">version $(REL)</A> (<!--#fsize file="download/$(TARGDIR).tar.gz"-->)' >$(WEBBASE)/$(PRODDIR)/download.shtml; \
+	fi
+
+#
+#  Javadoc stuff.
+#
+BOTTOM := '<font size="-1">(C) Copyright 2000, Cees de Groot</font>'
+FOOTER := '<a href="http://www.cdegroot.com/software/">Homepage</a>'
+LOCALJDKDOC := /opt/java/jdk/1.2pre-v2/docs/api
+
+.PHONY: releasedoc
+releasedoc:
+	cd $(TMP)/$(TARGDIR)/doc; \
+	    javadoc -public \
+		-bottom $(BOTTOM) -footer $(FOOTER) \
+		-linkoffline http://java.sun.com/products/jdk/1.2/docs/api \
+			     $(LOCALJDKDOC) \
+		-sourcepath $(TMP)/$(TARGDIR)/src/$(PRODDIR):`for i in $(DEPS); do \
+		    echo "$(TMP)/$(TARGDIR)/src/$$i:";done` \
+		@$(TMP)/$(TARGDIR)/src/$(PRODDIR)/packages \
+		    `for i in $(DEPS); do \
+			echo "@$(TMP)/$(TARGDIR)/src/$$i/packages";done`
+		
+

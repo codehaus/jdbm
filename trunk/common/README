@@ -1,0 +1,5 @@
+$Id: README,v 1.1 2000/04/03 12:12:46 cdegroot Exp $
+
+This package contains some common utilities and java classes, and is
+included in every distribution. 
+
