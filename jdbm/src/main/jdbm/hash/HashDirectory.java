@@ -61,7 +61,7 @@ import java.util.Vector;
  *  Hashtable directory page.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: HashDirectory.java,v 1.2 2000/05/24 01:51:21 boisvert Exp $
+ *  @version $Id: HashDirectory.java,v 1.3 2001/04/05 05:18:49 boisvert Exp $
  */
 public final class HashDirectory extends HashNode implements Externalizable {
 
@@ -507,6 +507,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
                     // try next page
                     _dir = (HashDirectory)_dirStack.pop();
                     _child = ((Integer)_childStack.pop()).intValue();
+                    continue;
                 }
                 child_recid = _dir._children[_child];
             } while (child_recid == 0);
