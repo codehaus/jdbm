@@ -71,7 +71,7 @@ import java.io.ObjectOutput;
  * pseudo-key
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: BPage.java,v 1.1 2001/05/19 14:17:12 boisvert Exp $
+ * @version $Id: BPage.java,v 1.2 2001/08/28 05:49:33 boisvert Exp $
  */
 public final class BPage implements Externalizable {
 
@@ -393,6 +393,11 @@ public final class BPage implements Externalizable {
             // link newly created BPage
             newPage._previous = _previous;
             newPage._next = _recid;
+            if ( _previous != 0 ) {
+                BPage previous = loadBPage( _previous );
+                previous._next = newPage._recid;
+                _btree._cache.update( _previous, previous );
+            }
             _previous = newPage._recid;
         }
 
