@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordManager.java,v 1.4 2001/04/05 07:05:53 boisvert Exp $
+ * $Id: RecordManager.java,v 1.5 2001/05/18 16:00:02 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -230,12 +230,12 @@ public final class RecordManager {
      *  @returns the object contained in the record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public Object fetchObject(long recid) 
+    public synchronized Object fetchObject(long recid)
     throws IOException, ClassNotFoundException {
         for (int i=0; i<caches.size(); i++) {
             ((RecordCache)caches.elementAt(i)).flush(recid);
         }
-        byte[] buffer = fetchByteArray(recid);
+        byte[] buffer = physMgr.fetch( logMgr.fetch( new Location( recid ) ) );
         return byteArrayToObject(buffer);
     }
 
@@ -290,7 +290,7 @@ public final class RecordManager {
     /**
      * Recreate a serialized object from a byte array.
      */
-    private static Object byteArrayToObject(byte[] array) 
+    private static Object byteArrayToObject(byte[] array)
     throws IOException, ClassNotFoundException {
         ByteArrayInputStream bais = new ByteArrayInputStream(array);
         ObjectInputStream ois = new ObjectInputStream(bais);
@@ -300,7 +300,7 @@ public final class RecordManager {
     /**
      * Serialize an object into a byte array.
      */
-    private static byte[] objectToByteArray(Object obj) 
+    private static byte[] objectToByteArray(Object obj)
     throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -343,7 +343,7 @@ public final class RecordManager {
     }
 
     /**
-     * Obtain the record id of a named object. Returns 0 if named object 
+     * Obtain the record id of a named object. Returns 0 if named object
      * doesn't exist.
      */
     public long getNamedObject(String name) throws IOException {
@@ -356,9 +356,9 @@ public final class RecordManager {
     }
 
     /**
-     * Set the record id of a named object. 
+     * Set the record id of a named object.
      */
-    public void setNamedObject(String name, long recid) 
+    public void setNamedObject(String name, long recid)
     throws IOException {
         Hashtable nameDirectory = getNameDirectory();
         if (recid == 0) {
