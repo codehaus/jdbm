@@ -51,16 +51,19 @@ package jdbm.helper;
  * Callback interface used to compare objects for ordering purposes.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: Comparator.java,v 1.2 2001/05/19 14:02:00 boisvert Exp $
+ * @version $Id: Comparator.java,v 1.3 2001/09/23 01:40:06 boisvert Exp $
  */
-public abstract class Comparator implements java.io.Serializable {
+public abstract class Comparator
+    implements java.io.Serializable
+{
 
     /**
      * Compare two objects.
      *
      * @param obj1 First object
      * @param obj2 Second object
-     * @return 1 if obj1 > obj2, 0 if obj1 == obj2, -1 if obj1 < obj2
+     * @return a positive integer if obj1 > obj2, 0 if obj1 == obj2,
+     *         and a negative integer if obj1 < obj2
      */
      public abstract int compare( Object obj1, Object obj2 );
 
