@@ -5,6 +5,8 @@ import jdbm.JDBMEnumeration;
 import jdbm.JDBMHashtable;
 import jdbm.recman.RecordManager;
 import jdbm.hash.HTree;
+import jdbm.helper.ObjectCache;
+import jdbm.helper.MRU;
 import java.io.IOException;
 
 /**
@@ -19,6 +21,8 @@ public class CrashTest {
             // open persistent hashtable
             recman = new RecordManager("crashtest");
 
+            ObjectCache cache = new ObjectCache(recman, new MRU(500));
+
             long root_recid = recman.getNamedObject("crash");
             if (root_recid == 0) {
                 // create a new one
@@ -26,7 +30,7 @@ public class CrashTest {
                 recman.setNamedObject("crash", root_recid);
                 recman.commit();
             }
-            hashtable = new HTree(recman, root_recid);
+            hashtable = new HTree(recman, cache, root_recid);
             // hashtable = recman.getHashtable("crash");
 
             checkConsistency();
