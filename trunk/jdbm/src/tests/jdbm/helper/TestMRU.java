@@ -46,30 +46,24 @@
 
 package jdbm.helper;
 
-import junit.framework.*;
+import junit.framework.TestSuite;
 
 /**
- *  Unit test for {@link MRU}.
- *
+ * Unit test for {@link MRU}.
+ * 
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: TestMRU.java,v 1.2 2001/05/19 14:18:45 boisvert Exp $
+ * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
+ * @version $Id: TestMRU.java,v 1.3 2003/11/01 13:27:18 dranatunga Exp $
  */
-public class TestMRU extends TestCase {
+public class TestMRU extends TestCachePolicy {
 
     public TestMRU(String name) {
         super(name);
     }
 
-
-    public void setUp() {
-        // nothing
+    protected CachePolicy createInstance(int capacity) {
+        return new MRU(capacity);
     }
-
-
-    public void tearDown() {
-        // nothing
-    }
-
 
     /**
      * Test constructor
@@ -87,7 +81,7 @@ public class TestMRU extends TestCase {
     }
 
     /**
-     *  Test eviction
+     * Test eviction
      */
     public void testEvict() throws CacheEvictionException {
         Object o1 = new Object();
@@ -110,7 +104,7 @@ public class TestMRU extends TestCase {
     }
 
     /**
-     *  Test key replacement
+     * Test key replacement
      */
     public void testReplace() throws CacheEvictionException {
         Object o1 = new Object();
@@ -131,7 +125,7 @@ public class TestMRU extends TestCase {
     }
 
     /**
-     *  Test multiple touch
+     * Test multiple touch
      */
     public void testMultiple() throws CacheEvictionException {
         Object o1 = new Object();
@@ -161,8 +155,39 @@ public class TestMRU extends TestCase {
         assertEquals(null, m1.get("2"));
     }
 
+    public void testEvictionExceptionRecovery() throws CacheEvictionException {
+        final CachePolicy cache = new MRU(1);
+        final Object oldKey = "to-be-evicted";
+        final Object newKey = "insert-attempt";
+
+        { // null test
+            cache.removeAll();
+            cache.put(oldKey, new Object());
+            assertNotNull(cache.get(oldKey));
+            cache.put(newKey, new Object());
+            assertNull(cache.get(oldKey));
+            assertNotNull(cache.get(newKey));
+        }
+
+        { // stability test.
+            cache.removeAll();
+            cache.addListener(new ThrowingListener());
+            cache.put(oldKey, new Object());
+            assertNotNull(cache.get(oldKey));
+            try {
+                cache.put(newKey, new Object());
+                fail("Did not propagate expected exception.");
+            } catch (CacheEvictionException cex) {
+                assertNotNull("old object missing after eviction exception!",
+                              cache.get(oldKey));
+                assertNull("new key -> object mapping added even when eviction exception!",
+                           cache.get(newKey));
+            }
+        }
+    }
+
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
     public static void main(String[] args) {
         junit.textui.TestRunner.run(new TestSuite(TestMRU.class));
