@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: BaseRecordManager.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ * $Id: BaseRecordManager.java,v 1.2 2002/06/14 16:22:38 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -81,7 +81,7 @@ import jdbm.RecordManager;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: BaseRecordManager.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ * @version $Id: BaseRecordManager.java,v 1.2 2002/06/14 16:22:38 boisvert Exp $
  */
 public final class BaseRecordManager
     implements RecordManager
@@ -276,6 +276,10 @@ public final class BaseRecordManager
         throws IOException
     {
         checkIfClosed();
+        if ( recid <= 0 ) {
+            throw new IllegalArgumentException( "Argument 'recid' is invalid: "
+                                                + recid );
+        }
 
         return _physMgr.fetch( _logMgr.fetch( new Location( recid ) ) );
     }
@@ -294,7 +298,10 @@ public final class BaseRecordManager
         byte[]       buffer;
 
         checkIfClosed();
-
+        if ( recid <= 0 ) {
+            throw new IllegalArgumentException( "Argument 'recid' is invalid: "
+                                                + recid );
+        }
         buffer = _physMgr.fetch( _logMgr.fetch( new Location( recid ) ) );
         return byteArrayToObject( buffer );
     }
