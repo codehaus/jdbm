@@ -134,7 +134,7 @@
     <javadoc  sourcepath="${main}" destdir="${build}/doc/javadoc" dir="."
               doctitle="JDBM JavaDoc" windowtitle="JDBM JavaDoc" bottom="${copyright}"
               package="true" author="true" version="true" noindex="true"
-              packagenames="com.*" />
+              packagenames="jdbm.*" />
   </target>
 
   <!-- Build the API JavaDocs -->
@@ -146,11 +146,12 @@
     <javadoc  sourcepath="${main}" destdir="${build}/doc/api" dir="."
               doctitle="JDBM JavaDoc" windowtitle="JDBM JavaDoc" bottom="${copyright}"
               public="true" author="true"
-              packagenames="com.*" />
+              packagenames="jdbm" />
   </target>
 
   <!-- Build the docs, API and full JavaDocs, doc archives -->
-  <target name="docs" depends="doc,api,javadoc">
+  <!-- Note CdG: Removed doc dependency, we don't have it yet... -->
+  <target name="docs" depends="api,javadoc">
     <zip    zipfile="${dist}/${archive}-doc.zip" basedir="${build}" includes="doc/**" />
     <tar    tarfile="${dist}/${archive}-doc.tar" basedir="${build}" includes="doc/**" />
     <gzip   src="${dist}/${archive}-doc.tar" zipfile="${dist}/${archive}-doc.tgz" />
