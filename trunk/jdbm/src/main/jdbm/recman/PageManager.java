@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: PageManager.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: PageManager.java,v 1.2 2001/04/05 07:11:33 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -226,7 +226,9 @@ final class PageManager {
      */
     void commit() throws IOException {
         // write the header out
-        close();
+        file.release(headerBuf);
+        file.commit();
+
         // and obtain it again
         headerBuf = file.get(0);
         header = new FileHeader(headerBuf, false);
@@ -255,6 +257,9 @@ final class PageManager {
     void close() throws IOException {   
         file.release(headerBuf);
         file.commit();
+        headerBuf = null;
+        header = null;
+        file = null;
     }
     
     /**
