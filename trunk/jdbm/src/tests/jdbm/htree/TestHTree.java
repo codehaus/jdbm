@@ -46,31 +46,84 @@
 
 package jdbm.htree;
 
+import jdbm.RecordManager;
+import jdbm.RecordManagerFactory;
+import jdbm.recman.TestRecordFile;
+import jdbm.helper.FastIterator;
+import jdbm.helper.MRU;
 import junit.framework.*;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Properties;
 
 /**
- *  "jdbm.hash.*" package test suite
+ *  This class contains all Unit tests for {@link HTree}.
  *
  *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id: Test.java,v 1.3 2003/07/31 15:21:57 boisvert Exp $
+ *  @version $Id: TestHTree.java,v 1.1 2003/07/31 15:21:57 boisvert Exp $
  */
-public class Test extends TestCase {
+public class TestHTree extends TestCase {
 
-    public Test(String name) {
+    public TestHTree(String name) {
         super(name);
     }
 
-    public static junit.framework.Test suite() {
-        TestSuite retval = new TestSuite();
-        retval.addTest(new TestSuite(TestHashBucket.class));
-        retval.addTest(new TestSuite(TestHashDirectory.class));
-        retval.addTest(new TestSuite(TestRollback.class));
-        retval.addTest(new TestSuite(TestHTree.class));
-        return retval;
+    public void setUp() {
+        TestRecordFile.deleteTestFile();
     }
 
+    public void tearDown() {
+        TestRecordFile.deleteTestFile();
+    }
+
+
+    /**
+     *  Basic tests
+     */
+    public void testIterator() throws IOException {
+        Properties props = new Properties();
+        RecordManager recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName, props );
+
+        HTree testTree = getHtree(recman, "htree");
+    
+        int total = 10;
+        for ( int i = 0; i < total; i++ ) {
+            testTree.put( Long.valueOf("" + i), Long.valueOf("" + i) );
+        }
+        recman.commit();
+    
+        FastIterator fi = testTree.values();
+        Object item;
+        int count = 0;
+        while( (item = fi.next()) != null ) {
+            count++;
+        }
+        assertEquals( count, total );
+
+        recman.close();
+    }
+
+
+    private static HTree getHtree( RecordManager recman, String name )
+      throws IOException
+    {
+        long recId = recman.getNamedObject("htree");  
+        HTree testTree;
+        if ( recId != 0 ) {
+            testTree = HTree.load( recman, recId );
+        } else {
+            testTree = HTree.createInstance( recman );
+            recman.setNamedObject( "htree", testTree.getRecid() );
+        }
+        return testTree;
+    }
+
+
+    /**
+     *  Runs all tests in this class
+     */
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+        junit.textui.TestRunner.run(new TestSuite(TestHTree.class));
     }
 
 }
