@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: TransactionManager.java,v 1.5 2001/11/17 16:13:08 boisvert Exp $
+ * $Id: TransactionManager.java,v 1.6 2003/08/07 00:00:56 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -63,21 +63,30 @@ import java.util.*;
 // TODO: Handle the case where we are recovering lg9 and lg0, were we
 // should start with lg9 instead of lg0!
 
-final class TransactionManager {
+public final class TransactionManager {
     private RecordFile owner;
 
     // streams for transaction log.
     private FileOutputStream fos;
     private ObjectOutputStream oos;
 
-    // We keep 10 transactions in the log file before closing it.
-    static final int TXNS_IN_LOG = 10;
+    /** 
+     * By default, we keep 10 transactions in the log file before
+     * synchronizing it with the main database file.
+     */
+    static final int DEFAULT_TXNS_IN_LOG = 10;
+
+    /** 
+     * Maximum number of transactions before the log file is
+     * synchronized with the main database file.
+     */
+    private int _maxTxns = DEFAULT_TXNS_IN_LOG;
 
     // In-core copy of transactions. We could read everything back from
     // the log file, but the RecordFile needs to keep the dirty blocks in
     // core anyway, so we might as well point to them and spare us a lot
     // of hassle.
-    private ArrayList[] txns = new ArrayList[TXNS_IN_LOG];
+    private ArrayList[] txns = new ArrayList[DEFAULT_TXNS_IN_LOG];
     private int curTxn = -1;
 
     /** Extension of a log file. */
@@ -96,6 +105,45 @@ final class TransactionManager {
         open();
     }
 
+    
+    /**
+     * Synchronize log file data with the main database file.
+     * <p>
+     * After this call, the main database file is guaranteed to be 
+     * consistent and guaranteed to be the only file needed for 
+     * backup purposes.
+     */
+    public void synchronizeLog()
+        throws IOException
+    {
+        synchronizeLogFromMemory();
+    }
+
+    
+    /**
+     * Set the maximum number of transactions to record in
+     * the log (and keep in memory) before the log is
+     * synchronized with the main database file.
+     * <p>
+     * This method must be called while there are no
+     * pending transactions in the log.
+     */
+    public void setMaximumTransactionsInLog( int maxTxns )
+        throws IOException
+    {
+        if ( maxTxns <= 0 ) {
+            throw new IllegalArgumentException( 
+                "Argument 'maxTxns' must be greater than 0." );
+        }
+        if ( curTxn != -1 ) {
+            throw new IllegalStateException( 
+                "Cannot change setting while transactions are pending in the log" );
+        }
+        _maxTxns = maxTxns;
+        txns = new ArrayList[ maxTxns ];
+    }
+
+    
     /** Builds logfile name  */
     private String makeLogName() {
         return owner.getFileName() + extension;
@@ -110,7 +158,7 @@ final class TransactionManager {
 
         int numBlocks = 0;
         int writtenBlocks = 0;
-        for (int i = 0; i < TXNS_IN_LOG; i++) {
+        for (int i = 0; i < _maxTxns; i++) {
             if (txns[i] == null)
                 continue;
             // Add each block to the blockList, replacing the old copy of this
@@ -239,7 +287,7 @@ final class TransactionManager {
      */
     void start() throws IOException {
         curTxn++;
-        if (curTxn == TXNS_IN_LOG) {
+        if (curTxn == _maxTxns) {
             synchronizeLogFromMemory();
             curTxn = 0;
         }
@@ -315,7 +363,7 @@ final class TransactionManager {
     void synchronizeLogFromDisk() throws IOException {
         close();
 
-        for (int i = 0; i < TXNS_IN_LOG; i++) {
+        for ( int i=0; i < _maxTxns; i++ ) {
             if (txns[i] == null)
                 continue;
             discardBlocks(txns[i]);
