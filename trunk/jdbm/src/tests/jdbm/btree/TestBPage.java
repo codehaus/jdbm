@@ -63,7 +63,7 @@ import junit.framework.*;
  *  This class contains all Unit tests for {@link Bpage}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestBPage.java,v 1.1 2001/05/19 14:38:19 boisvert Exp $
+ *  @version $Id: TestBPage.java,v 1.2 2001/11/10 18:37:13 boisvert Exp $
  */
 public class TestBPage extends TestCase {
 
@@ -94,12 +94,12 @@ public class TestBPage extends TestCase {
         Tuple tuple = new Tuple();
 
         // test insertion
-        page.insert( 0, "test2", "test2", false );
-        page.insert( 0, "test3", "test3", false );
-        page.insert( 0, "test1", "test1", false );
+        page.insert( 1, "test2", "test2", false );
+        page.insert( 1, "test3", "test3", false );
+        page.insert( 1, "test1", "test1", false );
 
         // test binary search
-        browser = page.find( 0, "test2" );
+        browser = page.find( 1, "test2" );
         if ( browser.getNext( tuple ) == false ) {
             throw new IllegalStateException( "Browser didn't have 'test2'" );
         }
