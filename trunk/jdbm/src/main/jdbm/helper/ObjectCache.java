@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: ObjectCache.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
+ * $Id: ObjectCache.java,v 1.3 2000/05/24 23:25:31 boisvert Exp $
  */
 
 package jdbm.helper;
@@ -61,9 +61,9 @@ import java.util.Hashtable;
  *  interface.
  *
  *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
- *  @version $Id: ObjectCache.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
+ *  @version $Id: ObjectCache.java,v 1.3 2000/05/24 23:25:31 boisvert Exp $
  */
-public class ObjectCache implements RecordCache, CachePolicyListener {
+public class ObjectCache implements RecordCache {
 
     /** RecordManager from which data is cache */
     RecordManager _recman;
@@ -71,6 +71,8 @@ public class ObjectCache implements RecordCache, CachePolicyListener {
     /** Policy for the cache */
     CachePolicy _policy;
 
+    /** internal cache policy listener */
+    CachePolicyListener _listener;
 
     /**
      * Construct an ObjectCache linked to a given RecordManager and
@@ -80,7 +82,9 @@ public class ObjectCache implements RecordCache, CachePolicyListener {
         _recman = recman;
         _recman.addCache(this);
         _policy = policy;
-        _policy.addListener(this);
+
+        _listener = new OwnPolicyListener();
+        _policy.addListener(_listener);
     }
 
 
@@ -168,7 +172,7 @@ public class ObjectCache implements RecordCache, CachePolicyListener {
         Long id = new Long(recid);
         RecordEntry entry = (RecordEntry)_policy.get(id);
         if ((entry != null) && entry.isDirty()) {
-            _recman.update(recid, entry);
+            _recman.update(recid, entry.getValue());
             entry.setDirty(false);
         }
     }
@@ -183,7 +187,7 @@ public class ObjectCache implements RecordCache, CachePolicyListener {
         while (enum.hasMoreElements()) {
             RecordEntry entry = (RecordEntry)enum.nextElement();
             if (entry.isDirty()) {
-                _recman.update(entry.getRecid().longValue(), entry);
+                _recman.update(entry.getRecid().longValue(), entry.getValue());
                 entry.setDirty(false);
             }
         }
@@ -210,30 +214,38 @@ public class ObjectCache implements RecordCache, CachePolicyListener {
 
 
     /**
-     * Dispose of any resource used by the cache.
+     * Dispose of any resource used by the cache. 
+     * WARNING:  This method *does not* flush any pending data.
+     *           You should call flushAll() before.
      */
     public void dispose() {
         _recman.removeCache(this);
         _recman = null;
-        _policy.removeListener(this);
+        _policy.removeListener(_listener);
         _policy = null;
     }
 
-    /**
-     * [Implementation of CachePolicyListener interface]
-     * Notification that cache is evicting an object
-     *
-     * @arg obj object evited from cache
-     */
-    public void cacheObjectEvicted(Object obj) throws CacheEvictionException {
-        RecordEntry entry = (RecordEntry)obj;
-        if (entry.isDirty()) {
-            try {
-                _recman.update(entry.getRecid().longValue(), entry.getValue());
-            } catch (IOException ioe) {
-                throw new CacheEvictionException(ioe);
+    // inner class
+    class OwnPolicyListener implements CachePolicyListener {
+
+        /**
+         * [Implementation of CachePolicyListener interface]
+         * Notification that cache is evicting an object
+         *
+         * @arg obj object evited from cache
+         */
+        public void cacheObjectEvicted(Object obj) 
+        throws CacheEvictionException {
+            RecordEntry entry = (RecordEntry)obj;
+            if (entry.isDirty()) {
+                try {
+                    _recman.update(entry.getRecid().longValue(), 
+                                   entry.getValue());
+                } catch (IOException ioe) {
+                    throw new CacheEvictionException(ioe);
+                }
+                entry.setDirty(false);
             }
-            entry.setDirty(false);
         }
     }
 
