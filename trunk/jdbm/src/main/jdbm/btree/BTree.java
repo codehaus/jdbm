@@ -83,7 +83,7 @@ import java.io.ObjectOutput;
  * the key size, which impacts all non-leaf <code>BPage</code> objects.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: BTree.java,v 1.2 2001/06/02 14:29:06 boisvert Exp $
+ * @version $Id: BTree.java,v 1.3 2001/11/10 19:52:38 boisvert Exp $
  */
 public class BTree implements Externalizable {
 
@@ -387,6 +387,10 @@ public class BTree implements Externalizable {
 
     /**
      * Get a browser initially positioned at the beginning of the BTree.
+     * <p><b>
+     * WARNING:  If you make structural modifications to the BTree during
+     * browsing, you will get inconsistent browing results.
+     * </b>
      *
      * @return Browser positionned at the beginning of the BTree.
      */
@@ -403,6 +407,10 @@ public class BTree implements Externalizable {
 
     /**
      * Get a browser initially positioned just before the given key.
+     * <p><b>
+     * WARNING:  If you make structural modifications to the BTree during
+     * browsing, you will get inconsistent browing results.
+     * </b>
      *
      * @param key Key used to position the browser.  If null, the browser
      *            will be positionned after the last entry of the BTree.
