@@ -1,5 +1,5 @@
 /*
- *  $Id: RecordFile.java,v 1.1 2000/04/03 12:13:48 cdegroot Exp $
+ *  $Id: RecordFile.java,v 1.2 2000/04/11 06:03:32 boisvert Exp $
  *
  *  File consisting of fixed sized physical records
  *
@@ -7,8 +7,8 @@
  *  Copyright (C) 1999, 2000 Cees de Groot <cg@cdegroot.com>
  *
  *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public License 
- *  as published by the Free Software Foundation; either version 2 
+ *  modify it under the terms of the GNU Library General Public License
+ *  as published by the Free Software Foundation; either version 2
  *  of the License, or (at your option) any later version.
  *
  *  This library is distributed in the hope that it will be useful,
@@ -16,8 +16,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Library General Public License for more details.
  *
- *  You should have received a copy of the GNU Library General Public License 
- *  along with this library; if not, write to the Free Software Foundation, 
+ *  You should have received a copy of the GNU Library General Public License
+ *  along with this library; if not, write to the Free Software Foundation,
  *  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 package com.cdegroot.db.recman;
@@ -28,12 +28,12 @@ import java.util.*;
 /**
  *  This class represents a random access file as a set of fixed size
  *  records. Each record has a physical record number, and records are
- *  cached in order to improve access. 
+ *  cached in order to improve access.
  *
- *  The set of dirty records on the in-use list constitutes a transaction. 
+ *  The set of dirty records on the in-use list constitutes a transaction.
  *  Later on, we will send these records to some recovery thingy.
  */
-final class RecordFile {
+public final class RecordFile {
     private final TransactionManager txnMgr;
 
     // Todo: reorganize in hashes and fifos as necessary.
@@ -48,7 +48,7 @@ final class RecordFile {
     private boolean transactionsDisabled = false;
 
     /** The length of a single block. */
-    final static int BLOCK_SIZE = 8192;//4096;
+    public final static int BLOCK_SIZE = 8192;//4096;
 
     /** The extension of a record file */
     final static String extension = ".db";
@@ -58,7 +58,7 @@ final class RecordFile {
 
     private final RandomAccessFile file;
     private final String fileName;
-    
+
     /**
      *  Creates a new object on the indicated filename. The file is
      *  opened in read/write mode.
@@ -88,7 +88,7 @@ final class RecordFile {
     void disableTransactions() {
 	transactionsDisabled = true;
     }
-    
+
     /**
      *  Gets a block from the file. The returned byte array is
      *  the in-memory copy of the record, and thus can be written
@@ -101,7 +101,7 @@ final class RecordFile {
 	 Long key = new Long(blockid);
 
 	 // try in transaction list, dirty list, free list
- 
+
 	 BlockIo node = (BlockIo) inTxn.get(key);
 	 if (node != null) {
 	     inTxn.remove(key);
@@ -128,7 +128,7 @@ final class RecordFile {
 	 if (inUse.get(key) != null) {
 	     throw new Error("double get for block " + blockid);
 	 }
-	 
+
 	 // get a new node and read it from the file
 	 node = getNewNode(blockid);
 	 long offset = blockid * BLOCK_SIZE;
@@ -144,7 +144,7 @@ final class RecordFile {
     }
 
     /**
-     *  Releases a block. 
+     *  Releases a block.
      *
      *  @param blockid The record number to release.
      *  @param isDirty If true, the block was modified since the get().
@@ -175,7 +175,7 @@ final class RecordFile {
 	    else
 		free.add(block);
     }
-    
+
     /**
      *  Commits the current transaction by flushing all dirty buffers
      *  to disk.
@@ -184,7 +184,7 @@ final class RecordFile {
 	// debugging...
 	if (!inUse.isEmpty() && inUse.size() > 1) {
 	    showList(inUse.values().iterator());
-	    throw new Error("in use list not empty at commit time (" 
+	    throw new Error("in use list not empty at commit time ("
 			    + inUse.size() + ")");
 	}
 	//	System.out.println("committing...");
@@ -192,7 +192,7 @@ final class RecordFile {
 	    txnMgr.start();
 	for (Iterator i = dirty.values().iterator(); i.hasNext(); ) {
 	    BlockIo node = (BlockIo) i.next();
-	    i.remove(); 
+	    i.remove();
 	    // System.out.println("node " + node + " map size now " + dirty.size());
 	    if (transactionsDisabled) {
 		long offset = node.getBlockId() * BLOCK_SIZE;
@@ -209,9 +209,9 @@ final class RecordFile {
 	if (!transactionsDisabled)
 	    txnMgr.commit();
     }
-    
+
     /**
-     *  Commits and closes file. 
+     *  Commits and closes file.
      */
     void close() throws IOException {
 	if (!dirty.isEmpty())
@@ -222,7 +222,7 @@ final class RecordFile {
 	    showList(inTxn.values().iterator());
 	    throw new Error("In transaction not empty");
 	}
-	
+
 	// these actually ain't that bad in a production release
 	if (!dirty.isEmpty()) {
 	    System.out.println("ERROR: dirty blocks at close time");
@@ -250,13 +250,13 @@ final class RecordFile {
 	    cnt++;
 	}
     }
-    
+
 
     /**
      *  Returns a new node. The node is retrieved (and removed)
      *  from the released list or created new.
      */
-    private BlockIo getNewNode(long blockid) 
+    private BlockIo getNewNode(long blockid)
 	throws IOException {
 
 	BlockIo retval = null;
@@ -265,7 +265,7 @@ final class RecordFile {
 	}
 	if (retval == null)
 	    retval = new BlockIo(0, new byte[BLOCK_SIZE]);
-	
+
 	retval.setBlockId(blockid);
 	retval.setView(null);
 	return retval;
@@ -293,11 +293,11 @@ final class RecordFile {
 	if (inTxn.remove(key) != null)
 	    free.add(node);
     }
-    
+
     /**
      *  Synchronizes the file.
      */
     void sync() throws IOException {
 	file.getFD().sync();
-    }    
+    }
 }
