@@ -57,7 +57,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- *  This class contains all Unit tests for {@link RecordManager}.
+ *  Test cases for HTree rollback
  */
 public class TestRollback
     extends TestCase
@@ -78,7 +78,10 @@ public class TestRollback
         TestRecordFile.deleteTestFile();
     }
 
-    public void testRollback2() 
+    /**
+     * Test case courtesy of Derek Dick (mailto:ddick@users.sourceforge.net)
+     */
+    public void testRollback1() 
         throws Exception
     {
         RecordManager recman;
@@ -115,7 +118,11 @@ public class TestRollback
         assertTrue( tree.get( "Hello" ) == null );
     }		
 
-    public void testRollback3() 
+    
+    /**
+     * Test case courtesy of Derek Dick (mailto:ddick@users.sourceforge.net)
+     */
+    public void testRollback2() 
         throws Exception
     {
         RecordManager recman;
