@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: MRU.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
+ * $Id: MRU.java,v 1.3 2000/05/24 23:24:24 boisvert Exp $
  */
 
 package jdbm.helper;
@@ -61,7 +61,7 @@ import java.util.Vector;
  *  Methods are *not* synchronized, so no concurrent access is allowed.
  *
  *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
- *  @version $Id: MRU.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
+ *  @version $Id: MRU.java,v 1.3 2000/05/24 23:24:24 boisvert Exp $
  */
 public class MRU implements CachePolicy {
 
@@ -96,6 +96,9 @@ public class MRU implements CachePolicy {
      * Construct an MRU with a given maximum number of objects.
      */
     public MRU(int max) {
+        if (max <= 0) {
+            throw new IllegalArgumentException("MRU cache must contain at least one entry");
+        }
         _max = max;
     }
 
