@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CacheRecordManager.java,v 1.2 2002/08/06 05:33:30 boisvert Exp $
+ * $Id: CacheRecordManager.java,v 1.3 2002/10/13 18:36:35 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -59,7 +59,7 @@ import java.io.IOException;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: CacheRecordManager.java,v 1.2 2002/08/06 05:33:30 boisvert Exp $
+ * @version $Id: CacheRecordManager.java,v 1.3 2002/10/13 18:36:35 boisvert Exp $
  */
 public class CacheRecordManager
     implements RecordManager
@@ -119,6 +119,30 @@ public class CacheRecordManager
     }
 
 
+    /**
+     * Get the underlying Record Manager.
+     *
+     * @return underlying RecordManager or null if CacheRecordManager has
+     *         been closed. 
+     */
+    public RecordManager getRecordManager()
+    {
+        return _recman;
+    }
+
+    
+    /**
+     * Get the underlying cache policy
+     *
+     * @return underlying CachePolicy or null if CacheRecordManager has
+     *         been closed. 
+     */
+    public CachePolicy getCachePolicy()
+    {
+        return _cache;
+    }
+
+    
     /**
      *  Inserts a new record.  This is a utility method which serializes the
      *  object into a byte[].
