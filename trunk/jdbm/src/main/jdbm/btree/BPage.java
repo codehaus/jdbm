@@ -46,7 +46,6 @@
 
 package jdbm.btree;
 
-import jdbm.helper.Conversion;
 import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
@@ -75,7 +74,7 @@ import java.io.ObjectOutputStream;
  * pseudo-key
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: BPage.java,v 1.5 2003/03/21 02:57:02 boisvert Exp $
+ * @version $Id: BPage.java,v 1.6 2003/09/21 15:46:59 boisvert Exp $
  */
 public final class BPage
     implements Serializer

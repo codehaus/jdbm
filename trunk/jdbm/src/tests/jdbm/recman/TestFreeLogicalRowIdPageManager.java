@@ -1,5 +1,5 @@
 /*
- *  $Id: TestFreeLogicalRowIdPageManager.java,v 1.3 2001/09/25 06:10:02 boisvert Exp $
+ *  $Id: TestFreeLogicalRowIdPageManager.java,v 1.4 2003/09/21 15:49:02 boisvert Exp $
  *
  *  Unit tests for FreeLogicalRowIdPageManager class
  *
@@ -23,8 +23,6 @@
 package jdbm.recman;
 
 import junit.framework.*;
-import java.io.File;
-import java.io.IOException;
 
 /**
  *  This class contains all Unit tests for {@link FreeLogicalRowIdPageManager}.

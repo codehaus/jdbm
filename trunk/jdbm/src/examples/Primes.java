@@ -5,7 +5,6 @@ import jdbm.RecordManagerOptions;
 
 import jdbm.btree.BTree;
 
-import jdbm.helper.MRU;
 import jdbm.helper.LongComparator;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;

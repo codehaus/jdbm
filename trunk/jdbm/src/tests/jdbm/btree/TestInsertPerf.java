@@ -7,9 +7,7 @@ import java.util.Properties;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.btree.BTree;
-import jdbm.helper.IntegerSerializer;
 import jdbm.helper.LongComparator;
-import jdbm.helper.LongSerializer;
 
 
 /**

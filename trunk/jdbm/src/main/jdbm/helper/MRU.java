@@ -42,13 +42,11 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: MRU.java,v 1.5 2002/05/31 06:33:20 boisvert Exp $
+ * $Id: MRU.java,v 1.6 2003/09/21 15:47:00 boisvert Exp $
  */
 
 package jdbm.helper;
 
-import jdbm.RecordManager;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -60,7 +58,7 @@ import java.util.Vector;
  *  Methods are *not* synchronized, so no concurrent access is allowed.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: MRU.java,v 1.5 2002/05/31 06:33:20 boisvert Exp $
+ * @version $Id: MRU.java,v 1.6 2003/09/21 15:47:00 boisvert Exp $
  */
 public class MRU implements CachePolicy {
 

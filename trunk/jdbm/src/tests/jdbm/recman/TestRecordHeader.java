@@ -1,5 +1,5 @@
 /*
- *  $Id: TestRecordHeader.java,v 1.1 2000/05/06 00:00:53 boisvert Exp $
+ *  $Id: TestRecordHeader.java,v 1.2 2003/09/21 15:49:02 boisvert Exp $
  *
  *  Unit tests for RecordHeader class
  *
@@ -22,8 +22,8 @@
  */
 package jdbm.recman;
 
-import junit.framework.*;
-import java.io.*;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  *  This class contains all Unit tests for {@link RecordHeader}.

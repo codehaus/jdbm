@@ -42,12 +42,10 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: FileHeader.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: FileHeader.java,v 1.2 2003/09/21 15:47:01 boisvert Exp $
  */
 
 package jdbm.recman;
-
-import java.io.*;
 
 /**
  *  This class represents a file header. It is a 1:1 representation of

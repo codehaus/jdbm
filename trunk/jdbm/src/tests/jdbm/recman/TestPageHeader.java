@@ -1,5 +1,5 @@
 /*
- *  $Id: TestPageHeader.java,v 1.1 2000/05/06 00:00:53 boisvert Exp $
+ *  $Id: TestPageHeader.java,v 1.2 2003/09/21 15:49:02 boisvert Exp $
  *
  *  Unit tests for PageHeader class
  *
@@ -23,8 +23,6 @@
 package jdbm.recman;
 
 import junit.framework.*;
-import java.io.File;
-import java.io.IOException;
 
 /**
  *  This class contains all Unit tests for {@link PageHeader}.

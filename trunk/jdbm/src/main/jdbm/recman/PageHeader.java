@@ -42,12 +42,10 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: PageHeader.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: PageHeader.java,v 1.2 2003/09/21 15:47:01 boisvert Exp $
  */
 
 package jdbm.recman;
-
-import java.io.*;
 
 /**
  *  This class represents a page header. It is the common superclass for

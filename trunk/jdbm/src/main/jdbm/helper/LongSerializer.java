@@ -47,13 +47,12 @@
 package jdbm.helper;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 /**
  * Optimized serializer for long integers.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: LongSerializer.java,v 1.1 2003/03/21 02:48:42 boisvert Exp $
+ * @version $Id: LongSerializer.java,v 1.2 2003/09/21 15:47:00 boisvert Exp $
  */
 public class LongSerializer 
     implements Serializer

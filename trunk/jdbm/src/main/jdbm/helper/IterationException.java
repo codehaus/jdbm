@@ -42,19 +42,17 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: IterationException.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ * $Id: IterationException.java,v 1.2 2003/09/21 15:47:00 boisvert Exp $
  */
 
 package jdbm.helper;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
 
 /**
  * Iteration exception.
  *
  * @author <a href="boisvert@intalio.com">Alex Boisvert</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class IterationException
     extends WrappedRuntimeException

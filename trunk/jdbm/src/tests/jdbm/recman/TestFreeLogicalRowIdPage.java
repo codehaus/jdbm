@@ -1,5 +1,5 @@
 /*
- *  $Id: TestFreeLogicalRowIdPage.java,v 1.2 2001/09/25 06:10:02 boisvert Exp $
+ *  $Id: TestFreeLogicalRowIdPage.java,v 1.3 2003/09/21 15:49:02 boisvert Exp $
  *
  *  Unit tests for FreeLogicalRowIdPage class
  *
@@ -22,8 +22,8 @@
  */
 package jdbm.recman;
 
-import junit.framework.*;
-import java.io.*;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  *  This class contains all Unit tests for {@link FreeLogicalRowIdPage}.

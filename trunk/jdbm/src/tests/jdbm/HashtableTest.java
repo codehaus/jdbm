@@ -6,16 +6,14 @@ import jdbm.RecordManagerFactory;
 import jdbm.helper.FastIterator;
 import jdbm.htree.HTree;
 import java.io.IOException;
-
-import java.io.*;
-import java.util.*;
+import java.io.PrintStream;
 
 /**
  * Test case provided by Daniel Herlemont to demonstrate a bug in
  * HashDirectory.  The returned Enumeration got into an infinite loop
  * on the same key/val pair.
  *
- * @version $Id: HashtableTest.java,v 1.4 2002/05/31 06:34:29 boisvert Exp $
+ * @version $Id: HashtableTest.java,v 1.5 2003/09/21 15:49:01 boisvert Exp $
  */
 public class HashtableTest {
 

@@ -47,14 +47,11 @@
 package jdbm.htree;
 
 import jdbm.RecordManager;
-import jdbm.RecordManagerFactory;
 
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.TestRecordFile;
 
 import junit.framework.*;
-import java.io.File;
-import java.io.IOException;
 
 /**
  *  Test cases for HTree rollback

@@ -43,18 +43,13 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: BaseRecordManager.java,v 1.6 2003/08/06 23:58:24 boisvert Exp $
+ * $Id: BaseRecordManager.java,v 1.7 2003/09/21 15:47:01 boisvert Exp $
  */
 
 package jdbm.recman;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.IOException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,7 +78,7 @@ import jdbm.helper.DefaultSerializer;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: BaseRecordManager.java,v 1.6 2003/08/06 23:58:24 boisvert Exp $
+ * @version $Id: BaseRecordManager.java,v 1.7 2003/09/21 15:47:01 boisvert Exp $
  */
 public final class BaseRecordManager
     implements RecordManager

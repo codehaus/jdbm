@@ -50,7 +50,6 @@ import jdbm.RecordManager;
 
 import jdbm.helper.FastIterator;
 import jdbm.helper.IterationException;
-import jdbm.helper.WrappedRuntimeException;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -64,7 +63,7 @@ import java.util.Iterator;
  *  Hashtable directory page.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: HashDirectory.java,v 1.3 2003/07/31 15:21:27 boisvert Exp $
+ *  @version $Id: HashDirectory.java,v 1.4 2003/09/21 15:47:01 boisvert Exp $
  */
 final class HashDirectory
     extends HashNode

@@ -50,7 +50,6 @@ import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.recman.TestRecordFile;
 import jdbm.helper.FastIterator;
-import jdbm.helper.MRU;
 import junit.framework.*;
 import java.io.IOException;
 import java.util.Hashtable;
@@ -60,7 +59,7 @@ import java.util.Properties;
  *  This class contains all Unit tests for {@link HashDirectory}.
  *
  *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id: TestHashDirectory.java,v 1.1 2002/05/31 06:50:14 boisvert Exp $
+ *  @version $Id: TestHashDirectory.java,v 1.2 2003/09/21 15:49:02 boisvert Exp $
  */
 public class TestHashDirectory extends TestCase {
 
