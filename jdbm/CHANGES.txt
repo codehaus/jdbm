@@ -1,7 +1,19 @@
-$Id: CHANGES.txt,v 1.4 2001/08/28 06:46:08 boisvert Exp $
+$Id: CHANGES.txt,v 1.5 2001/11/10 16:25:14 boisvert Exp $
 
 CHANGE LOG
 ==========
+
+For version 0.13:
+    * Upgraded to Ant 1.4 (and switched to Crimson instead of Xerces
+      XML Parser).  Updated the build file accordingly and fixed a number
+      of build issues.
+
+    * Upgraded to JUnit 3.7.  Corrected use of deprecated methods in test
+      harness.
+
+    * Added IntegerComparator and updated TestBTree unit test
+      (both contributed by Christof Dallermassl)
+
 
 For version 0.12:
     * Fixed a corruption bug in B+Tree during insertion.
