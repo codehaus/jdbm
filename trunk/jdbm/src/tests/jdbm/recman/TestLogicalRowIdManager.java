@@ -1,5 +1,5 @@
 /*
- *  $Id: TestLogicalRowIdManager.java,v 1.1 2000/05/06 00:00:53 boisvert Exp $
+ *  $Id: TestLogicalRowIdManager.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
  *
  *  Unit tests for LogicalRowIdManager class
  *
@@ -7,8 +7,8 @@
  *  Copyright (C) 1999, 2000 Cees de Groot <cg@cdegroot.com>
  *
  *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public License 
- *  as published by the Free Software Foundation; either version 2 
+ *  modify it under the terms of the GNU Library General Public License
+ *  as published by the Free Software Foundation; either version 2
  *  of the License, or (at your option) any later version.
  *
  *  This library is distributed in the hope that it will be useful,
@@ -16,8 +16,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Library General Public License for more details.
  *
- *  You should have received a copy of the GNU Library General Public License 
- *  along with this library; if not, write to the Free Software Foundation, 
+ *  You should have received a copy of the GNU Library General Public License
+ *  along with this library; if not, write to the Free Software Foundation,
  *  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 package jdbm.recman;
@@ -32,49 +32,54 @@ import java.io.IOException;
 public class TestLogicalRowIdManager extends TestCase {
 
     public TestLogicalRowIdManager(String name) {
-  super(name);
+        super(name);
     }
-    
+
     public void setUp() {
-  TestRecordFile.deleteTestFile();
+          TestRecordFile.deleteTestFile();
     }
+
     public void tearDown() {
-  TestRecordFile.deleteTestFile();
+          TestRecordFile.deleteTestFile();
     }
 
     /**
      *  Test constructor
      */
     public void testCtor() throws Exception {
-  RecordFile f = new RecordFile(TestRecordFile.testFileName);
-  PageManager pm = new PageManager(f);
-  LogicalRowIdManager logMgr = new LogicalRowIdManager(f, pm);
+        RecordFile f = new RecordFile(TestRecordFile.testFileName);
+        PageManager pm = new PageManager(f);
+        LogicalRowIdManager logMgr = new LogicalRowIdManager(f, pm);
+
+        f.forceClose();
     }
 
     /**
      *  Test basics
      */
     public void testBasics() throws Exception {
-  RecordFile f = new RecordFile(TestRecordFile.testFileName);
-  PageManager pm = new PageManager(f);
-  LogicalRowIdManager logMgr = new LogicalRowIdManager(f, pm);
-  Location physid = new Location(20, (short) 234);
-  
-  Location logid = logMgr.insert(physid);
-  assertEquals("check one", physid, logMgr.fetch(logid));
-  
-  physid = new Location(10, (short) 567);
-  logMgr.update(logid, physid);
-  assertEquals("check two", physid, logMgr.fetch(logid));
-  
-  logMgr.delete(logid);
+        RecordFile f = new RecordFile(TestRecordFile.testFileName);
+        PageManager pm = new PageManager(f);
+        LogicalRowIdManager logMgr = new LogicalRowIdManager(f, pm);
+        Location physid = new Location(20, (short) 234);
+
+        Location logid = logMgr.insert(physid);
+        assertEquals("check one", physid, logMgr.fetch(logid));
+
+        physid = new Location(10, (short) 567);
+        logMgr.update(logid, physid);
+        assertEquals("check two", physid, logMgr.fetch(logid));
+
+        logMgr.delete(logid);
+
+        f.forceClose();
     }
-    
+
 
     /**
      *  Runs all tests in this class
      */
     public static void main(String[] args) {
-  junit.textui.TestRunner.run(new TestSuite(TestLogicalRowIdManager.class));
+        junit.textui.TestRunner.run(new TestSuite(TestLogicalRowIdManager.class));
     }
 }

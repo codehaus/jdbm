@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -55,14 +55,14 @@ import jdbm.recman.TestRecordFile;
  *  Unit test for {@link MRU}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
- *  @version $Id: TestObjectCache.java,v 1.1 2000/05/24 23:22:10 boisvert Exp $
+ *  @version $Id: TestObjectCache.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
  */
 public class TestObjectCache extends TestCase {
 
     public TestObjectCache(String name) {
         super(name);
     }
-    
+
     public void setUp() {
         TestRecordFile.deleteTestFile();
     }
@@ -80,8 +80,9 @@ public class TestObjectCache extends TestCase {
         MRU mru = new MRU(1);
         ObjectCache oc = new ObjectCache(recman, mru);
 
+        recman.close();
     }
-    
+
     /**
      *  Test that cache is correctly synchronized with RecordManager
      */
@@ -97,6 +98,8 @@ public class TestObjectCache extends TestCase {
 
         assertEquals("test2", recman.fetchObject(recid));
         assertEquals("test2", oc.fetchObject(recid));
+
+        recman.close();
     }
 
     /**
@@ -114,8 +117,8 @@ public class TestObjectCache extends TestCase {
         oc.update(recid1, "test1a");
         oc.update(recid2, "test2a");
 
-        recman.close();
         oc.dispose();
+        recman.close();
 
         recman = new RecordManager(TestRecordFile.testFileName);
         mru = new MRU(1);
@@ -123,6 +126,9 @@ public class TestObjectCache extends TestCase {
 
         assertEquals("test1a", oc.fetchObject(recid1));
         assertEquals("test2a", oc.fetchObject(recid2));
+
+        oc.dispose();
+        recman.close();
     }
 
     /**
@@ -151,6 +157,9 @@ public class TestObjectCache extends TestCase {
         assertEquals("test3a", oc.fetchObject(recid3));
         assertEquals("test4a", oc.fetchObject(recid4));
         assertEquals("test5a", oc.fetchObject(recid5));
+
+        oc.dispose();
+        recman.close();
     }
 
     /**

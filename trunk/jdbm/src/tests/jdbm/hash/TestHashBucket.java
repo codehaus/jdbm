@@ -56,7 +56,7 @@ import junit.framework.*;
  *  This class contains all Unit tests for {@link HashBucket}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestHashBucket.java,v 1.1 2000/05/06 00:00:53 boisvert Exp $
+ *  @version $Id: TestHashBucket.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
  */
 public class TestHashBucket extends TestCase {
 
@@ -103,6 +103,8 @@ public class TestHashBucket extends TestCase {
         bucket.removeElement("key");
         s = (String)bucket.getValue("key");
         assertEquals(null, s);
+
+        recman.close();
     }
     
 

@@ -59,7 +59,7 @@ import java.util.Hashtable;
  *  This class contains all Unit tests for {@link HashDirectory}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestHashDirectory.java,v 1.2 2000/05/24 01:53:32 boisvert Exp $
+ *  @version $Id: TestHashDirectory.java,v 1.3 2001/04/05 07:02:39 boisvert Exp $
  */
 public class TestHashDirectory extends TestCase {
 
@@ -80,6 +80,7 @@ public class TestHashDirectory extends TestCase {
      *  Basic tests
      */
     public void testBasics() throws IOException {
+        System.out.println("testBasics");
 
         RecordManager recman = new RecordManager(TestRecordFile.testFileName);
         ObjectCache cache = new ObjectCache(recman, new MRU(5));
@@ -90,12 +91,15 @@ public class TestHashDirectory extends TestCase {
         dir.put("key", "value");
         String s = (String)dir.get("key");
         assertEquals("value", s);
+
+        recman.close();
     }
 
     /**
      *  Mixed tests
      */
     public void testMixed() throws IOException {
+        System.out.println("testMixed");
 
         RecordManager recman = new RecordManager(TestRecordFile.testFileName);
         ObjectCache cache = new ObjectCache(recman, new MRU(5));
@@ -160,6 +164,8 @@ public class TestHashDirectory extends TestCase {
         }
         recman.commit();
 
+        recman.close();
+        recman = null;
     }
 
     void checkEnumerations(Hashtable hash, HashDirectory dir)
