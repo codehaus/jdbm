@@ -1,4 +1,4 @@
-$Id: README,v 1.1 2000/04/03 12:13:48 cdegroot Exp $
+$Id: README,v 1.2 2000/04/11 05:51:59 boisvert Exp $
 
 Package readme for: com.cdegroot.db
 Package version: see VERSION
@@ -43,6 +43,12 @@ making flushing out the dirty blocks an atomic operation with before/after
 imaging is the basic mechanism for transactions. Deadlock detection will be 
 necessary here when multiple threads start using a file (a simple operation 
 like "update" can dirty a lot of blocks by relocation operations, etcetera).
+
+COMPILING
+=========
+
+You need JDK 1.2.x (or later) to compile JDBM because it uses JDK 1.2 Collection classes.
+
 
 COMMENTS
 ========
