@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -71,12 +71,14 @@ import java.util.Vector;
  * bottom of an H*tree because the hashing algorithm cannot further
  * discriminate between different keys based on their hash code.
  *
+ *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ *  @version $Id: HashBucket.java,v 1.2 2001/05/19 14:01:06 boisvert Exp $
  */
 final class HashBucket extends HashNode implements Externalizable {
     final static long serialVersionUID = 1L;
 
     /**
-     * The maximum number of elements (key, value) a non-leaf bucket 
+     * The maximum number of elements (key, value) a non-leaf bucket
      * can contain.
      */
     public static final int OVERFLOW_SIZE = 8;
@@ -99,14 +101,14 @@ final class HashBucket extends HashNode implements Externalizable {
     private Vector _values;
 
 
-    /** 
+    /**
      * Public constructor for serialization.
      */
     public HashBucket() {
         // empty
     }
 
-    /** 
+    /**
      * Construct a bucket with a given depth level.  Depth level is the
      * number of <code>HashDirectory</code> above this bucket.
      */
@@ -148,7 +150,7 @@ final class HashBucket extends HashNode implements Externalizable {
 
 
     /**
-     * Add an element (key, value) to this bucket.  If an existing element 
+     * Add an element (key, value) to this bucket.  If an existing element
      * has the same key, it is replaced silently.
      *
      * @returns Object which was previously associated with the given key
@@ -206,7 +208,7 @@ final class HashBucket extends HashNode implements Externalizable {
      * Obtain keys contained in this buckets.  Keys are ordered to match
      * their values, which be be obtained by calling <code>getValues()</code>.
      *
-     * As an optimization, the Vector returned is the instance member 
+     * As an optimization, the Vector returned is the instance member
      * of this class.  Please don't modify outside the scope of this class.
      */
     Vector getKeys() {
@@ -218,7 +220,7 @@ final class HashBucket extends HashNode implements Externalizable {
      * Obtain values contained in this buckets.  Values are ordered to match
      * their keys, which be be obtained by calling <code>getKeys()</code>.
      *
-     * As an optimization, the Vector returned is the instance member 
+     * As an optimization, the Vector returned is the instance member
      * of this class.  Please don't modify outside the scope of this class.
      */
     Vector getValues() {
@@ -229,7 +231,7 @@ final class HashBucket extends HashNode implements Externalizable {
     /**
      * Implement Externalizable interface.
      */
-    public void writeExternal(ObjectOutput out) 
+    public void writeExternal(ObjectOutput out)
     throws IOException {
         out.writeInt(_depth);
 
@@ -245,12 +247,12 @@ final class HashBucket extends HashNode implements Externalizable {
             out.writeObject(_values.elementAt(i));
         }
     }
-    
-    
+
+
     /**
      * Implement Externalizable interface.
      */
-    public void readExternal(ObjectInput in) 
+    public void readExternal(ObjectInput in)
     throws IOException, ClassNotFoundException {
         _depth = in.readInt();
 

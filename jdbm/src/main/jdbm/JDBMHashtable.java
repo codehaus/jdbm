@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are (C) Copyright 2000 by their associated contributors.
  *
- * $Id: JDBMHashtable.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: JDBMHashtable.java,v 1.2 2001/05/19 14:02:45 boisvert Exp $
  */
 
 package jdbm;
@@ -52,11 +52,14 @@ import java.io.IOException;
 /**
  * This interface represents a persistent hashtable, which maps keys to
  * values.  Any non-<code>null</code> can be used as a key or value.
- * 
+ *
  * Just like <code>java.util.Hashtable</code>, to successfully store
  * and retrieve objects from a hashtable, the objects used as keys
- * must implement the <code>hashCode()<code> method and the 
+ * must implement the <code>hashCode()<code> method and the
  * <code>equals()</code> method.
+ *
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id: JDBMHashtable.java,v 1.2 2001/05/19 14:02:45 boisvert Exp $
  */
 public interface JDBMHashtable {
 

@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are (C) Copyright 2000 by their associated contributors.
  *
- * $Id: JDBMRecordManager.java,v 1.2 2000/05/24 01:52:11 boisvert Exp $
+ * $Id: JDBMRecordManager.java,v 1.3 2001/05/19 14:02:45 boisvert Exp $
  */
 
 package jdbm;
@@ -72,6 +72,8 @@ import java.io.IOException;
  *  transaction log is synchronized regularly and then restarted, so don't
  *  worry if you see the size going up and down.
  *
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id: JDBMRecordManager.java,v 1.3 2001/05/19 14:02:45 boisvert Exp $
  */
 public final class JDBMRecordManager {
     /**
@@ -102,7 +104,7 @@ public final class JDBMRecordManager {
         _cache = new ObjectCache(_recman, new MRU(MAX_OBJECT_CACHE));
     }
 
-    
+
     /**
      *  Switches off transactioning for the record manager. This means
      *  that a) a transaction log is not kept, and b) writes aren't
@@ -115,7 +117,7 @@ public final class JDBMRecordManager {
     public synchronized void disableTransactions() {
         _recman.disableTransactions();
     }
-    
+
 
     /**
      *  Closes the record manager.
@@ -126,7 +128,7 @@ public final class JDBMRecordManager {
         _recman.close();
         _cache.dispose();
     }
-    
+
     /**
      *  Inserts a new record.
      *
@@ -154,7 +156,7 @@ public final class JDBMRecordManager {
         return id;
     }
 
-    
+
     /**
      *  Deletes a record.
      *
@@ -214,7 +216,7 @@ public final class JDBMRecordManager {
      *  @returns the object representing the record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public synchronized Object fetchObject(long recid) 
+    public synchronized Object fetchObject(long recid)
     throws IOException, ClassNotFoundException {
         Object obj = _cache.fetchObject(recid);
         _recman.commit();
@@ -261,7 +263,7 @@ public final class JDBMRecordManager {
     /**
      * Obtain a named persistent hashtable.
      */
-    public synchronized JDBMHashtable getHashtable(String name) 
+    public synchronized JDBMHashtable getHashtable(String name)
     throws IOException {
         long root_recid = _recman.getNamedObject(name);
         if (root_recid == 0) {
@@ -284,7 +286,7 @@ class HTreeWrapper implements JDBMHashtable {
     private HTree _tree;
 
 
-    HTreeWrapper(RecordManager recman, ObjectCache cache, long root_recid) 
+    HTreeWrapper(RecordManager recman, ObjectCache cache, long root_recid)
     throws IOException {
         _recman = recman;
         _tree = new HTree(recman, cache, root_recid);
