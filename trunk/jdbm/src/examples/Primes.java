@@ -139,14 +139,15 @@ public class Primes
     {
         Tuple         tuple;
         TupleBrowser  browser;
+	Long          largest;
         Long          current;
 
         if ( number.longValue() <= 0L ) {
             throw new IllegalArgumentException( "Number must be greater than zero" );
-        }   
-        if ( number.longValue() > getLargestPrime().longValue() ) {
-            throw new IllegalArgumentException( "Number is larger than largest known prime in database." );
-        }   
+        }
+        if ( number.longValue() == 1 ) {
+	    return true;
+	}
         tuple = new Tuple();
         browser = _primes.browse();
         while ( browser.getNext( tuple ) ) {
@@ -192,7 +193,11 @@ public class Primes
     }
 
 
-    public static boolean isPrime( long number ) {
+    /**
+     * Return true if number is a prime.
+     */
+    public static boolean isPrimeCompute( long number )
+    {
         for ( int i=2; i<number/2; i++ ) {
             if ( ( number % i ) == 0 ) {
                 return false;
@@ -201,15 +206,25 @@ public class Primes
         return true;
     }
 
-    public static long random( long low, long high ) {
+
+    /**
+     * Get random number between "low" and "high" (inclusively)
+     */
+    public static long random( long low, long high )
+    {
         return ( (long) ( _random.nextDouble() * (high-low) ) + low );
     }
 
+
+    /**
+     * Static program entrypoint.
+     */
     public static void main( String[] args )
     {
         Primes  primes;
         int     count;
         Long    number;
+	Long    largest;
             
         try {
             primes = new Primes( args );
@@ -228,6 +243,12 @@ public class Primes
                     } else {
                         number = new Long( _random.nextLong() );
                     }
+		    largest = primes.getLargestPrime();
+		    if ( number.longValue() 
+			 > primes.getLargestPrime().longValue() ) 
+		    {
+			throw new IllegalArgumentException( "Number is larger than largest known prime in database." );
+		    }
                     if ( primes.isPrime( number ) ) {
                         System.out.println( "The number " + number + " is a prime." );
                     } else {
