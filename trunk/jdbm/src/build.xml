@@ -1,4 +1,4 @@
-<project name="JDBM" default="main" basedir="..">
+<project name="JDBM" default="all" basedir="..">
 
   <target name="init">
     <property name="project" value="jdbm" />
