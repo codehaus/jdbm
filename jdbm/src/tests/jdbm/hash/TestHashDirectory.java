@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -58,15 +58,15 @@ import java.util.Hashtable;
 /**
  *  This class contains all Unit tests for {@link HashDirectory}.
  *
- *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestHashDirectory.java,v 1.3 2001/04/05 07:02:39 boisvert Exp $
+ *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ *  @version $Id: TestHashDirectory.java,v 1.4 2001/05/19 14:19:34 boisvert Exp $
  */
 public class TestHashDirectory extends TestCase {
 
     public TestHashDirectory(String name) {
         super(name);
     }
-    
+
     public void setUp() {
         TestRecordFile.deleteTestFile();
     }
@@ -75,7 +75,7 @@ public class TestHashDirectory extends TestCase {
         TestRecordFile.deleteTestFile();
     }
 
-    
+
     /**
      *  Basic tests
      */
