@@ -1,5 +1,5 @@
 /*
- *  $Id: EntryPage.java,v 1.1 2000/04/03 12:13:48 cdegroot Exp $
+ *  $Id: EntryPage.java,v 1.2 2000/04/11 06:02:43 boisvert Exp $
  *
  *  Root page for a hash
  *
@@ -17,11 +17,11 @@ import com.cdegroot.db.recman.*;
 final class EntryPage extends PageHeader {
     // offsets
     private static final short O_COUNT = PageHeader.SIZE; // int count
-    private static final short O_BITS = O_COUNT + Magic.SZ_INT; // byte bits
-    private static final short O_DIR = O_BITS + Magic.SZ_BYTE;
-    private static final short ELEMS_PER_PAGE = 
-	(RecordFile.BLOCK_SIZE - O_DIR) / Magic.SZ_LONG;
-    
+    private static final short O_BITS = (short)(O_COUNT + Magic.SZ_INT); // byte bits
+    private static final short O_DIR = (short)(O_BITS + Magic.SZ_BYTE);
+    private static final short ELEMS_PER_PAGE = (short)
+	((RecordFile.BLOCK_SIZE - O_DIR) / Magic.SZ_LONG);
+
     /**
      *  Constructs a page view from the indicated block.
      */
@@ -55,12 +55,12 @@ final class EntryPage extends PageHeader {
     byte getBits() {
 	return block.readByte(O_BITS);
     }
-    
+
     /** Sets the bit depth for the directory */
     void setBits(byte b) {
 	block.writeByte(O_BITS, b);
     }
-    
+
     /** Returns the indicated entry */
     long getDir(int i) {
 	return block.readLong(entryToOffset(i));
