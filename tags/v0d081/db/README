@@ -1,0 +1,55 @@
+$Id: README,v 1.2 2000/04/11 05:51:59 boisvert Exp $
+
+Package readme for: com.cdegroot.db
+Package version: see VERSION
+Package status: alpha
+Package URL: http://www.cdegroot.com/software/db
+Package License: GNU Library General Public License
+
+This is a simple record manager that I've ported from a similar
+project I once did in C++. If anything, it serves to prove that my 
+database skills are getting rusty :-)
+
+The API is in the only public class, recman/RecordManager:
+	long insert(byte[] data);
+        void update(long recid, byte[] data);
+        void delete(long recid);
+        byte[] fetch(long recid);
+
+The "long" arguments refer to logical record id's, which are mapped to 
+physical record id's through special mapping pages. This is done in order to 
+allow compacting of the file without interfering with record id's on the user 
+level (compacting not implemented yet) and in order to allow relocation when 
+the record's size changes. Physical record id's are a (page, offset) tuple 
+that point to the place where the record is located. Records can start 
+anywhere on a page and span any number of pages, with a maximum length of 
+MAXINT.
+
+A file has a one block header with a magic identifier. Following the block are 
+list (head, tail) block pointers for a number of lists: a data list 
+(containing blocks that are used by records), a free list for physical record 
+ids (containing the record id and the size of the record id), and a list that 
+contains logical->physical mappings. All blocks have a header containing a 
+type magic and a (prev, next) tuple, which facilitate reconstruction of the 
+file in case parts of it are damaged.
+
+At the bottom level, there's a block cache that manages file blocks. In-core 
+images of blocks are preallocated, and a facade object for the block type that 
+directly accesses the block data according to the type is often attached to 
+it. Blocks are retrieved by get(long blockid) operations, and released by 
+release() operations, optionally with a dirty marker to signal the cache that 
+the block should be written back. Although this hasn't been implemented yet, 
+making flushing out the dirty blocks an atomic operation with before/after 
+imaging is the basic mechanism for transactions. Deadlock detection will be 
+necessary here when multiple threads start using a file (a simple operation 
+like "update" can dirty a lot of blocks by relocation operations, etcetera).
+
+COMPILING
+=========
+
+You need JDK 1.2.x (or later) to compile JDBM because it uses JDK 1.2 Collection classes.
+
+
+COMMENTS
+========
+To the author, Cees de Groot <cg@cdegroot.com>.
