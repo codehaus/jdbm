@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: BlockIo.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: BlockIo.java,v 1.2 2002/08/06 05:18:36 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -94,7 +94,7 @@ public final class BlockIo implements java.io.Externalizable {
     byte[] getData() {
         return data;
     }
-    
+
     /**
      *  Sets the block number. Should only be called by RecordFile.
      */
@@ -134,7 +134,7 @@ public final class BlockIo implements java.io.Externalizable {
     void setDirty() {
         dirty = true;
     }
-    
+
     /**
      *  Clears the dirty flag
      */
@@ -238,7 +238,20 @@ public final class BlockIo implements java.io.Externalizable {
     /**
      *  Reads a long from the indicated position
      */
-    public long readLong(int pos) {
+    public long readLong( int pos )
+    {
+        // Contributed by Erwin Bolwidt <ejb@klomp.org>
+        // Gives about 15% performance improvement
+        return
+            ( (long)( ((data[pos+0] & 0xff) << 24) |
+                      ((data[pos+1] & 0xff) << 16) |
+                      ((data[pos+2] & 0xff) <<  8) |
+                      ((data[pos+3] & 0xff)      ) ) << 32 ) |
+            ( (long)( ((data[pos+4] & 0xff) << 24) |
+                      ((data[pos+5] & 0xff) << 16) |
+                      ((data[pos+6] & 0xff) <<  8) |
+                      ((data[pos+7] & 0xff)      ) ) & 0xffffffff );
+        /* Original version by Alex Boisvert.  Might be faster on 64-bit JVMs.
         return
             (((long)(data[pos+0] & 0xff) << 56) |
              ((long)(data[pos+1] & 0xff) << 48) |
@@ -248,6 +261,7 @@ public final class BlockIo implements java.io.Externalizable {
              ((long)(data[pos+5] & 0xff) << 16) |
              ((long)(data[pos+6] & 0xff) <<  8) |
              ((long)(data[pos+7] & 0xff) <<  0));
+        */
     }
 
     /**
