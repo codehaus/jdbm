@@ -11,7 +11,7 @@ import java.util.Properties;
  * Sample JDBM application to demonstrate the use of basic JDBM operations.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: FruitBasket.java,v 1.2 2002/05/31 06:35:36 boisvert Exp $
+ * @version $Id: FruitBasket.java,v 1.3 2003/08/06 20:10:15 boisvert Exp $
  */
 public class FruitBasket
 {
@@ -32,8 +32,11 @@ public class FruitBasket
         // create or load fruit basket (hashtable of fruits)
         long recid = recman.getNamedObject( "basket" );
         if ( recid != 0 ) {
+            System.out.println( "Reloading existing fruit basket..." );
             hashtable = HTree.load( recman, recid );
+            showBasket();
         } else {
+            System.out.println( "Creating new fruit basket..." );
             hashtable = HTree.createInstance( recman );
             recman.setNamedObject( "basket", hashtable.getRecid() );
         }
@@ -44,11 +47,57 @@ public class FruitBasket
         throws IOException
     {
         // insert keys and values
+        System.out.println();
+        System.out.println( "Adding fruits to the basket..." );
         hashtable.put( "bananas", "yellow" );
         hashtable.put( "strawberries", "red" );
         hashtable.put( "kiwis", "green" );
 
+        showBasket();
+
+
+        // display color of a specific fruit
+        System.out.println();
+        System.out.println( "Get the color of bananas..." );
+        String bananasColor = (String) hashtable.get( "bananas" );
+        System.out.println( "bananas are " + bananasColor );
+        
+        recman.commit();
+        
+        try {
+            // Thread.sleep( 10 * 1000 );
+        } catch ( Exception except ) {
+            // ignore
+        }
+
+        // remove a specific fruit from hashtable
+        System.out.println();
+        System.out.print( "Removing bananas from the basket..." );
+        hashtable.remove( "bananas" );
+        recman.commit();
+        System.out.println( " done." );
+
+        // iterate over remaining objects
+        System.out.println();
+        System.out.println( "Remaining fruit colors:" );
+        iter = hashtable.keys();
+        fruit = (String) iter.next();
+        while ( fruit != null ) {
+            color = (String) hashtable.get( fruit );
+            System.out.println( fruit + " are " + color );
+            fruit = (String) iter.next();
+        }
+        
+        // cleanup
+        recman.close();
+    }
+
+
+    public void showBasket() 
+        throws IOException
+    {
         // Display content of fruit basket
+        System.out.println();
         System.out.print( "Fruit basket contains: " );
         iter = hashtable.keys();
         fruit = (String) iter.next();
@@ -57,30 +106,9 @@ public class FruitBasket
             fruit = (String) iter.next();
         }
         System.out.println();
-
-
-        System.out.println( "Fruit colors:" );
-
-        // display color of a specific fruit
-        String bananasColor = (String)hashtable.get( "bananas" );
-        System.out.println( "bananas are " + bananasColor );
-
-        // remove a specific fruit from hashtable
-        hashtable.remove( "bananas" );
-
-        // iterate over remaining objects
-        iter = hashtable.keys();
-        fruit = (String) iter.next();
-        while ( fruit != null ) {
-            color = (String) iter.next();
-            System.out.println( fruit + " are " + color );
-        }
-
-        // cleanup
-        recman.close();
     }
-
-
+    
+    
     public static void main( String[] args )
     {
         try {
