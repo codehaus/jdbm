@@ -1,5 +1,5 @@
 /*
- *  $Id: TestStress.java,v 1.1 2000/05/06 00:00:53 boisvert Exp $
+ *  $Id: TestStress.java,v 1.2 2001/09/25 06:10:02 boisvert Exp $
  *
  *  Package stress test
  *
@@ -7,8 +7,8 @@
  *  Copyright (C) 1999, 2000 Cees de Groot <cg@cdegroot.com>
  *
  *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public License 
- *  as published by the Free Software Foundation; either version 2 
+ *  modify it under the terms of the GNU Library General Public License
+ *  as published by the Free Software Foundation; either version 2
  *  of the License, or (at your option) any later version.
  *
  *  This library is distributed in the hope that it will be useful,
@@ -16,8 +16,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Library General Public License for more details.
  *
- *  You should have received a copy of the GNU Library General Public License 
- *  along with this library; if not, write to the Free Software Foundation, 
+ *  You should have received a copy of the GNU Library General Public License
+ *  along with this library; if not, write to the Free Software Foundation,
  *  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 package jdbm.recman;
@@ -90,7 +90,7 @@ public class TestStress extends TestCase {
   }
   return slot;
     }
-    
+
     /**
      *  Test basics
      */
@@ -98,7 +98,7 @@ public class TestStress extends TestCase {
   RecordManager mgr = new RecordManager(TestRecordFile.testFileName);
 
   // as this code is meant to test data structure calculcations
-  // and stuff like that, we may want to disable transactions 
+  // and stuff like that, we may want to disable transactions
   // that just slow us down.
 //  mgr.disableTransactions();
 
@@ -109,22 +109,22 @@ public class TestStress extends TestCase {
   int slot = -1;
 
   try {
-      
+
       for (int i = 0; i < ROUNDS; i++) {
     if ((i % RPPROMILLE) == 0)
-        System.out.print("\rComplete: " 
+        System.out.print("\rComplete: "
              + i/RPPROMILLE + "/1000th");
 
-    // close and re-open a couple of times during the 
+    // close and re-open a couple of times during the
     // test, in order to check flushing etcetera.
     if ((i % (ROUNDS / 5)) == 0) {
-        System.out.print(" (reopened at round " 
+        System.out.print(" (reopened at round "
                    + i/RPPROMILLE + ")");
         mgr.close();
         mgr = new RecordManager(TestRecordFile.testFileName);
 //        mgr.disableTransactions();
     }
-    
+
     // generate a random number and assign ranges to operations:
     // 0-10 = insert, 20 = delete, 30-50 = update, 51 = set root,
     // 52 = get root, rest = fetch.
@@ -135,13 +135,13 @@ public class TestStress extends TestCase {
       i -= 1;
       continue;
         }
-    
+
         slot = 0;
         while (d[slot] != null)
       slot++;
-        d[slot] = new RecordData(0, rnd.nextInt(MAXSIZE), 
+        d[slot] = new RecordData(0, rnd.nextInt(MAXSIZE),
                (byte) rnd.nextInt());
-        d[slot].rowid = 
+        d[slot].rowid =
       mgr.insert(TestUtil.makeRecord(d[slot].size,
                    d[slot].b));
         recordCount++;
@@ -153,7 +153,7 @@ public class TestStress extends TestCase {
       i -= 1;
       continue;
         }
-    
+
         slot = getRandomAllocatedSlot(d);
         mgr.delete(d[slot].rowid);
         d[slot] = null;
@@ -166,7 +166,7 @@ public class TestStress extends TestCase {
       i -= 1;
       continue;
         }
-    
+
         slot = getRandomAllocatedSlot(d);
         d[slot].size = rnd.nextInt(MAXSIZE);
         d[slot].b = (byte) rnd.nextInt();
@@ -181,7 +181,7 @@ public class TestStress extends TestCase {
         roots[root] = rnd.nextLong();
         mgr.setRoot(root, roots[root]);
         rootsets++;
-    } 
+    }
     else if (op == 52) {
         // GET ROOT
         if (rootCount == 0) {
@@ -202,7 +202,7 @@ public class TestStress extends TestCase {
 
         slot = getRandomAllocatedSlot(d);
         byte[] data = mgr.fetchByteArray(d[slot].rowid);
-        assert("fetch round=" + i + ", slot=" + slot 
+        assertTrue("fetch round=" + i + ", slot=" + slot
          + ", " + d[slot],
          TestUtil.checkRecord(data, d[slot].size, d[slot].b));
         fetches++;
@@ -229,9 +229,9 @@ public class TestStress extends TestCase {
       //System.out.println("---");
       //for (int i = 0; i < RECORDS; i++)
       //    if (d[i] != null)
-      //        System.out.println("slot " + i + ": " + d[i]);      
+      //        System.out.println("slot " + i + ": " + d[i]);
   }
-  
+
     }
 
     /**
