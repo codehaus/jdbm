@@ -64,7 +64,7 @@ import java.util.Iterator;
  *  Hashtable directory page.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: HashDirectory.java,v 1.2 2003/03/21 02:54:58 boisvert Exp $
+ *  @version $Id: HashDirectory.java,v 1.3 2003/07/31 15:21:27 boisvert Exp $
  */
 final class HashDirectory
     extends HashNode
@@ -469,22 +469,23 @@ final class HashDirectory
          * Returns the next object.
          */
         public Object next()
-        {
-            if ( _iter != null ) {
-                Object next = _iter.next();
-                if ( next == null ) {
-                    _iter = null;
-                    try {
-                        prepareNext();
-                    } catch ( IOException except ) {
-                        throw new IterationException( except );
-                    }
-                }
-                return next;
+        {   
+            Object next = null;      
+            if( _iter != null && _iter.hasNext() ) {
+              next = _iter.next();
+            } else {
+              try {
+                prepareNext();
+              } catch ( IOException except ) {
+                throw new IterationException( except );
+              }
+              if ( _iter != null && _iter.hasNext() ) {
+                return next();
+              }
             }
-            throw new IterationException("No more elements");
-
+            return next;         
         }
+
 
         /**
          * Prepare internal state so we can answer <code>hasMoreElements</code>
