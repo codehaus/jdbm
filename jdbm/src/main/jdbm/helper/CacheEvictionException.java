@@ -42,71 +42,37 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CachePolicy.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
+ * $Id: CacheEvictionException.java,v 1.1 2000/05/24 18:25:47 boisvert Exp $
  */
 
 package jdbm.helper;
 
+import jdbm.recman.RecordCache;
+import jdbm.recman.RecordManager;
+import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Hashtable;
 
 /**
- *  CachePolicity is an abstraction for different cache policies.
- *  (ie. MRU, time-based, soft-refs, ...)
+ *  Exception that occurs during eviction of an object in the cache.
  *
  *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
- *  @version $Id: CachePolicy.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
+ *  @version $Id: CacheEvictionException.java,v 1.1 2000/05/24 18:25:47 boisvert Exp $
  */
-public interface CachePolicy {
+public class CacheEvictionException extends Exception {
 
     /**
-     * Place an object in the cache.
-     *
-     * @arg key key for the cached object
-     * @arg value the cached object
+     * Nested exception -- the original exception that occured, if any.
      */
-    public void put(Object key, Object value) throws CacheEvictionException;
+    Exception _nested;
 
 
-    /**
-     * Obtain an object in the cache
-     *
-     * @arg key Key of the cached object
-     */
-    public Object get(Object key);
+    public CacheEvictionException(Exception nested) {
+        _nested = nested;
+    }
 
-
-    /**
-     * Remove an object from the cache
-     *
-     * @arg key Key of the cached object
-     */
-    public void remove(Object key);
-
-
-    /**
-     * Remove all objects from the cache
-     */
-    public void removeAll();
-
-
-    /**
-     * Enumerate elements' values in the cache
-     */
-    public Enumeration elements();
-
-
-    /**
-     * Add a listener to this cache policy
-     *
-     * @arg listener Listener to add to this policy
-     */
-    public void addListener(CachePolicyListener listener);
-
-    /**
-     * Remove a listener from this cache policy
-     *
-     * @arg listener Listener to remove from this policy
-     */
-    public void removeListener(CachePolicyListener listener);
-
+    public Exception getNestedException() {
+        return _nested;
+    }
 }
+

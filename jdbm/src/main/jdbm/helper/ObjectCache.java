@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: ObjectCache.java,v 1.1 2000/05/24 01:49:04 boisvert Exp $
+ * $Id: ObjectCache.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
  */
 
 package jdbm.helper;
@@ -60,8 +60,10 @@ import java.util.Hashtable;
  *  It synchronizes its data with a RecordManager using the RecordCache
  *  interface.
  *
+ *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
+ *  @version $Id: ObjectCache.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
  */
-public class ObjectCache implements RecordCache {
+public class ObjectCache implements RecordCache, CachePolicyListener {
 
     /** RecordManager from which data is cache */
     RecordManager _recman;
@@ -78,6 +80,7 @@ public class ObjectCache implements RecordCache {
         _recman = recman;
         _recman.addCache(this);
         _policy = policy;
+        _policy.addListener(this);
     }
 
 
@@ -99,7 +102,20 @@ public class ObjectCache implements RecordCache {
                 throw new Error("Persistent object cannot be null");
             }
             entry = new RecordEntry(new Long(recid), obj);
-            _policy.put(entry.getRecid(), entry);
+            try {
+                _policy.put(entry.getRecid(), entry);
+            } catch (CacheEvictionException cee) {
+                Exception nested = cee.getNestedException();
+                if (nested instanceof IOException) {
+                    throw (IOException)nested;
+                } else {
+                    if (nested != null) {
+                        nested.printStackTrace();
+                    }
+                    cee.printStackTrace();
+                    throw new Error("Unhandled CacheEvictionException");
+                }
+            }
         }
         return entry.getValue();
     }
@@ -125,7 +141,20 @@ public class ObjectCache implements RecordCache {
         RecordEntry entry = (RecordEntry)_policy.get(id);
         if (entry == null) {
             entry = new RecordEntry(new Long(recid), obj);
-            _policy.put(entry.getRecid(), entry);
+            try {
+                _policy.put(entry.getRecid(), entry);
+            } catch (CacheEvictionException cee) {
+                Exception nested = cee.getNestedException();
+                if (nested instanceof IOException) {
+                    throw (IOException)nested;
+                } else {
+                    if (nested != null) {
+                        nested.printStackTrace();
+                    }
+                    cee.printStackTrace();
+                    throw new Error("Unhandled CacheEvictionException");
+                }
+            }
         }
         entry.setDirty(true);
     }
@@ -186,8 +215,28 @@ public class ObjectCache implements RecordCache {
     public void dispose() {
         _recman.removeCache(this);
         _recman = null;
+        _policy.removeListener(this);
         _policy = null;
     }
+
+    /**
+     * [Implementation of CachePolicyListener interface]
+     * Notification that cache is evicting an object
+     *
+     * @arg obj object evited from cache
+     */
+    public void cacheObjectEvicted(Object obj) throws CacheEvictionException {
+        RecordEntry entry = (RecordEntry)obj;
+        if (entry.isDirty()) {
+            try {
+                _recman.update(entry.getRecid().longValue(), entry.getValue());
+            } catch (IOException ioe) {
+                throw new CacheEvictionException(ioe);
+            }
+            entry.setDirty(false);
+        }
+    }
+
 }
 
 /**
