@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are (C) Copyright 2000 by their associated contributors.
  *
- * $Id: JDBMHashtable.java,v 1.2 2001/05/19 14:02:45 boisvert Exp $
+ * $Id: JDBMHashtable.java,v 1.3 2001/06/02 14:30:04 boisvert Exp $
  */
 
 package jdbm;
@@ -59,7 +59,7 @@ import java.io.IOException;
  * <code>equals()</code> method.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: JDBMHashtable.java,v 1.2 2001/05/19 14:02:45 boisvert Exp $
+ * @version $Id: JDBMHashtable.java,v 1.3 2001/06/02 14:30:04 boisvert Exp $
  */
 public interface JDBMHashtable {
 
@@ -103,5 +103,10 @@ public interface JDBMHashtable {
      * resources.
      */
     public void dispose() throws IOException;
+
+    /**
+     * Get the persistent record identifier of this hashtable.
+     */
+    public long getRecid();
 
 }

@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -61,9 +61,9 @@ import java.util.Vector;
  *  Hashtable directory page.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: HashDirectory.java,v 1.3 2001/04/05 05:18:49 boisvert Exp $
+ *  @version $Id: HashDirectory.java,v 1.4 2001/06/02 14:27:36 boisvert Exp $
  */
-public final class HashDirectory extends HashNode implements Externalizable {
+final class HashDirectory extends HashNode implements Externalizable {
 
     static final long serialVersionUID = 1L;
 
@@ -73,12 +73,12 @@ public final class HashDirectory extends HashNode implements Externalizable {
      * (Must be a power of 2 -- if you update this value, you must also
      *  update BIT_SIZE and MAX_DEPTH.)
      */
-    public static final int MAX_CHILDREN = 256;
+    static final int MAX_CHILDREN = 256;
 
     /**
      * Number of significant bits per directory level.
      */
-    public static final int BIT_SIZE = 8; // log2(256) = 8
+    static final int BIT_SIZE = 8; // log2(256) = 8
 
     /**
      * Maximum number of levels (zero-based)
@@ -86,15 +86,15 @@ public final class HashDirectory extends HashNode implements Externalizable {
      * (4 * 8 bits = 32 bits, which is the size of an "int", and as
      *  you know, hashcodes in Java are "ints")
      */
-    public static final int MAX_DEPTH = 3; // 4 levels
+    static final int MAX_DEPTH = 3; // 4 levels
 
-    /** 
+    /**
      * Record ids of children pages.
      */
     private long[] _children;
 
-    /** 
-     * Depth of this directory page, zero-based 
+    /**
+     * Depth of this directory page, zero-based
      */
     private byte _depth;
 
@@ -122,11 +122,11 @@ public final class HashDirectory extends HashNode implements Externalizable {
     }
 
     /**
-     * Public constructor used by serialization.
+     * Construct a HashDirectory
      *
      * @arg depth Depth of this directory page.
      */
-    public HashDirectory(byte depth) {
+    HashDirectory(byte depth) {
         _depth = depth;
         _children = new long[MAX_CHILDREN];
     }
@@ -146,11 +146,20 @@ public final class HashDirectory extends HashNode implements Externalizable {
         this._recid = recid;
     }
 
+
+    /**
+     * Get the record identifier used to load this hashtable.
+     */
+    long getRecid() {
+        return _recid;
+    }
+
+
     /**
      * Returns whether or not this directory is empty.  A directory
      * is empty when it no longer contains buckets or sub-directories.
      */
-    public boolean isEmpty() {
+    boolean isEmpty() {
         for (int i=0; i<_children.length; i++) {
             if (_children[i] != 0) {
                 return false;
@@ -165,7 +174,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
      *
      * @arg key key whose associated value is to be returned
      */
-    Object get(Object key) 
+    Object get(Object key)
     throws IOException {
         int hash = hashCode(key);
         long child_recid = _children[hash];
@@ -268,7 +277,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
                     for (int i=0; i<entries; i++) {
                         dir.put(keys.elementAt(i), values.elementAt(i));
                     }
-                    
+
                     // (finally!) insert new element
                     return dir.put(key, value);
                 }
@@ -285,7 +294,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
      * @returns object which was associated with the given key, or
      *          <code>null</code> if no association existed with given key.
      */
-    public Object remove(Object key) throws IOException {
+    Object remove(Object key) throws IOException {
         int hash = hashCode(key);
         long child_recid = _children[hash];
         if (child_recid == 0) {
@@ -368,17 +377,17 @@ public final class HashDirectory extends HashNode implements Externalizable {
     }
 
     /**
-     * Returns an enumeration of the keys contained in this 
+     * Returns an enumeration of the keys contained in this
      */
-    public JDBMEnumeration keys()
+    JDBMEnumeration keys()
     throws IOException {
         return new HDEnumeration(true);
     }
 
     /**
-     * Returns an enumeration of the values contained in this 
+     * Returns an enumeration of the values contained in this
      */
-    public JDBMEnumeration values()
+    JDBMEnumeration values()
     throws IOException {
         return new HDEnumeration(false);
     }
@@ -387,17 +396,17 @@ public final class HashDirectory extends HashNode implements Externalizable {
     /**
      * Implement Externalizable interface
      */
-    public void writeExternal(ObjectOutput out) 
+    public void writeExternal(ObjectOutput out)
     throws IOException {
         out.writeByte(_depth);
         out.writeObject(_children);
     }
 
 
-    /** 
+    /**
      * Implement Externalizable interface
      */
-    public synchronized void readExternal(ObjectInput in) 
+    public synchronized void readExternal(ObjectInput in)
     throws IOException, ClassNotFoundException {
         _depth = in.readByte();
         _children = (long[])in.readObject();
@@ -445,8 +454,8 @@ public final class HashDirectory extends HashNode implements Externalizable {
          *
          * @arg enumeratedKeys True if enumeration supplies keys, False
          *                     if enumeration supplies values.
-         */        
-        HDEnumeration(boolean enumerateKeys) 
+         */
+        HDEnumeration(boolean enumerateKeys)
         throws IOException {
             _dirStack = new Stack();
             _childStack = new Stack();
@@ -532,7 +541,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
                 _dir = (HashDirectory)node;
                 _child = -1;
 
-                // recurse into 
+                // recurse into
                 _dir.setPersistenceContext(_recman, _cache, child_recid);
                 prepareNext();
             } else {
