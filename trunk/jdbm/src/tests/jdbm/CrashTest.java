@@ -11,6 +11,9 @@ import java.io.IOException;
 
 /**
  * Sample JDBM application to demonstrate the use of basic JDBM operations
+ *
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id: CrashTest.java,v 1.4 2001/05/19 14:20:46 boisvert Exp $
  */
 public class CrashTest {
     RecordManager recman;

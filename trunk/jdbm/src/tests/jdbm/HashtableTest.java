@@ -10,9 +10,11 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Test case provided by Daniel Herlemont to demonstrate a bug in 
+ * Test case provided by Daniel Herlemont to demonstrate a bug in
  * HashDirectory.  The returned Enumeration got into an infinite loop
  * on the same key/val pair.
+ *
+ * @version $Id: HashtableTest.java,v 1.2 2001/05/19 14:20:46 boisvert Exp $
  */
 public class HashtableTest {
 
@@ -32,14 +34,14 @@ public class HashtableTest {
                 hashtable.put(key,val);
                 System.out.println("put key="+key+" val="+val);
             }
-            
+
             System.out.println("populate completed");
-            
+
         } finally {
             hashtable.dispose();
             recman.close();
         }
-        
+
     }
 
     Object retrieve(Object key) throws Exception {
@@ -51,23 +53,23 @@ public class HashtableTest {
             return val;
         } finally {hashtable.dispose(); recman.close();  }
     }
-    
+
     void enum() throws Exception {
         recman = new JDBMRecordManager(jdbmName);
         hashtable = recman.getHashtable(name);
-        
+
         try {
-            
+
             JDBMEnumeration enum=hashtable.keys();
             while (enum.hasMoreElements()) {
                 Object key=enum.nextElement();
                 Object val=hashtable.get(key);
                 System.out.println("enum key="+key+" val="+val);
             }
-            
+
         } finally {hashtable.dispose();    recman.close();  }
     }
-    
+
     //-----------------------------------------------------------------------
 
     boolean enum=false;
@@ -76,19 +78,19 @@ public class HashtableTest {
     String jdbmName="hashtest";
     String name="hashtable";
     String onekey="onekey";
-    
+
     void doCommands() throws Exception {
-        
+
         if (enum) enum();
         if (populate) populate();
         if (retrieve) retrieve(onekey);
-        
+
     }
-    
+
     //-----------------------------------------------------------------------
 
     void getArgs(String args[]) throws Exception {
-        
+
         for (int argn = 0; argn < args.length; argn++) {
             if (args[argn].equals("-enum")) {
                 enum = true;
@@ -108,14 +110,14 @@ public class HashtableTest {
                 System.err.println("unrecognized option : " + args[argn]);
                 usage(System.err);
             }
-            
+
         }
     }
-    
+
     //-----------------------------------------------------------------------
 
     public void usage(PrintStream ps) {
-        
+
         ps.println("Usage: java "+getClass().getName()+" Options");
         ps.println();
         ps.println("Options (with default values):");
@@ -126,7 +128,7 @@ public class HashtableTest {
     //-----------------------------------------------------------------------
 
     public static void main(String[] args) throws Exception {
-        
+
         System.setErr(System.out);
         HashtableTest instance = new HashtableTest();
         instance.getArgs(args);
