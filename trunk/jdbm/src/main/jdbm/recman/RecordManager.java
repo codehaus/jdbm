@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordManager.java,v 1.3 2000/05/24 01:50:24 boisvert Exp $
+ * $Id: RecordManager.java,v 1.4 2001/04/05 07:05:53 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -126,7 +126,10 @@ public final class RecordManager {
             ((RecordCache)caches.elementAt(i)).invalidateAll();
         }
         pageman.close();
+        pageman = null;
+
         file.close();
+        file = null;
     }
 
     /**
