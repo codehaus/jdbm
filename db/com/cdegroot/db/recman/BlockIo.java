@@ -1,5 +1,5 @@
 /*
- *  $Id: BlockIo.java,v 1.1 2000/04/03 12:13:48 cdegroot Exp $
+ *  $Id: BlockIo.java,v 1.2 2000/04/11 06:14:26 boisvert Exp $
  *
  *  BlockIo.java
  *
@@ -7,8 +7,8 @@
  *  Copyright (C) 1999, 2000 Cees de Groot <cg@cdegroot.com>
  *
  *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public License 
- *  as published by the Free Software Foundation; either version 2 
+ *  modify it under the terms of the GNU Library General Public License
+ *  as published by the Free Software Foundation; either version 2
  *  of the License, or (at your option) any later version.
  *
  *  This library is distributed in the hope that it will be useful,
@@ -16,29 +16,40 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Library General Public License for more details.
  *
- *  You should have received a copy of the GNU Library General Public License 
- *  along with this library; if not, write to the Free Software Foundation, 
+ *  You should have received a copy of the GNU Library General Public License
+ *  along with this library; if not, write to the Free Software Foundation,
  *  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 package com.cdegroot.db.recman;
+
+import java.io.*;
 
 /**
  *  This class wraps a page-sized byte array and provides methods
  *  to read and write data to and from it. The readers and writers
  *  are just the ones that the rest of the toolkit needs, nothing else.
- *  Values written are compatible with java.io routines. 
+ *  Values written are compatible with java.io routines.
  *
  *  @see java.io.DataInput
  *  @see java.io.DataOutput
  */
-final class BlockIo implements java.io.Serializable {
+public final class BlockIo implements java.io.Externalizable {
+
+    public final static long serialVersionUID = 2L;
+
     private long blockId;
-    private final byte[] snapshot; // committed snapshot.
+    private byte[] snapshot; // committed snapshot.
     private boolean snapshotValid = false;
-    private final transient byte[] data; // work area
+
+    private transient byte[] data; // work area
     private transient BlockView view = null;
     private transient boolean dirty = false;
     private transient int transactionCount = 0;
+
+    // Default constructor for serialization
+    public BlockIo() {
+        // empty
+    }
 
     /**
      *  Constructs a new BlockIo instance working on the indicated
@@ -52,7 +63,7 @@ final class BlockIo implements java.io.Serializable {
 	this.data = data;
 	this.snapshot = new byte[data.length];
     }
-    
+
     /**
      *  Returns the underlying array
      */
@@ -69,7 +80,11 @@ final class BlockIo implements java.io.Serializable {
 	snapshotValid = true;
 	setClean();
     }
-    
+
+    boolean isSnapshotValid() {
+      return snapshotValid;
+    }
+
     /**
      *  Returns the snapshot. If the snapshot was already returned, returns
      *  null. By only returning a snapshot once, we make sure that the
@@ -104,18 +119,18 @@ final class BlockIo implements java.io.Serializable {
     long getBlockId() {
 	return blockId;
     }
-    
+
     /**
      *  Returns the current view of the block.
      */
-    BlockView getView() {
+    public BlockView getView() {
 	return view;
     }
 
     /**
      *  Sets the current view of the block.
      */
-    void setView(BlockView view) {
+    public void setView(BlockView view) {
 	this.view = view;
     }
 
@@ -125,14 +140,14 @@ final class BlockIo implements java.io.Serializable {
     void setDirty() {
 	dirty = true;
     }
-    
+
     /**
      *  Clears the dirty flag
      */
     void setClean() {
 	dirty = false;
     }
-    
+
     /**
      *  Returns true if the dirty flag is set.
      */
@@ -142,12 +157,12 @@ final class BlockIo implements java.io.Serializable {
 
     /**
      *  Returns true if the block is still dirty with respect to the
-     *  transaction log. 
+     *  transaction log.
      */
     boolean isInTransaction() {
 	return transactionCount != 0;
     }
-    
+
     /**
      *  Increments transaction count for this block, to signal that this
      *  block is in the log but not yet in the data file. The method also
@@ -157,41 +172,55 @@ final class BlockIo implements java.io.Serializable {
 	snapshot();
 	transactionCount++;
     }
-    
+
     /**
      *  Decrements transaction count for this block, to signal that this
      *  block has been written from the log to the data file.
      */
     synchronized void decrementTransactionCount() {
 	transactionCount--;
-	if (transactionCount < 0) 
-	    throw new Error("transaction count on block " 
+	if (transactionCount < 0)
+	    throw new Error("transaction count on block "
 			    + getBlockId() + " below zero!");
+    }
+
+    /**
+     *  Reads a byte from the indicated position
+     */
+    public byte readByte(int pos) {
+	return data[pos];
+    }
+
+    /**
+     *  Writes a byte to the indicated position
+     */
+    public void writeByte(int pos, byte value) {
+	data[pos] = value;
+	setDirty();
     }
 
     /**
      *  Reads a short from the indicated position
      */
-    short readShort(int pos) {
+    public short readShort(int pos) {
 	return (short)
-	    (((short) (data[pos+0] & 0xff) << 8) | 
+	    (((short) (data[pos+0] & 0xff) << 8) |
 	     ((short) (data[pos+1] & 0xff) << 0));
-	
     }
-    
+
     /**
      *  Writes a short to the indicated position
      */
-    void writeShort(int pos, short value) {
+    public void writeShort(int pos, short value) {
 	data[pos+0] = (byte)(0xff & (value >> 8));
 	data[pos+1] = (byte)(0xff & (value >> 0));
 	setDirty();
     }
-    
+
     /**
      *  Reads an int from the indicated position
      */
-    int readInt(int pos) {
+    public int readInt(int pos) {
 	return
 	    (((int)(data[pos+0] & 0xff) << 24) |
 	     ((int)(data[pos+1] & 0xff) << 16) |
@@ -202,7 +231,7 @@ final class BlockIo implements java.io.Serializable {
     /**
      *  Writes an int to the indicated position
      */
-    void writeInt(int pos, int value) {
+    public void writeInt(int pos, int value) {
 	data[pos+0] = (byte)(0xff & (value >> 24));
 	data[pos+1] = (byte)(0xff & (value >> 16));
 	data[pos+2] = (byte)(0xff & (value >>  8));
@@ -213,7 +242,7 @@ final class BlockIo implements java.io.Serializable {
     /**
      *  Reads a long from the indicated position
      */
-    long readLong(int pos) {
+    public long readLong(int pos) {
 	return
 	    (((long)(data[pos+0] & 0xff) << 56) |
 	     ((long)(data[pos+1] & 0xff) << 48) |
@@ -228,7 +257,7 @@ final class BlockIo implements java.io.Serializable {
     /**
      *  Writes a long to the indicated position
      */
-    void writeLong(int pos, long value) {
+    public void writeLong(int pos, long value) {
 	data[pos+0] = (byte)(0xff & (value >> 56));
 	data[pos+1] = (byte)(0xff & (value >> 48));
 	data[pos+2] = (byte)(0xff & (value >> 40));
@@ -239,13 +268,33 @@ final class BlockIo implements java.io.Serializable {
 	data[pos+7] = (byte)(0xff & (value >>  0));
 	setDirty();
     }
-    
+
     // overrides java.lang.Object
 
     public String toString() {
-	return "BlockIO(" 
+	return "BlockIO("
 	    + blockId + ","
 	    + dirty + ","
+	    + snapshotValid + ","
 	    + view + ")";
     }
+
+    // implement externalizable interface
+    public void readExternal(ObjectInput in)
+    throws IOException, ClassNotFoundException {
+      blockId = in.readLong();
+      int length = in.readInt();
+      snapshot = new byte[length];
+      in.readFully(snapshot);
+      snapshotValid = in.readBoolean();
+    }
+
+    // implement externalizable interface
+    public void writeExternal(ObjectOutput out) throws IOException {
+      out.writeLong(blockId);
+      out.writeInt(snapshot.length);
+      out.write(snapshot);
+      out.writeBoolean(snapshotValid);
+    }
+
 }
