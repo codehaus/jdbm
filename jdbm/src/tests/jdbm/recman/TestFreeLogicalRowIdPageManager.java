@@ -1,5 +1,5 @@
 /*
- *  $Id: TestFreeLogicalRowIdPageManager.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
+ *  $Id: TestFreeLogicalRowIdPageManager.java,v 1.3 2001/09/25 06:10:02 boisvert Exp $
  *
  *  Unit tests for FreeLogicalRowIdPageManager class
  *
@@ -66,7 +66,7 @@ public class TestFreeLogicalRowIdPageManager extends TestCase {
 
   // allocate a rowid - should fail on an empty file
   Location loc = freeMgr.get();
-  assert("loc is not null?", loc == null);
+  assertTrue("loc is not null?", loc == null);
 
       pm.close();
       f.close();

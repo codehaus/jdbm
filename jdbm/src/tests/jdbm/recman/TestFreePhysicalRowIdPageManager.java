@@ -1,5 +1,5 @@
 /*
- *  $Id: TestFreePhysicalRowIdPageManager.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
+ *  $Id: TestFreePhysicalRowIdPageManager.java,v 1.3 2001/09/25 06:10:02 boisvert Exp $
  *
  *  Unit tests for FreePhysicalRowIdPageManager class
  *
@@ -66,7 +66,7 @@ public class TestFreePhysicalRowIdPageManager extends TestCase {
 
   // allocate 10,000 bytes - should fail on an empty file.
   Location loc = freeMgr.get(10000);
-  assert("loc is not null?", loc == null);
+  assertTrue("loc is not null?", loc == null);
 
       pm.close();
       f.close();

@@ -1,5 +1,5 @@
 /*
- *  $Id: TestTransactionManager.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
+ *  $Id: TestTransactionManager.java,v 1.3 2001/09/25 06:10:02 boisvert Exp $
  *
  *  Unit tests for TransactionManager class
  *
@@ -130,7 +130,7 @@ public class TestTransactionManager extends TestCase {
     }
 
     void assertLogSizeNotZero(String msg) {
-        assert(msg + " log size",
+        assertTrue(msg + " log size",
                new File(TestRecordFile.testFileName
                         + TransactionManager.extension).length() != 0);
     }
