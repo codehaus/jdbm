@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordFile.java,v 1.4 2001/04/05 07:10:54 boisvert Exp $
+ * $Id: RecordFile.java,v 1.5 2003/08/06 23:59:11 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -59,7 +59,7 @@ import java.util.*;
  *  Later on, we will send these records to some recovery thingy.
  */
 public final class RecordFile {
-    private final TransactionManager txnMgr;
+    final TransactionManager txnMgr;
 
     // Todo: reorganize in hashes and fifos as necessary.
     // free -> inUse -> dirty -> inTxn -> free
