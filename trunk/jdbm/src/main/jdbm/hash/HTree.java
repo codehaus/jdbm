@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -59,8 +59,8 @@ import java.io.IOException;
  *  WARNING!  If this instance is used in a transactional context, it
  *            *must* be discarded after a rollback.
  *
- *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: HTree.java,v 1.2 2000/05/24 01:51:21 boisvert Exp $
+ *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ *  @version $Id: HTree.java,v 1.3 2001/05/19 14:01:06 boisvert Exp $
  */
 public class HTree implements JDBMHashtable {
 
@@ -110,7 +110,7 @@ public class HTree implements JDBMHashtable {
      *
      * @arg key key whose associated value is to be returned
      */
-    public synchronized Object get(Object key) 
+    public synchronized Object get(Object key)
     throws IOException {
         return _root.get(key);
     }
@@ -126,7 +126,7 @@ public class HTree implements JDBMHashtable {
     }
 
     /**
-     * Returns an enumeration of the keys contained in this 
+     * Returns an enumeration of the keys contained in this
      */
     public synchronized JDBMEnumeration keys()
     throws IOException {
@@ -134,7 +134,7 @@ public class HTree implements JDBMHashtable {
     }
 
     /**
-     * Returns an enumeration of the values contained in this 
+     * Returns an enumeration of the values contained in this
      */
     public synchronized JDBMEnumeration values()
     throws IOException {
