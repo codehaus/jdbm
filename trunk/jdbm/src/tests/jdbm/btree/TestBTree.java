@@ -70,13 +70,13 @@ import java.util.NoSuchElementException;
  *  This class contains all Unit tests for {@link BTree}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestBTree.java,v 1.6 2003/03/21 03:09:43 boisvert Exp $
+ *  @version $Id: TestBTree.java,v 1.7 2003/03/21 03:25:30 boisvert Exp $
  */
 public class TestBTree
     extends TestCase
 {
 
-      static final boolean DEBUG = true;
+      static final boolean DEBUG = false;
 
       // the number of threads to be started in the synchronization test
       static final int THREAD_NUMBER = 5;
