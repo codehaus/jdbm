@@ -1,4 +1,11 @@
-$Id: CHANGES,v 1.1 2000/04/03 12:13:48 cdegroot Exp $
+$Id: CHANGES,v 1.2 2000/04/11 04:39:38 boisvert Exp $
+
+For version 0.081:
+    * Important bug fix.  TransactionManager had a bug which could potentially
+      corrupt the database file when the database was not closed explicitly.
+      See bug #103848 on SourceForge.
+      http://sourceforge.net/bugs/?func=detailbug&bug_id=103848&group_id=4155
+      Bug report & fix courtesy of Alex Boisvert [boisvert@exoffice.com].
 
 For version 0.08:
     * Cleanups. Cleaning up recman/FileHeader seems to have affected
