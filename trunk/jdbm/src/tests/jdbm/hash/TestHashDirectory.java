@@ -49,6 +49,8 @@ package jdbm.hash;
 import jdbm.JDBMEnumeration;
 import jdbm.recman.RecordManager;
 import jdbm.recman.TestRecordFile;
+import jdbm.helper.ObjectCache;
+import jdbm.helper.MRU;
 import junit.framework.*;
 import java.io.IOException;
 import java.util.Hashtable;
@@ -57,7 +59,7 @@ import java.util.Hashtable;
  *  This class contains all Unit tests for {@link HashDirectory}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestHashDirectory.java,v 1.1 2000/05/06 00:00:53 boisvert Exp $
+ *  @version $Id: TestHashDirectory.java,v 1.2 2000/05/24 01:53:32 boisvert Exp $
  */
 public class TestHashDirectory extends TestCase {
 
@@ -80,9 +82,10 @@ public class TestHashDirectory extends TestCase {
     public void testBasics() throws IOException {
 
         RecordManager recman = new RecordManager(TestRecordFile.testFileName);
+        ObjectCache cache = new ObjectCache(recman, new MRU(5));
         HashDirectory dir = new HashDirectory((byte)0);
         long recid = recman.insert(dir);
-        dir.setPersistenceContext(recman, recid);
+        dir.setPersistenceContext(recman, cache, recid);
 
         dir.put("key", "value");
         String s = (String)dir.get("key");
@@ -95,9 +98,10 @@ public class TestHashDirectory extends TestCase {
     public void testMixed() throws IOException {
 
         RecordManager recman = new RecordManager(TestRecordFile.testFileName);
+        ObjectCache cache = new ObjectCache(recman, new MRU(5));
         HashDirectory dir = new HashDirectory((byte)0);
         long recid = recman.insert(dir);
-        dir.setPersistenceContext(recman, recid);
+        dir.setPersistenceContext(recman, cache, recid);
 
         Hashtable hash = new Hashtable(); // use to compare results
 
