@@ -1,0 +1,22 @@
+$Id: README.FIRST,v 1.1 2000/04/03 12:12:46 cdegroot Exp $
+
+This distribution has been built by a standard script. Product-specific
+documentation can be found in README.
+
+Directories:
+    lib/ - Jar files.
+	junit.jar - JUnit unit test runtime.
+	*-test.jar - JUnit test suites.
+	*.jar - Runtime jar files.
+    src/ - Source files, one directory per package.
+
+In the main directory, you'll find files named "README", "BUGS", etcetera,
+which pertain to the "main package" of the distribution; furthermore,
+you'll find "README.<subpackage>" etcetera, which contain additional
+information on sub packages. All these files are also available in the
+corresponding directories under src/ (they're copied from there during
+release builds), so you only need to read one set.
+
+Cees de Groot <cg@cdegroot.com>
+http://www.cdegroot.com/software
+
