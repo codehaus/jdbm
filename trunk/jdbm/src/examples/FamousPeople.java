@@ -17,9 +17,8 @@ import jdbm.btree.BTree;
  * ordered traversal, reverse traversal and range lookup of records.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: FamousPeople.java,v 1.5 2003/09/21 15:44:11 boisvert Exp $
+ * @version $Id: FamousPeople.java,v 1.6 2003/10/21 15:32:02 boisvert Exp $
  */
-
 public class FamousPeople {
 
     static String DATABASE = "people";
