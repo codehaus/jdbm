@@ -17,16 +17,19 @@ import java.io.IOException;
  *  ordered traversal, reverse traversal and range lookup of records.
  *
  *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id: FamousPeople.java,v 1.1 2001/05/19 14:40:00 boisvert Exp $
+ *  @version $Id: FamousPeople.java,v 1.2 2001/06/02 14:37:02 boisvert Exp $
  */
 public class FamousPeople {
 
     static String DATABASE = "people";
 
+    static String BTREE_NAME = "FamousPeople";
+
     static String[] people =
         { "Greenspan, Alan",
           "Williams-Byrd, Julie",
           "Picasso, Pablo",
+          "Stallman, Richard",
           "Fort, Paul",
           "Søndergaard, Ole",
           "Schwarzenegger, Arnold",
@@ -36,6 +39,7 @@ public class FamousPeople {
         { "Federal Reserve Board Chairman",
           "Engineer",
           "Painter",
+          "Programmer",
           "Poet",
           "Typographer",
           "Actor",
@@ -51,6 +55,7 @@ public class FamousPeople {
         RecordManager recman;
         ObjectCache   cache;
         BTree         tree;
+        long          recid;
         Tuple         tuple = new Tuple();
         TupleBrowser  browser;
 
@@ -59,16 +64,24 @@ public class FamousPeople {
             recman = new RecordManager( DATABASE );
             cache = new ObjectCache( recman, new MRU( 100 ) );
 
-            // create a new B+Tree data structure and use a StringComparator
-            // to order the records based on people's name.
-            //
-            // NOTE: Everytime this program is run, it creates a new B+Tree.
-            //       You should use RecordManager.getNamedObject() to reuse
-            //       the B+Tree between invocations.
-            tree = new BTree( recman, cache, new StringComparator() );
+            // try to reload an existing B+Tree
+            recid = recman.getNamedObject( BTREE_NAME );
+            if ( recid != 0 ) {
+                tree = BTree.load( recman, cache, recid );
+                System.out.println( "Reloaded existing BTree with " + tree.size()
+                                    + " famous people." );
+            } else {
+                // create a new B+Tree data structure and use a StringComparator
+                // to order the records based on people's name.
+                tree = new BTree( recman, cache, new StringComparator() );
+                recman.setNamedObject( BTREE_NAME, tree.getRecid() );
+                System.out.println( "Created a new empty BTree" );
+            }
 
             // insert people with their respective occupation
+            System.out.println();
             for ( int i=0; i<people.length; i++ ) {
+                System.out.println( "Insert: " + people[i] );
                 tree.insert( people[ i ], occupations[ i ], false );
             }
 
@@ -76,6 +89,7 @@ public class FamousPeople {
             recman.commit();
 
             // show list of people with their occupation
+            System.out.println();
             System.out.println( "Person                   Occupation       " );
             System.out.println( "------------------       ------------------" );
 
