@@ -21,7 +21,7 @@ public class CrashTest {
             // open persistent hashtable
             recman = new RecordManager("crashtest");
 
-            ObjectCache cache = new ObjectCache(recman, new MRU(500));
+            ObjectCache cache = new ObjectCache(recman, new MRU(1));
 
             long root_recid = recman.getNamedObject("crash");
             if (root_recid == 0) {
