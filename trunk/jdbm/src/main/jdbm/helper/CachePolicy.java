@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CachePolicy.java,v 1.3 2001/05/19 14:02:00 boisvert Exp $
+ * $Id: CachePolicy.java,v 1.4 2003/01/17 16:05:54 boisvert Exp $
  */
 
 package jdbm.helper;
@@ -54,9 +54,10 @@ import java.util.Enumeration;
  *  (ie. MRU, time-based, soft-refs, ...)
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: CachePolicy.java,v 1.3 2001/05/19 14:02:00 boisvert Exp $
+ * @version $Id: CachePolicy.java,v 1.4 2003/01/17 16:05:54 boisvert Exp $
  */
-public interface CachePolicy {
+public interface CachePolicy
+{
 
     /**
      * Place an object in the cache.
@@ -64,7 +65,8 @@ public interface CachePolicy {
      * @arg key key for the cached object
      * @arg value the cached object
      */
-    public void put(Object key, Object value) throws CacheEvictionException;
+    public void put( Object key, Object value )
+        throws CacheEvictionException;
 
 
     /**
@@ -72,7 +74,7 @@ public interface CachePolicy {
      *
      * @arg key Key of the cached object
      */
-    public Object get(Object key);
+    public Object get( Object key );
 
 
     /**
@@ -80,7 +82,7 @@ public interface CachePolicy {
      *
      * @arg key Key of the cached object
      */
-    public void remove(Object key);
+    public void remove( Object key );
 
 
     /**
@@ -100,13 +102,14 @@ public interface CachePolicy {
      *
      * @arg listener Listener to add to this policy
      */
-    public void addListener(CachePolicyListener listener);
+    public void addListener( CachePolicyListener listener );
 
+    
     /**
      * Remove a listener from this cache policy
      *
      * @arg listener Listener to remove from this policy
      */
-    public void removeListener(CachePolicyListener listener);
+    public void removeListener( CachePolicyListener listener );
 
 }

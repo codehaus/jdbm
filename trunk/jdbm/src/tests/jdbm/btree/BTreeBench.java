@@ -59,7 +59,7 @@ import java.io.IOException;
  *  Random insertion/removal test for B+Tree data structure.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: BTreeBench.java,v 1.2 2002/05/31 06:34:29 boisvert Exp $
+ *  @version $Id: BTreeBench.java,v 1.3 2003/01/17 16:05:58 boisvert Exp $
  */
 public class BTreeBench {
 
@@ -95,7 +95,7 @@ public class BTreeBench {
                         throw new IllegalStateException( "Remove expected " + random + " got " + removed );
                     }
                 }
-                // tree.assert();
+                // tree.assertOrdering();
                 compare( tree, hash );
             }
 

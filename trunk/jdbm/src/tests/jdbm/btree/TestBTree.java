@@ -70,7 +70,7 @@ import java.util.NoSuchElementException;
  *  This class contains all Unit tests for {@link BTree}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestBTree.java,v 1.4 2002/05/31 06:34:29 boisvert Exp $
+ *  @version $Id: TestBTree.java,v 1.5 2003/01/17 16:05:59 boisvert Exp $
  */
 public class TestBTree
     extends TestCase
@@ -334,38 +334,41 @@ public class TestBTree
         tree.insert("test1", "value1",false);
         tree.insert("test2","value2",false);
         tree.insert("one", new Integer(1),false);
-         tree.insert("two",new Long(2),false);
-         tree.insert("myownobject",new TestObject(new Integer(234)),false);
+        tree.insert("two",new Long(2),false);
+        tree.insert("myownobject",new TestObject(new Integer(234)),false);
 
-         assertEquals("value2",(String)tree.find("test2"));
-         assertEquals("value1",(String)tree.find("test1"));
-         assertEquals(new Integer(1),(Integer)tree.find("one"));
-         assertEquals(new Long(2),(Long)tree.find("two"));
+        assertEquals("value2",(String)tree.find("test2"));
+        assertEquals("value1",(String)tree.find("test1"));
+        assertEquals(new Integer(1),(Integer)tree.find("one"));
+        assertEquals(new Long(2),(Long)tree.find("two"));
 
-         // what happens here? must not be replaced, does it return anything?
-         // probably yes!
-         assertEquals("value1",tree.insert("test1","value11",false));
-         assertEquals("value1",tree.find("test1")); // still the old value?
-         assertEquals("value1",tree.insert("test1","value11",true));
-         assertEquals("value11",tree.find("test1")); // now the new value!
+        // what happens here? must not be replaced, does it return anything?
+        // probably yes!
+        assertEquals("value1",tree.insert("test1","value11",false));
+        assertEquals("value1",tree.find("test1")); // still the old value?
+        assertEquals("value1",tree.insert("test1","value11",true));
+        assertEquals("value11",tree.find("test1")); // now the new value!
 
-         TestObject expected_obj = new TestObject(new Integer(234));
-         TestObject btree_obj = (TestObject)tree.find("myownobject");
-         assertEquals(expected_obj, btree_obj);
+        TestObject expected_obj = new TestObject(new Integer(234));
+        TestObject btree_obj = (TestObject)tree.find("myownobject");
+        assertEquals(expected_obj, btree_obj);
 
-         recman.close();
-   }
+        recman.close();
+    }
 
 
-     /**
-      *  Test to remove  objects from the btree. (cdaller)
-      */
-   public void testRemove()  throws IOException {
+    /**
+     *  Test to remove  objects from the btree. (cdaller)
+     */
+    public void testRemove()
+        throws IOException
+    {
         RecordManager  recman;
         ObjectBTree    tree;
 
-        if ( DEBUG )
-            System.out.println("TestBTree.testRemove");
+        if ( DEBUG ) {
+            System.out.println( "TestBTree.testRemove" );
+        }
 
         recman = RecordManagerFactory.createRecordManager( "test" );
         tree = ObjectBTree.createInstance( recman, new StringComparator() );
@@ -382,13 +385,15 @@ public class TestBTree
 
         int iterations = 1000;
 
-        for ( int count = 0; count < iterations; count++ )
+        for ( int count = 0; count < iterations; count++ ) {
             tree.insert( "num"+count, new Integer( count ), false );
+        }
 
         assertEquals( iterations, tree.size() );
 
-        for ( int count = 0; count < iterations; count++ )
+        for ( int count = 0; count < iterations; count++ ) {
             assertEquals( new Integer( count ), tree.find( "num" + count ) );
+        }
 
         for ( int count = 0; count < iterations; count++ ) {
            tree.remove( "num" + count );
@@ -436,6 +441,7 @@ public class TestBTree
     public void testLargeDataAmount()
         throws IOException
     {
+
         RecordManager  recman;
         ObjectBTree    tree;
 
@@ -444,14 +450,14 @@ public class TestBTree
 
         recman = RecordManagerFactory.createRecordManager( "test" );
         tree = ObjectBTree.createInstance( recman, new StringComparator() );
+        // tree.setSplitPoint( 4 );
 
-         int iterations = 10000;
+        int iterations = 10000;
 
-           // insert data
-         for(int count = 0; count < iterations; count++)
-         {
+        // insert data
+        for ( int count = 0; count < iterations; count++ ) {
            assertEquals(null,tree.insert("num"+count,new Integer(count),false));
-         }
+        }
 
            // find data
          for(int count = 0; count < iterations; count++)

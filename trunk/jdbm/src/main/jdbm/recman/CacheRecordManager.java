@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CacheRecordManager.java,v 1.3 2002/10/13 18:36:35 boisvert Exp $
+ * $Id: CacheRecordManager.java,v 1.4 2003/01/17 16:05:57 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -59,7 +59,7 @@ import java.io.IOException;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: CacheRecordManager.java,v 1.3 2002/10/13 18:36:35 boisvert Exp $
+ * @version $Id: CacheRecordManager.java,v 1.4 2003/01/17 16:05:57 boisvert Exp $
  */
 public class CacheRecordManager
     implements RecordManager
@@ -200,6 +200,7 @@ public class CacheRecordManager
         } catch ( CacheEvictionException except ) {
             throw new WrappedRuntimeException( except );
         }
+        
     }
 
 
