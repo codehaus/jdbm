@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.2 2001/04/05 07:33:54 boisvert Exp $
+$Id: README.txt,v 1.3 2001/08/28 06:46:36 boisvert Exp $
 
 Package readme for: jdbm.*
 Package version: see VERSION
@@ -66,4 +66,5 @@ Cees de Groot <cg@cdegroot.com> wrote the original RecordManager
 implementation and started the project.
 
 Alex Boisvert <boisvert@intalio.com> added GDBM-like interface, 
-rollback functionality and some bug fixing.
+HTree and BTree implementations, caching, rollback functionality 
+and some bug fixing.
