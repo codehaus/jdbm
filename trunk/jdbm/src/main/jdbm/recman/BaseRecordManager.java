@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: BaseRecordManager.java,v 1.4 2003/03/21 02:51:20 boisvert Exp $
+ * $Id: BaseRecordManager.java,v 1.5 2003/07/31 14:59:17 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -83,7 +83,7 @@ import jdbm.helper.DefaultSerializer;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: BaseRecordManager.java,v 1.4 2003/03/21 02:51:20 boisvert Exp $
+ * @version $Id: BaseRecordManager.java,v 1.5 2003/07/31 14:59:17 boisvert Exp $
  */
 public final class BaseRecordManager
     implements RecordManager
@@ -414,7 +414,7 @@ public final class BaseRecordManager
     /**
      * Commit (make persistent) all changes since beginning of transaction.
      */
-    public void commit()
+    public synchronized void commit()
         throws IOException
     {
         checkIfClosed();
@@ -426,7 +426,7 @@ public final class BaseRecordManager
     /**
      * Rollback (cancel) all changes since beginning of transaction.
      */
-    public void rollback()
+    public synchronized void rollback()
         throws IOException
     {
         checkIfClosed();

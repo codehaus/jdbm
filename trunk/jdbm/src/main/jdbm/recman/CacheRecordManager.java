@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CacheRecordManager.java,v 1.6 2003/03/22 03:21:11 boisvert Exp $
+ * $Id: CacheRecordManager.java,v 1.7 2003/07/31 14:59:17 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -64,7 +64,7 @@ import java.util.Enumeration;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: CacheRecordManager.java,v 1.6 2003/03/22 03:21:11 boisvert Exp $
+ * @version $Id: CacheRecordManager.java,v 1.7 2003/07/31 14:59:17 boisvert Exp $
  */
 public class CacheRecordManager
     implements RecordManager
@@ -150,7 +150,7 @@ public class CacheRecordManager
      *  @returns the rowid for the new record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public long insert( Object obj, Serializer serializer )
+    public synchronized long insert( Object obj, Serializer serializer )
         throws IOException
     {
         checkIfClosed();
@@ -171,7 +171,7 @@ public class CacheRecordManager
      *  @param rowid the rowid for the record that should be deleted.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public void delete( long recid )
+    public synchronized void delete( long recid )
         throws IOException
     {
         checkIfClosed();
@@ -203,7 +203,8 @@ public class CacheRecordManager
      *  @param serializer a custom serializer
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public void update( long recid, Object obj, Serializer serializer )
+    public synchronized void update( long recid, Object obj, 
+                                     Serializer serializer )
         throws IOException
     {
         checkIfClosed();
@@ -239,7 +240,7 @@ public class CacheRecordManager
      *  @returns the object contained in the record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public Object fetch( long recid, Serializer serializer )
+    public synchronized Object fetch( long recid, Serializer serializer )
         throws IOException
     {
         checkIfClosed();
@@ -264,7 +265,7 @@ public class CacheRecordManager
      *
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public void close()
+    public synchronized void close()
         throws IOException
     {
         checkIfClosed();
@@ -281,7 +282,7 @@ public class CacheRecordManager
      *  other rowids. Root rowids are useful for bootstrapping access to
      *  a set of data.
      */
-    public int getRootCount()
+    public synchronized int getRootCount()
     {
         checkIfClosed();
 
@@ -294,7 +295,7 @@ public class CacheRecordManager
      *
      *  @see getRootCount
      */
-    public long getRoot( int id )
+    public synchronized long getRoot( int id )
         throws IOException
     {
         checkIfClosed();
@@ -308,7 +309,7 @@ public class CacheRecordManager
      *
      *  @see getRootCount
      */
-    public void setRoot( int id, long rowid )
+    public synchronized void setRoot( int id, long rowid )
         throws IOException
     {
         checkIfClosed();
@@ -320,7 +321,7 @@ public class CacheRecordManager
     /**
      * Commit (make persistent) all changes since beginning of transaction.
      */
-    public void commit()
+    public synchronized void commit()
         throws IOException
     {
         Enumeration enum;
@@ -342,7 +343,7 @@ public class CacheRecordManager
     /**
      * Rollback (cancel) all changes since beginning of transaction.
      */
-    public void rollback()
+    public synchronized void rollback()
         throws IOException
     {
         checkIfClosed();
@@ -359,7 +360,7 @@ public class CacheRecordManager
      * Obtain the record id of a named object. Returns 0 if named object
      * doesn't exist.
      */
-    public long getNamedObject( String name )
+    public synchronized long getNamedObject( String name )
         throws IOException
     {
         checkIfClosed();
@@ -371,7 +372,7 @@ public class CacheRecordManager
     /**
      * Set the record id of a named object.
      */
-    public void setNamedObject( String name, long recid )
+    public synchronized void setNamedObject( String name, long recid )
         throws IOException
     {
         checkIfClosed();
