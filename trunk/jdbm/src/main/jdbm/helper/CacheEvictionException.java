@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CacheEvictionException.java,v 1.3 2002/05/31 06:33:20 boisvert Exp $
+ * $Id: CacheEvictionException.java,v 1.4 2003/10/21 15:43:20 boisvert Exp $
  */
 
 package jdbm.helper;
@@ -50,8 +50,8 @@ package jdbm.helper;
 /**
  *  Exception that occurs during eviction of an object in the cache.
  *
- *  @author <a href="mailto:boisvert@intalio.com>Alex Boisvert</a>
- *  @version $Id: CacheEvictionException.java,v 1.3 2002/05/31 06:33:20 boisvert Exp $
+ *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ *  @version $Id: CacheEvictionException.java,v 1.4 2003/10/21 15:43:20 boisvert Exp $
  */
 public class CacheEvictionException
     extends Exception
