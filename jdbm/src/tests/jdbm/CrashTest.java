@@ -13,7 +13,7 @@ import java.io.IOException;
  * Sample JDBM application to demonstrate the use of basic JDBM operations
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: CrashTest.java,v 1.4 2001/05/19 14:20:46 boisvert Exp $
+ * @version $Id: CrashTest.java,v 1.5 2001/06/02 14:32:00 boisvert Exp $
  */
 public class CrashTest {
     RecordManager recman;
@@ -29,12 +29,11 @@ public class CrashTest {
             long root_recid = recman.getNamedObject("crash");
             if (root_recid == 0) {
                 // create a new one
-                root_recid = HTree.createRootDirectory(recman);
-                recman.setNamedObject("crash", root_recid);
+                hashtable = new HTree( recman, cache );
+                recman.setNamedObject("crash", hashtable.getRecid() );
                 recman.commit();
             }
-            hashtable = new HTree(recman, cache, root_recid);
-            // hashtable = recman.getHashtable("crash");
+            hashtable = HTree.load(recman, cache, root_recid);
 
             checkConsistency();
 

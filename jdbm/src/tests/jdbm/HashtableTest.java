@@ -14,7 +14,7 @@ import java.util.*;
  * HashDirectory.  The returned Enumeration got into an infinite loop
  * on the same key/val pair.
  *
- * @version $Id: HashtableTest.java,v 1.2 2001/05/19 14:20:46 boisvert Exp $
+ * @version $Id: HashtableTest.java,v 1.3 2001/06/02 14:32:00 boisvert Exp $
  */
 public class HashtableTest {
 
@@ -27,7 +27,7 @@ public class HashtableTest {
         hashtable = recman.getHashtable(name);
         try {
 
-            int max=100000;
+            int max=1000;
             for (int i=0;i<max;i++) {
                 String key="key"+i;
                 String val="val"+i;

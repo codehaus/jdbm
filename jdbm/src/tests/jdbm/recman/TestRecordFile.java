@@ -1,5 +1,5 @@
 /*
- *  $Id: TestRecordFile.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
+ *  $Id: TestRecordFile.java,v 1.3 2001/06/02 14:32:00 boisvert Exp $
  *
  *  Unit tests for RecordFile class
  *
@@ -80,6 +80,8 @@ public class TestRecordFile extends TestCase {
 
 
     public static void deleteTestFile() {
+        System.gc();
+
         deleteFile(testFileName);
 
         deleteFile(testFileName + RecordFile.extension);
