@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: BaseRecordManager.java,v 1.3 2002/06/14 16:24:21 boisvert Exp $
+ * $Id: BaseRecordManager.java,v 1.4 2003/03/21 02:51:20 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -59,6 +59,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jdbm.RecordManager;
+import jdbm.helper.Serializer;
+import jdbm.helper.DefaultSerializer;
 
 /**
  *  This class manages records, which are uninterpreted blobs of data. The
@@ -81,7 +83,7 @@ import jdbm.RecordManager;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: BaseRecordManager.java,v 1.3 2002/06/14 16:24:21 boisvert Exp $
+ * @version $Id: BaseRecordManager.java,v 1.4 2003/03/21 02:51:20 boisvert Exp $
  */
 public final class BaseRecordManager
     implements RecordManager
@@ -117,6 +119,12 @@ public final class BaseRecordManager
     public static final int NAME_DIRECTORY_ROOT = 0;
 
 
+    /**
+     * Static debugging flag
+     */
+    public static final boolean DEBUG = false;
+
+    
     /**
      * Directory of named JDBMHashtables.  This directory is a persistent
      * directory, stored as a Hashtable.  It can be retrived by using
@@ -177,24 +185,7 @@ public final class BaseRecordManager
 
 
     /**
-     *  Inserts a new record.
-     *
-     *  @param data the data for the new record.
-     *  @returns the rowid for the new record.
-     *  @throws IOException when one of the underlying I/O operations fails.
-     */
-    public synchronized long insert( byte[] data )
-        throws IOException
-    {
-        checkIfClosed();
-
-        Location physRowId = _physMgr.insert( data );
-        return _logMgr.insert( physRowId ).toLong();
-    }
-
-
-    /**
-     *  Inserts a new record.
+     *  Inserts a new record using standard java object serialization.
      *
      *  @param obj the object for the new record.
      *  @returns the rowid for the new record.
@@ -203,10 +194,34 @@ public final class BaseRecordManager
     public long insert( Object obj )
         throws IOException
     {
+        return insert( obj, DefaultSerializer.INSTANCE );
+    }
+
+    
+    /**
+     *  Inserts a new record using a custom serializer.
+     *
+     *  @param obj the object for the new record.
+     *  @param serializer a custom serializer
+     *  @returns the rowid for the new record.
+     *  @throws IOException when one of the underlying I/O operations fails.
+     */
+    public synchronized long insert( Object obj, Serializer serializer )
+        throws IOException
+    {
+        byte[]    data;
+        long      recid;
+        Location  physRowId;
+        
         checkIfClosed();
 
-        byte[] buffer = objectToByteArray( obj );
-        return insert( buffer );
+        data = serializer.serialize( obj );
+        physRowId = _physMgr.insert( data, 0, data.length );
+        recid = _logMgr.insert( physRowId ).toLong();
+        if ( DEBUG ) {
+            System.out.println( "BaseRecordManager.insert() recid " + recid + " length " + data.length ) ;
+        }
+        return recid;
     }
 
     /**
@@ -224,6 +239,10 @@ public final class BaseRecordManager
                                                 + recid );
         }
 
+        if ( DEBUG ) {
+            System.out.println( "BaseRecordManager.delete() recid " + recid ) ;
+        }
+
         Location logRowId = new Location( recid );
         Location physRowId = _logMgr.fetch( logRowId );
         _physMgr.delete( physRowId );
@@ -232,13 +251,28 @@ public final class BaseRecordManager
 
 
     /**
-     *  Updates a record.
+     *  Updates a record using standard java object serialization.
      *
      *  @param recid the recid for the record that is to be updated.
-     *  @param data the new data for the record.
+     *  @param obj the new object for the record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public synchronized void update( long recid, byte[] data )
+    public void update( long recid, Object obj )
+        throws IOException
+    {
+        update( recid, obj, DefaultSerializer.INSTANCE );
+    }
+
+    
+    /**
+     *  Updates a record using a custom serializer.
+     *
+     *  @param recid the recid for the record that is to be updated.
+     *  @param obj the new object for the record.
+     *  @param serializer a custom serializer
+     *  @throws IOException when one of the underlying I/O operations fails.
+     */
+    public synchronized void update( long recid, Object obj, Serializer serializer )
         throws IOException
     {
         checkIfClosed();
@@ -249,7 +283,13 @@ public final class BaseRecordManager
 
         Location logRecid = new Location( recid );
         Location physRecid = _logMgr.fetch( logRecid );
-        Location newRecid = _physMgr.update( physRecid, data );
+        
+        byte[] data = serializer.serialize( obj );
+        if ( DEBUG ) {
+            System.out.println( "BaseRecordManager.update() recid " + recid + " length " + data.length ) ;
+        }
+        
+        Location newRecid = _physMgr.update( physRecid, data, 0, data.length );
         if ( ! newRecid.equals( physRecid ) ) {
             _logMgr.update( logRecid, newRecid );
         }
@@ -257,61 +297,42 @@ public final class BaseRecordManager
 
 
     /**
-     *  Updates a record.
-     *
-     *  @param recid the recid for the record that is to be updated.
-     *  @param obj the new object for the record.
-     *  @throws IOException when one of the underlying I/O operations fails.
-     */
-    public void update( long recid, Object obj )
-        throws IOException
-    {
-        checkIfClosed();
-
-        byte[] buffer = objectToByteArray( obj );
-        update( recid, buffer );
-    }
-
-
-    /**
-     *  Fetches a record.
-     *
-     *  @param recid the recid for the record that must be fetched.
-     *  @returns the data representing the record.
-     *  @throws IOException when one of the underlying I/O operations fails.
-     */
-    public synchronized byte[] fetchByteArray( long recid )
-        throws IOException
-    {
-        checkIfClosed();
-        if ( recid <= 0 ) {
-            throw new IllegalArgumentException( "Argument 'recid' is invalid: "
-                                                + recid );
-        }
-
-        return _physMgr.fetch( _logMgr.fetch( new Location( recid ) ) );
-    }
-
-
-    /**
-     *  Fetches a record.
+     *  Fetches a record using standard java object serialization.
      *
      *  @param recid the recid for the record that must be fetched.
      *  @returns the object contained in the record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public synchronized Object fetchObject( long recid )
-        throws IOException, ClassNotFoundException
+    public Object fetch( long recid )
+        throws IOException
     {
-        byte[]       buffer;
+        return fetch( recid, DefaultSerializer.INSTANCE );
+    }
+
+
+    /**
+     *  Fetches a record using a custom serializer.
+     *
+     *  @param recid the recid for the record that must be fetched.
+     *  @param serializer a custom serializer
+     *  @returns the object contained in the record.
+     *  @throws IOException when one of the underlying I/O operations fails.
+     */
+    public synchronized Object fetch( long recid, Serializer serializer )
+        throws IOException
+    {
+        byte[] data;
 
         checkIfClosed();
         if ( recid <= 0 ) {
             throw new IllegalArgumentException( "Argument 'recid' is invalid: "
                                                 + recid );
         }
-        buffer = _physMgr.fetch( _logMgr.fetch( new Location( recid ) ) );
-        return byteArrayToObject( buffer );
+        data = _physMgr.fetch( _logMgr.fetch( new Location( recid ) ) );
+        if ( DEBUG ) {
+            System.out.println( "BaseRecordManager.fetch() recid " + recid + " length " + data.length ) ;
+        }
+        return serializer.deserialize( data );
     }
 
 
@@ -415,33 +436,6 @@ public final class BaseRecordManager
 
 
     /**
-     * Recreate a serialized object from a byte array.
-     */
-    private static Object byteArrayToObject( byte[] array )
-        throws IOException, ClassNotFoundException
-    {
-        ByteArrayInputStream bais = new ByteArrayInputStream( array );
-        ObjectInputStream ois = new ObjectInputStream( bais );
-        return ois.readObject();
-    }
-
-
-    /**
-     * Serialize an object into a byte array.
-     */
-    private static byte[] objectToByteArray( Object obj )
-        throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream( baos );
-        oos.writeObject( obj );
-        oos.close();
-        baos.close();
-        return baos.toByteArray();
-    }
-
-
-    /**
      * Load name directory
      */
     private Map getNameDirectory()
@@ -454,13 +448,7 @@ public final class BaseRecordManager
             nameDirectory_recid = insert( _nameDirectory );
             setRoot( NAME_DIRECTORY_ROOT, nameDirectory_recid );
         } else {
-            try {
-                _nameDirectory = (Map) fetchObject( nameDirectory_recid );
-            } catch ( ClassNotFoundException cnfe ) {
-                cnfe.printStackTrace();
-                throw new Error( "NAME_DIRECTORY_ROOT " +
-                                 "must point to a Map" );
-            }
+            _nameDirectory = (Map) fetch( nameDirectory_recid );
         }
         return _nameDirectory;
     }
