@@ -48,6 +48,7 @@ package jdbm.btree;
 
 import jdbm.RecordManager;
 
+import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
@@ -84,7 +85,7 @@ import java.util.Comparator;
  * the key size, which impacts all non-leaf <code>BPage</code> objects.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: BTree.java,v 1.4 2002/05/31 06:33:20 boisvert Exp $
+ * @version $Id: BTree.java,v 1.5 2003/03/21 02:57:02 boisvert Exp $
  */
 public class BTree
     implements Externalizable
@@ -123,6 +124,18 @@ public class BTree
 
 
     /**
+     * Serializer used to serialize index keys (optional)
+     */
+    protected Serializer _keySerializer;
+
+
+    /**
+     * Serializer used to serialize index values (optional)
+     */
+    protected Serializer _valueSerializer;
+
+
+    /**
      * Height of the B+Tree.  This is the number of BPages you have to traverse
      * to get to a leaf BPage, starting from the root.
      */
@@ -138,14 +151,20 @@ public class BTree
     /**
      * Number of entries in each BPage.
      */
-    private int _pageSize;
+    protected int _pageSize;
 
 
     /**
      * Total number of entries in the BTree
      */
-    protected int _size;
+    protected int _entries;
 
+    
+    /**
+     * Serializer used for BPages of this tree
+     */
+    private transient BPage _bpageSerializer;
+    
 
     /**
      * No-argument constructor used by serialization.
@@ -166,7 +185,26 @@ public class BTree
                                         Comparator comparator )
         throws IOException
     {
-        return createInstance( recman, comparator, DEFAULT_SIZE );
+        return createInstance( recman, comparator, null, null, DEFAULT_SIZE );
+    }
+
+
+    /**
+     * Create a new persistent BTree, with 16 entries per node.
+     *
+     * @param recman Record manager used for persistence.
+     * @param keySerializer Serializer used to serialize index keys (optional)
+     * @param valueSerializer Serializer used to serialize index values (optional)
+     * @param comparator Comparator used to order index entries
+     */
+    public static BTree createInstance( RecordManager recman,
+                                        Comparator comparator,
+                                        Serializer keySerializer,
+                                        Serializer valueSerializer )
+        throws IOException
+    {
+        return createInstance( recman, comparator, keySerializer, 
+                               valueSerializer, DEFAULT_SIZE );
     }
 
 
@@ -175,14 +213,17 @@ public class BTree
      *
      * @param recman Record manager used for persistence.
      * @param comparator Comparator used to order index entries
+     * @param serializer Serializer used to serialize index entries (optional)
      * @param pageSize Number of entries per page (must be even).
      */
     public static BTree createInstance( RecordManager recman,
                                         Comparator comparator,
+                                        Serializer keySerializer,
+                                        Serializer valueSerializer,
                                         int pageSize )
         throws IOException
     {
-        BTree tree;
+        BTree btree;
 
         if ( recman == null ) {
             throw new IllegalArgumentException( "Argument 'recman' is null" );
@@ -196,18 +237,29 @@ public class BTree
             throw new IllegalArgumentException( "Argument 'comparator' must be serializable" );
         }
 
+        if ( keySerializer != null && ! ( keySerializer instanceof Serializable ) ) {
+            throw new IllegalArgumentException( "Argument 'keySerializer' must be serializable" );
+        }
+
+        if ( valueSerializer != null && ! ( valueSerializer instanceof Serializable ) ) {
+            throw new IllegalArgumentException( "Argument 'valueSerializer' must be serializable" );
+        }
+
         // make sure there's an even number of entries per BPage
         if ( ( pageSize & 1 ) != 0 ) {
             throw new IllegalArgumentException( "Argument 'pageSize' must be even" );
         }
 
-        tree = new BTree();
-        tree._recman = recman;
-        tree._comparator = comparator;
-        tree._pageSize = pageSize;
-
-        tree._recid = recman.insert( tree );
-        return tree;
+        btree = new BTree();
+        btree._recman = recman;
+        btree._comparator = comparator;
+        btree._keySerializer = keySerializer;
+        btree._valueSerializer = valueSerializer;
+        btree._pageSize = pageSize;
+        btree._bpageSerializer = new BPage();
+        btree._bpageSerializer._btree = btree;
+        btree._recid = recman.insert( btree );
+        return btree;
     }
 
 
@@ -220,14 +272,12 @@ public class BTree
     public static BTree load( RecordManager recman, long recid )
         throws IOException
     {
-        try {
-            BTree btree = (BTree) recman.fetchObject( recid );
-            btree._recid = recid;
-            btree._recman = recman;
-            return btree;
-        } catch ( ClassNotFoundException except ) {
-            throw new Error( except.getMessage() );
-        }
+        BTree btree = (BTree) recman.fetch( recid );
+        btree._recid = recid;
+        btree._recman = recman;
+        btree._bpageSerializer = new BPage();
+        btree._bpageSerializer._btree = btree;
+        return btree;
     }
 
 
@@ -243,7 +293,7 @@ public class BTree
      * @param replace Set to true to replace an existing key-value pair.
      * @return Existing value, if any.
      */
-    public synchronized Object insert( byte[] key, byte[] value,
+    public synchronized Object insert( Object key, Object value,
                                        boolean replace )
         throws IOException
     {
@@ -261,10 +311,10 @@ public class BTree
             if (DEBUG) {
                 System.out.println( "BTree.insert() new root BPage" );
             }
-            rootPage = new BPage( this, key, value, _pageSize );
+            rootPage = new BPage( this, key, value );
             _root = rootPage._recid;
             _height = 1;
-            _size = 1;
+            _entries = 1;
             _recman.update( _recid, this );
             return null;
         } else {
@@ -275,13 +325,13 @@ public class BTree
                 if ( DEBUG ) {
                     System.out.println( "BTree.insert() replace root BPage due to overflow" );
                 }
-                rootPage = new BPage( this, rootPage, insert._overflow, _pageSize );
+                rootPage = new BPage( this, rootPage, insert._overflow );
                 _root = rootPage._recid;
                 _height += 1;
                 dirty = true;
             }
             if ( insert._existing == null ) {
-                _size++;
+                _entries++;
                 dirty = true;
             }
             if ( dirty ) {
@@ -300,7 +350,7 @@ public class BTree
      * @return Value associated with the key, or null if no entry with given
      *         key existed in the BTree.
      */
-    public synchronized byte[] remove( byte[] key )
+    public synchronized Object remove( Object key )
         throws IOException
     {
         if ( key == null ) {
@@ -325,7 +375,7 @@ public class BTree
             }
         }
         if ( remove._value != null ) {
-            _size--;
+            _entries--;
             dirty = true;
         }
         if ( dirty ) {
@@ -341,7 +391,7 @@ public class BTree
      * @param key Lookup key.
      * @return Value associated with the key, or null if not found.
      */
-    public synchronized byte[] find( byte[] key )
+    public synchronized Object find( Object key )
         throws IOException
     {
         if ( key == null ) {
@@ -361,7 +411,7 @@ public class BTree
             if ( _comparator.compare( key, tuple.getKey() ) != 0 ) {
                 return null;
             } else {
-                return (byte[]) tuple.getValue();
+                return tuple.getValue();
             }
         } else {
             return null;
@@ -377,7 +427,7 @@ public class BTree
      * @return Value associated with the key, or a greater entry, or null if no
      *         greater entry was found.
      */
-    public synchronized Tuple findGreaterOrEqual( byte[] key )
+    public synchronized Tuple findGreaterOrEqual( Object key )
         throws IOException
     {
         Tuple         tuple;
@@ -432,7 +482,7 @@ public class BTree
      *            (Null is considered to be an "infinite" key)
      * @return Browser positionned just before the given key.
      */
-    public synchronized TupleBrowser browse( byte[] key )
+    public synchronized TupleBrowser browse( Object key )
         throws IOException
     {
         BPage rootPage = getRoot();
@@ -449,7 +499,7 @@ public class BTree
      */
     public synchronized int size()
     {
-        return _size;
+        return _entries;
     }
 
 
@@ -471,14 +521,10 @@ public class BTree
         if ( _root == 0 ) {
             return null;
         }
-        try {
-            BPage root = (BPage) _recman.fetchObject( _root );
-            root._recid = _root;
-            root._btree = this;
-            return root;
-        } catch ( ClassNotFoundException except ) {
-            throw new Error( except.toString() );
-        }
+        BPage root = (BPage) _recman.fetch( _root, _bpageSerializer );
+        root._recid = _root;
+        root._btree = this;
+        return root;
     }
 
     /**
@@ -488,10 +534,12 @@ public class BTree
         throws IOException, ClassNotFoundException
     {
         _comparator = (Comparator) in.readObject();
+        _keySerializer = (Serializer) in.readObject();
+        _valueSerializer = (Serializer) in.readObject();
         _height = in.readInt();
         _root = in.readLong();
         _pageSize = in.readInt();
-        _size = in.readInt();
+        _entries = in.readInt();
     }
 
 
@@ -502,10 +550,12 @@ public class BTree
         throws IOException
     {
         out.writeObject( _comparator );
+        out.writeObject( _keySerializer );
+        out.writeObject( _valueSerializer );
         out.writeInt( _height );
         out.writeLong( _root );
         out.writeInt( _pageSize );
-        out.writeInt( _size );
+        out.writeInt( _entries );
     }
 
 
@@ -549,3 +599,4 @@ public class BTree
         }
     }
 }
+
