@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CacheRecordManager.java,v 1.5 2003/03/21 02:52:46 boisvert Exp $
+ * $Id: CacheRecordManager.java,v 1.6 2003/03/22 03:21:11 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -64,7 +64,7 @@ import java.util.Enumeration;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: CacheRecordManager.java,v 1.5 2003/03/21 02:52:46 boisvert Exp $
+ * @version $Id: CacheRecordManager.java,v 1.6 2003/03/22 03:21:11 boisvert Exp $
  */
 public class CacheRecordManager
     implements RecordManager
@@ -267,18 +267,8 @@ public class CacheRecordManager
     public void close()
         throws IOException
     {
-        Enumeration enum;
-        
         checkIfClosed();
 
-        // write all dirty data
-        enum = _cache.elements();
-        while ( enum.hasMoreElements() ) {
-            CacheEntry entry = (CacheEntry) enum.nextElement();
-            if ( entry._isDirty ) {
-                _recman.update( entry._recid, entry._obj, entry._serializer );
-            }
-        }
         _recman.close();
         _recman = null;
         _cache = null;
@@ -333,8 +323,18 @@ public class CacheRecordManager
     public void commit()
         throws IOException
     {
+        Enumeration enum;
+        
         checkIfClosed();
 
+        // write all dirty data
+        enum = _cache.elements();
+        while ( enum.hasMoreElements() ) {
+            CacheEntry entry = (CacheEntry) enum.nextElement();
+            if ( entry._isDirty ) {
+                _recman.update( entry._recid, entry._obj, entry._serializer );
+            }
+        }
         _recman.commit();
     }
 
