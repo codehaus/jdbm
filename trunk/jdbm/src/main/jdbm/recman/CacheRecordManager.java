@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CacheRecordManager.java,v 1.4 2003/01/17 16:05:57 boisvert Exp $
+ * $Id: CacheRecordManager.java,v 1.5 2003/03/21 02:52:46 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -51,15 +51,20 @@ package jdbm.recman;
 import jdbm.RecordManager;
 import jdbm.helper.CacheEvictionException;
 import jdbm.helper.CachePolicy;
+import jdbm.helper.CachePolicyListener;
+import jdbm.helper.DefaultSerializer;
+import jdbm.helper.Serializer;
 import jdbm.helper.WrappedRuntimeException;
+
 import java.io.IOException;
+import java.util.Enumeration;
 
 /**
  *  A RecordManager wrapping and caching another RecordManager.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: CacheRecordManager.java,v 1.4 2003/01/17 16:05:57 boisvert Exp $
+ * @version $Id: CacheRecordManager.java,v 1.5 2003/03/21 02:52:46 boisvert Exp $
  */
 public class CacheRecordManager
     implements RecordManager
@@ -94,31 +99,11 @@ public class CacheRecordManager
         }
         _recman = recman;
         _cache = cache;
+        
+        _cache.addListener( new CacheListener() );
     }
 
-
-    /**
-     *  Inserts a new record.
-     *
-     *  @param data the data for the new record.
-     *  @returns the rowid for the new record.
-     *  @throws IOException when one of the underlying I/O operations fails.
-     */
-    public long insert( byte[] data )
-        throws IOException
-    {
-        checkIfClosed();
-
-        long recid = _recman.insert( data );
-        try {
-            _cache.put( new Long( recid ), data );
-        } catch ( CacheEvictionException except ) {
-            throw new WrappedRuntimeException( except );
-        }
-        return recid;
-    }
-
-
+    
     /**
      * Get the underlying Record Manager.
      *
@@ -144,8 +129,7 @@ public class CacheRecordManager
 
     
     /**
-     *  Inserts a new record.  This is a utility method which serializes the
-     *  object into a byte[].
+     *  Inserts a new record using a custom serializer.
      *
      *  @param obj the object for the new record.
      *  @returns the rowid for the new record.
@@ -154,11 +138,26 @@ public class CacheRecordManager
     public long insert( Object obj )
         throws IOException
     {
+        return insert( obj, DefaultSerializer.INSTANCE );
+    }
+        
+        
+    /**
+     *  Inserts a new record using a custom serializer.
+     *
+     *  @param obj the object for the new record.
+     *  @param serializer a custom serializer
+     *  @returns the rowid for the new record.
+     *  @throws IOException when one of the underlying I/O operations fails.
+     */
+    public long insert( Object obj, Serializer serializer )
+        throws IOException
+    {
         checkIfClosed();
 
-        long recid = _recman.insert( obj );
+        long recid = _recman.insert( obj, serializer );
         try {
-            _cache.put( new Long( recid ), obj );
+            _cache.put( new Long( recid ), new CacheEntry( recid, obj, serializer, false ) );
         } catch ( CacheEvictionException except ) {
             throw new WrappedRuntimeException( except );
         }
@@ -183,30 +182,7 @@ public class CacheRecordManager
 
 
     /**
-     *  Updates a record.
-     *
-     *  @param recid the recid for the record that is to be updated.
-     *  @param data the new data for the record.
-     *  @throws IOException when one of the underlying I/O operations fails.
-     */
-    public void update( long recid, byte[] data )
-        throws IOException
-    {
-        checkIfClosed();
-
-        _recman.update( recid, data );
-        try {
-            _cache.put( new Long( recid ), data );
-        } catch ( CacheEvictionException except ) {
-            throw new WrappedRuntimeException( except );
-        }
-        
-    }
-
-
-    /**
-     *  Updates a record.  This is a utility method which serializes the
-     *  object into a byte[].
+     *  Updates a record using standard Java serialization.
      *
      *  @param recid the recid for the record that is to be updated.
      *  @param obj the new object for the record.
@@ -215,54 +191,71 @@ public class CacheRecordManager
     public void update( long recid, Object obj )
         throws IOException
     {
-        checkIfClosed();
-
-        _recman.update( recid, obj );
-        try {
-            _cache.put( new Long( recid ), obj );
-        } catch ( CacheEvictionException except ) {
-            throw new WrappedRuntimeException( except );
-        }
+        update( recid, obj, DefaultSerializer.INSTANCE );
     }
-
+    
 
     /**
-     *  Fetches a record.
+     *  Updates a record using a custom serializer.
      *
-     *  @param recid the recid for the record that must be fetched.
-     *  @returns the data representing the record.
+     *  @param recid the recid for the record that is to be updated.
+     *  @param obj the new object for the record.
+     *  @param serializer a custom serializer
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public byte[] fetchByteArray( long recid )
+    public void update( long recid, Object obj, Serializer serializer )
         throws IOException
     {
         checkIfClosed();
 
-        byte[] data = (byte[]) _cache.get( new Long( recid ) );
-        if ( data == null ) {
-            data = _recman.fetchByteArray( recid );
+        try {
+            _cache.put( new Long( recid ), new CacheEntry( recid, obj, serializer, true ) );
+        } catch ( CacheEvictionException except ) {
+            throw new IOException( except.getMessage() );
         }
-        return data;
     }
 
 
     /**
-     *  Fetches a record.
+     *  Fetches a record using standard Java serialization.
      *
      *  @param recid the recid for the record that must be fetched.
+     *  @param serializer a custom serializer
      *  @returns the object contained in the record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public Object fetchObject( long recid )
-        throws IOException, ClassNotFoundException
+    public Object fetch( long recid )
+        throws IOException
+    {
+        return fetch( recid, DefaultSerializer.INSTANCE );
+    }
+
+        
+    /**
+     *  Fetches a record using a custom serializer.
+     *
+     *  @param recid the recid for the record that must be fetched.
+     *  @param serializer a custom serializer
+     *  @returns the object contained in the record.
+     *  @throws IOException when one of the underlying I/O operations fails.
+     */
+    public Object fetch( long recid, Serializer serializer )
+        throws IOException
     {
         checkIfClosed();
 
-        Object obj = _cache.get( new Long( recid ) );
-        if ( obj == null ) {
-            obj = _recman.fetchObject( recid );
+        Long id = new Long( recid );
+        CacheEntry entry = (CacheEntry) _cache.get( id );
+        if ( entry == null ) {
+            entry = new CacheEntry( recid, null, serializer, false );
+            entry._obj = _recman.fetch( recid, serializer );
+            try {
+                _cache.put( id, entry );
+            } catch ( CacheEvictionException except ) {
+                throw new WrappedRuntimeException( except );
+            }
         }
-        return obj;
+        return entry._obj;
     }
 
 
@@ -274,8 +267,18 @@ public class CacheRecordManager
     public void close()
         throws IOException
     {
+        Enumeration enum;
+        
         checkIfClosed();
 
+        // write all dirty data
+        enum = _cache.elements();
+        while ( enum.hasMoreElements() ) {
+            CacheEntry entry = (CacheEntry) enum.nextElement();
+            if ( entry._isDirty ) {
+                _recman.update( entry._recid, entry._obj, entry._serializer );
+            }
+        }
         _recman.close();
         _recman = null;
         _cache = null;
@@ -389,4 +392,46 @@ public class CacheRecordManager
         }
     }
 
+    
+    private class CacheEntry
+    {
+
+        long _recid;
+        Object _obj;
+        Serializer _serializer;
+        boolean _isDirty;
+        
+        CacheEntry( long recid, Object obj, Serializer serializer, boolean isDirty )
+        {
+            _recid = recid;
+            _obj = obj;
+            _serializer = serializer;
+            _isDirty = isDirty;
+        }
+        
+    } // class CacheEntry
+
+    private class CacheListener
+        implements CachePolicyListener
+    {
+        
+        /** Notification that cache is evicting an object
+         *
+         * @arg obj object evited from cache
+         *
+         */
+        public void cacheObjectEvicted( Object obj ) 
+            throws CacheEvictionException
+        {
+            CacheEntry entry = (CacheEntry) obj;
+            if ( entry._isDirty ) {
+                try {
+                    _recman.update( entry._recid, entry._obj, entry._serializer );
+                } catch ( IOException except ) {
+                    throw new CacheEvictionException( except );
+                }
+            }
+        }
+        
+    }
 }
