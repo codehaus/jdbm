@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: PhysicalRowIdManager.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: PhysicalRowIdManager.java,v 1.2 2001/11/17 16:14:25 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -63,13 +63,13 @@ final class PhysicalRowIdManager {
      *  Creates a new rowid manager using the indicated record file.
      *  and page manager.
      */
-    PhysicalRowIdManager(RecordFile file, PageManager pageManager) 
+    PhysicalRowIdManager(RecordFile file, PageManager pageManager)
         throws IOException {
         this.file = file;
         this.pageman = pageManager;
         this.freeman = new FreePhysicalRowIdPageManager(file, pageman);
     }
-    
+
     /**
      *  Inserts a new record. Returns the new physical rowid.
      */
@@ -78,7 +78,7 @@ final class PhysicalRowIdManager {
         write(retval, data);
         return retval;
     }
-    
+
     /**
      *  Updates an existing record. Returns the possibly changed
      *  physical rowid.
@@ -97,19 +97,19 @@ final class PhysicalRowIdManager {
         else {
             file.release(block);
         }
-  
+
         // 'nuff space, write it in and return the rowid.
         write(rowid, data);
         return rowid;
     }
-    
+
     /**
      *  Deletes a record.
      */
     void delete(Location rowid) throws IOException {
         free(rowid);
     }
-    
+
     /**
      *  Retrieves a record.
      */
@@ -118,14 +118,14 @@ final class PhysicalRowIdManager {
         PageCursor curs = new PageCursor(pageman, rowid.getBlock());
         BlockIo block = file.get(curs.getCurrent());
         RecordHeader head = new RecordHeader(block, rowid.getOffset());
-        
+
         // allocate a return buffer
         byte[] retval = new byte[head.getCurrentSize()];
         if (retval.length == 0) {
             file.release(curs.getCurrent(), false);
             return retval;
         }
-        
+
         // copy bytes in
         int offsetInBuffer = 0;
         int leftToRead = retval.length;
@@ -138,23 +138,23 @@ final class PhysicalRowIdManager {
             System.arraycopy(block.getData(), dataOffset,
                              retval, offsetInBuffer,
                              toCopy);
-            
+
             // Go to the next block
             leftToRead -= toCopy;
             offsetInBuffer += toCopy;
-            
+
             file.release(block);
-            
+
             if (leftToRead > 0) {
                 block = file.get(curs.next());
                 dataOffset = DataPage.O_DATA;
             }
-            
+
         }
-        
+
         return retval;
-    }    
-    
+    }
+
     /**
      *  Allocate a new rowid with the indicated size.
      */
@@ -164,7 +164,7 @@ final class PhysicalRowIdManager {
             retval = allocNew(size, pageman.getLast(Magic.USED_PAGE));
         return retval;
     }
-    
+
     /**
      *  Allocates a new rowid. The second parameter is there to
      *  allow for a recursive call - it indicates where the search
@@ -188,7 +188,7 @@ final class PhysicalRowIdManager {
             curBlock = file.get(start);
             curPage = DataPage.getDataPageView(curBlock);
         }
-        
+
         // follow the rowids on this page to get to the last one. We don't
         // fall off, because this is the last page, remember?
         short pos = curPage.getFirst();
@@ -197,7 +197,7 @@ final class PhysicalRowIdManager {
             file.release(curBlock);
             return allocNew(size, 0);
         }
-        
+
         RecordHeader hdr = new RecordHeader(curBlock, pos);
         while (hdr.getAvailableSize() != 0 && pos < RecordFile.BLOCK_SIZE) {
             pos += hdr.getAvailableSize() + RecordHeader.SIZE;
@@ -206,19 +206,16 @@ final class PhysicalRowIdManager {
                 file.release(curBlock);
                 return allocNew(size, 0);
             }
-            
+
             hdr = new RecordHeader(curBlock, pos);
         }
-        
+
         if (pos == RecordHeader.SIZE) {
-            // I don't trust this code...
-            System.out.println("Reached?");
             // the last record exactly filled the page. Restart forcing
             // a new page.
-            System.out.println("rel 1");
             file.release(curBlock);
         }
-        
+
         // we have the position, now tack on extra pages until we've got
         // enough space.
         Location retval = new Location(start, pos);
@@ -228,15 +225,15 @@ final class PhysicalRowIdManager {
             // if yes, increase the allocation. A small bit is a record
             // header plus 16 bytes.
             int lastSize = (size - freeHere) % DataPage.DATA_PER_PAGE;
-            if ((DataPage.DATA_PER_PAGE - lastSize) 
+            if ((DataPage.DATA_PER_PAGE - lastSize)
                 < (RecordHeader.SIZE + 16)) {
                 size += (DataPage.DATA_PER_PAGE - lastSize);
             }
-            
+
             // write out the header now so we don't have to come back.
             hdr.setAvailableSize(size);
             file.release(start, true);
-            
+
             int neededLeft = size - freeHere;
             // Refactor these two blocks!
             while (neededLeft >= DataPage.DATA_PER_PAGE) {
@@ -265,11 +262,11 @@ final class PhysicalRowIdManager {
             hdr.setAvailableSize(size);
             file.release(start, true);
         }
-        return retval;      
-        
+        return retval;
+
     }
 
-    
+
     private void free(Location id) throws IOException {
         // get the rowid, and write a zero current size into it.
         BlockIo curBlock = file.get(id.getBlock());
@@ -277,16 +274,16 @@ final class PhysicalRowIdManager {
         RecordHeader hdr = new RecordHeader(curBlock, id.getOffset());
         hdr.setCurrentSize(0);
         file.release(id.getBlock(), true);
-        
+
         // write the rowid to the free list
         freeman.put(id, hdr.getAvailableSize());
     }
-    
+
     /**
      *  Writes out data to a rowid. Assumes that any resizing has been
      *  done.
      */
-    private void write(Location rowid, byte[] data) 
+    private void write(Location rowid, byte[] data)
     throws IOException {
 
         PageCursor curs = new PageCursor(pageman, rowid.getBlock());
@@ -297,7 +294,7 @@ final class PhysicalRowIdManager {
             file.release(curs.getCurrent(), true);
             return;
         }
-        
+
         // copy bytes in
         int offsetInBuffer = 0;
         int leftToWrite = data.length;
@@ -305,24 +302,24 @@ final class PhysicalRowIdManager {
         while (leftToWrite > 0) {
             // copy current page's data to return buffer
             int toCopy = RecordFile.BLOCK_SIZE - dataOffset;
-            
+
             if (leftToWrite < toCopy)
                 toCopy = leftToWrite;
             System.arraycopy(data, offsetInBuffer,
                              block.getData(), dataOffset,
                              toCopy);
-            
+
             // Go to the next block
             leftToWrite -= toCopy;
             offsetInBuffer += toCopy;
-            
+
             file.release(curs.getCurrent(), true);
-            
+
             if (leftToWrite > 0) {
                 block = file.get(curs.next());
                 dataOffset = DataPage.O_DATA;
             }
-        } 
+        }
     }
 }
-    
+

@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: FreePhysicalRowIdPageManager.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: FreePhysicalRowIdPageManager.java,v 1.2 2001/11/17 16:14:25 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -53,59 +53,64 @@ import java.io.IOException;
  *  This class manages free physical rowid pages and provides methods
  *  to free and allocate physical rowids on a high level.
  */
-final class FreePhysicalRowIdPageManager {
+final class FreePhysicalRowIdPageManager
+{
     // our record file
-    RecordFile file;
+    protected RecordFile _file;
+
     // our page manager
-    PageManager pageman;
+    protected PageManager _pageman;
 
     /**
      *  Creates a new instance using the indicated record file and
      *  page manager.
      */
-    FreePhysicalRowIdPageManager(RecordFile file,
-         PageManager pageman) throws IOException {
-  this.file = file;
-  this.pageman = pageman;
+    FreePhysicalRowIdPageManager( RecordFile file, PageManager pageman )
+        throws IOException
+    {
+        _file = file;
+        _pageman = pageman;
     }
+
 
     /**
      *  Returns a free physical rowid of the indicated size, or
      *  null if nothing was found.
      */
-    Location get(int size) throws IOException {
-  
-  // Loop through the free physical rowid list until we find
-  // a rowid that's large enough.
-  Location retval = null;
-  PageCursor curs = new PageCursor(pageman, Magic.FREEPHYSIDS_PAGE);
-  while (curs.next() != 0) {
-      FreePhysicalRowIdPage fp = FreePhysicalRowIdPage
-    .getFreePhysicalRowIdPageView(file.get(curs.getCurrent()));
-      int slot = fp.getFirstLargerThan(size);
-      if (slot != -1) {
-    // got one!
-    retval =
-        new Location(fp.get(slot));
- 
-    int slotsize = fp.get(slot).getSize();
-    fp.free(slot);
-    if (fp.getCount() == 0) {
-        // page became empty - free it
-        file.release(curs.getCurrent(), false);
-        pageman.free(Magic.FREEPHYSIDS_PAGE, curs.getCurrent());
-    }
-    else
-        file.release(curs.getCurrent(), true);
+    Location get( int size )
+        throws IOException
+    {
+        // Loop through the free physical rowid list until we find
+        // a rowid that's large enough.
+        Location retval = null;
+        PageCursor curs = new PageCursor( _pageman, Magic.FREEPHYSIDS_PAGE );
 
-    return retval;
-      }
-      else {
-    // no luck, go to next page
-    file.release(curs.getCurrent(), false);
-      }     
-  }
-  return null;
+        while (curs.next() != 0) {
+            FreePhysicalRowIdPage fp = FreePhysicalRowIdPage
+                .getFreePhysicalRowIdPageView( _file.get( curs.getCurrent() ) );
+            int slot = fp.getFirstLargerThan( size );
+            if ( slot != -1 ) {
+                // got one!
+                retval = new Location( fp.get( slot ) );
+
+                int slotsize = fp.get( slot ).getSize();
+                fp.free( slot );
+                if ( fp.getCount() == 0 ) {
+                    // page became empty - free it
+                    _file.release( curs.getCurrent(), false );
+                    _pageman.free( Magic.FREEPHYSIDS_PAGE, curs.getCurrent() );
+                } else {
+                    _file.release( curs.getCurrent(), true );
+                }
+
+                return retval;
+            } else {
+                // no luck, go to next page
+                _file.release( curs.getCurrent(), false );
+            }
+
+        }
+        return null;
     }
 
     /**
@@ -113,13 +118,13 @@ final class FreePhysicalRowIdPageManager {
      */
     void put(Location rowid, int size)
   throws IOException {
-  
+
   FreePhysicalRowId free = null;
-  PageCursor curs = new PageCursor(pageman, Magic.FREEPHYSIDS_PAGE);
+  PageCursor curs = new PageCursor(_pageman, Magic.FREEPHYSIDS_PAGE);
   long freePage = 0;
   while (curs.next() != 0) {
       freePage = curs.getCurrent();
-      BlockIo curBlock = file.get(freePage);
+      BlockIo curBlock = _file.get(freePage);
       FreePhysicalRowIdPage fp = FreePhysicalRowIdPage
     .getFreePhysicalRowIdPageView(curBlock);
       int slot = fp.getFirstFree();
@@ -128,20 +133,20 @@ final class FreePhysicalRowIdPageManager {
     break;
       }
 
-      file.release(curBlock);
+      _file.release(curBlock);
   }
   if (free == null) {
       // No more space on the free list, add a page.
-      freePage = pageman.allocate(Magic.FREEPHYSIDS_PAGE);
-      BlockIo curBlock = file.get(freePage);
-      FreePhysicalRowIdPage fp = 
+      freePage = _pageman.allocate(Magic.FREEPHYSIDS_PAGE);
+      BlockIo curBlock = _file.get(freePage);
+      FreePhysicalRowIdPage fp =
     FreePhysicalRowIdPage.getFreePhysicalRowIdPageView(curBlock);
       free = fp.alloc(0);
   }
-  
+
   free.setBlock(rowid.getBlock());
   free.setOffset(rowid.getOffset());
   free.setSize(size);
-  file.release(freePage, true);
+  _file.release(freePage, true);
     }
 }
