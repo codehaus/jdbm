@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordManager.java,v 1.5 2001/05/18 16:00:02 boisvert Exp $
+ * $Id: RecordManager.java,v 1.6 2001/08/28 06:41:47 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -202,9 +202,6 @@ public final class RecordManager {
      */
     public void update(long recid, Object obj)
     throws IOException {
-        for (int i=0; i<caches.size(); i++) {
-            ((RecordCache)caches.elementAt(i)).invalidate(recid);
-        }
         byte[] buffer = objectToByteArray(obj);
         update(recid, buffer);
     }
@@ -270,7 +267,7 @@ public final class RecordManager {
     /**
      * Commit (make persistent) all changes since beginning of transaction.
      */
-    public void commit() throws IOException {
+    public synchronized void commit() throws IOException {
         for (int i=0; i<caches.size(); i++) {
             ((RecordCache)caches.elementAt(i)).flushAll();
         }
@@ -280,7 +277,7 @@ public final class RecordManager {
     /**
      * Rollback (cancel) all changes since beginning of transaction.
      */
-    public void rollback() throws IOException {
+    public synchronized void rollback() throws IOException {
         for (int i=0; i<caches.size(); i++) {
             ((RecordCache)caches.elementAt(i)).invalidateAll();
         }
@@ -346,7 +343,7 @@ public final class RecordManager {
      * Obtain the record id of a named object. Returns 0 if named object
      * doesn't exist.
      */
-    public long getNamedObject(String name) throws IOException {
+    public synchronized long getNamedObject(String name) throws IOException {
         Hashtable nameDirectory = getNameDirectory();
         Long recid = (Long)nameDirectory.get(name);
         if (recid == null) {
@@ -358,7 +355,7 @@ public final class RecordManager {
     /**
      * Set the record id of a named object.
      */
-    public void setNamedObject(String name, long recid)
+    public synchronized void setNamedObject(String name, long recid)
     throws IOException {
         Hashtable nameDirectory = getNameDirectory();
         if (recid == 0) {
@@ -373,7 +370,7 @@ public final class RecordManager {
     /**
      * Add a RecordCache which synchronizes with this RecordManager.
      */
-    public void addCache(RecordCache cache) {
+    public synchronized void addCache(RecordCache cache) {
         if (!caches.contains(cache)) {
             caches.addElement(cache);
         }
@@ -382,7 +379,7 @@ public final class RecordManager {
     /**
      * Remove a RecordCache which synchronizes with this RecordManager.
      */
-    public void removeCache(RecordCache cache) {
+    public synchronized void removeCache(RecordCache cache) {
         caches.removeElement(cache);
     }
 }
