@@ -1,4 +1,5 @@
 
+import java.util.Properties;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 
@@ -8,9 +9,6 @@ import jdbm.helper.StringComparator;
 
 import jdbm.btree.BTree;
 
-import java.io.IOException;
-import java.util.Properties;
-
 /**
  * Famous People example.
  * <p>
@@ -19,12 +17,12 @@ import java.util.Properties;
  * ordered traversal, reverse traversal and range lookup of records.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: FamousPeople.java,v 1.4 2003/03/21 03:12:23 boisvert Exp $
+ * @version $Id: FamousPeople.java,v 1.5 2003/09/21 15:44:11 boisvert Exp $
  */
+
 public class FamousPeople {
 
     static String DATABASE = "people";
-
     static String BTREE_NAME = "FamousPeople";
 
     static String[] people =
@@ -48,7 +46,6 @@ public class FamousPeople {
           "Designer" };
 
     static String PREFIX = "S";
-
 
     /**
      * Example main entrypoint.
@@ -106,13 +103,17 @@ public class FamousPeople {
             System.out.println();
             System.out.println( "Reverse order:" );
             browser = tree.browse( null ); // position browser at end of the list
+
             while ( browser.getPrevious( tuple ) ) {
                 print( tuple );
             }
 
+
+
             // display people whose name start with PREFIX range
             System.out.println();
             System.out.println( "All people whose name start with '" + PREFIX + "':" );
+
             browser = tree.browse( PREFIX );
             while ( browser.getNext( tuple ) ) {
                 String key = (String) tuple.getKey();
@@ -155,4 +156,3 @@ public class FamousPeople {
     }
 
 }
-
