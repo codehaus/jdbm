@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordManager.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: RecordManager.java,v 1.2 2000/05/23 22:00:50 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -75,6 +75,8 @@ public final class RecordManager {
     private PhysicalRowIdManager physMgr;
     private LogicalRowIdManager logMgr;
     private PageManager pageman;
+
+    private RecordCache cache;
 
     public static final int NAME_DIRECTORY_ROOT = 0;
 
@@ -118,6 +120,10 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized void close() throws IOException {
+        if (cache != null) {
+            cache.flushAll();
+            cache.invalidateAll();
+        }
         pageman.close();
         file.close();
     }
@@ -153,6 +159,9 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized void delete(long recid) throws IOException {
+        if (cache != null) {
+            cache.invalidate(recid);
+        }
         Location logRowId = new Location(recid);
         Location physRowId = logMgr.fetch(logRowId);
         physMgr.delete(physRowId);
@@ -169,6 +178,9 @@ public final class RecordManager {
      */
     public synchronized void update(long recid, byte[] data)
     throws IOException {
+        if (cache != null) {
+            cache.invalidate(recid);
+        }
         Location logRecid = new Location(recid);
         Location physRecid = logMgr.fetch(logRecid);
         Location newRecid = physMgr.update(physRecid, data);
@@ -186,6 +198,9 @@ public final class RecordManager {
      */
     public void update(long recid, Object obj)
     throws IOException {
+        if (cache != null) {
+            cache.invalidate(recid);
+        }
         byte[] buffer = objectToByteArray(obj);
         update(recid, buffer);
     }
@@ -198,6 +213,9 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized byte[] fetchByteArray(long recid) throws IOException {
+        if (cache != null) {
+            cache.flush(recid);
+        }
         return physMgr.fetch(logMgr.fetch(new Location(recid)));
     }
 
@@ -210,6 +228,9 @@ public final class RecordManager {
      */
     public Object fetchObject(long recid) 
     throws IOException, ClassNotFoundException {
+        if (cache != null) {
+            cache.flush(recid);
+        }
         byte[] buffer = fetchByteArray(recid);
         return byteArrayToObject(buffer);
     }
@@ -246,6 +267,9 @@ public final class RecordManager {
      * Commit (make persistent) all changes since beginning of transaction.
      */
     public void commit() throws IOException {
+        if (cache != null) {
+            cache.flushAll();
+        }
         pageman.commit();
     }
 
@@ -253,6 +277,9 @@ public final class RecordManager {
      * Rollback (cancel) all changes since beginning of transaction.
      */
     public void rollback() throws IOException {
+        if (cache != null) {
+            cache.invalidateAll();
+        }
         pageman.rollback();
     }
 
