@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: TransactionManager.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: TransactionManager.java,v 1.2 2000/05/23 21:55:44 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -110,6 +110,7 @@ final class TransactionManager {
             synchronizeBlocks(txns[i], true);
             txns[i] = null;
         }
+        owner.sync();
         open();
     }
 
@@ -139,8 +140,8 @@ final class TransactionManager {
         try {
             if (ois.readShort() != Magic.LOGFILE_HEADER)
                 throw new Error("Bad magic on log file");
-        } catch (EOFException e) {
-            // Apparently a very empty logfile. Can happen...
+        } catch (IOException e) {
+            // corrupted/empty logfile
             logFile.delete();
             return;
         }
@@ -151,14 +152,20 @@ final class TransactionManager {
                 blocks = (ArrayList) ois.readObject();
             } catch (ClassNotFoundException e) {
                 throw new Error("Unexcepted exception: " + e);
-            } catch (EOFException e) {
+            } catch (IOException e) {
+                // corrupted logfile, ignore rest of transactions
                 break;
             }
             synchronizeBlocks(blocks, false);
             
             // ObjectInputStream must match exactly each
             // ObjectOutputStream created during writes
-            ois = new ObjectInputStream(fis);
+            try {
+                ois = new ObjectInputStream(fis);
+            } catch (IOException e) {
+                // corrupted logfile, ignore rest of transactions
+                break;
+            }
         }
         owner.sync();
         logFile.delete();
