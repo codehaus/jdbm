@@ -1,5 +1,5 @@
 @echo off
-REM $Id: test.bat,v 1.1 2003/10/31 00:09:10 dranatunga Exp $
+REM $Id: test.bat,v 1.2 2003/10/31 13:37:41 dranatunga Exp $
 
 :handleHelp
     IF "%1"=="-h" GOTO showUsage
@@ -13,7 +13,8 @@ REM $Id: test.bat,v 1.1 2003/10/31 00:09:10 dranatunga Exp $
     IF "%1"=="-text"  goto useTextRunner
     IF "%1"=="-awt"   goto useAwtRunner
     IF "%1"=="-swing" goto useSwingRunner
-
+    goto selectTest
+    
 :useTextRunner
     SET TESTUI=junit.textui.TestRunner
     SHIFT
@@ -30,8 +31,9 @@ REM $Id: test.bat,v 1.1 2003/10/31 00:09:10 dranatunga Exp $
     GOTO selectTest
     
 :selectTest
-    REM Default test
-    SET TESTCASE=jdbm.AllTests
+    SET TESTCASE=%1
+    REM Default test    
+    IF "%1"=="" SET TESTCASE=jdbm.AllTests
 
 :ensureTestsCompiled
     IF NOT EXIST build\tests call build.bat tests
