@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# $Id: run_cygwin.sh,v 1.1 2002/05/31 06:35:58 boisvert Exp $
+# $Id: run_cygwin.sh,v 1.2 2003/03/21 03:17:47 boisvert Exp $
 
 if [ -z "$JAVA_HOME" ] ; then
   JAVA=`which java`
@@ -17,6 +17,7 @@ JAVA=$JAVA_HOME/bin/java
 CLASSPATH=`echo lib/*.jar | tr ' ' ';'`";$CLASSPATH"
 CLASSPATH="$JAVA_HOME/lib/tools.jar;$CLASSPATH"
 CLASSPATH="$CLASSPATH;./build/classes"
+CLASSPATH="$CLASSPATH;./build/examples"
 CLASSPATH="$CLASSPATH;./build/tests"
 
 $JAVA -classpath $CLASSPATH "$@"
