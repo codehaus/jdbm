@@ -1,7 +1,12 @@
-$Id: CHANGES.txt,v 1.7 2001/11/10 19:53:45 boisvert Exp $
+$Id: CHANGES.txt,v 1.8 2001/11/17 23:27:30 boisvert Exp $
 
 CHANGE LOG
 ==========
+
+For version 0.14:
+
+    * Faster log checkpointing by avoiding unnecessary writes to same block
+      (contributed by Nathan Clement)
 
 For version 0.13:
 
