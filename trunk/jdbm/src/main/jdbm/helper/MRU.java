@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: MRU.java,v 1.1 2000/05/24 01:49:04 boisvert Exp $
+ * $Id: MRU.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
  */
 
 package jdbm.helper;
@@ -52,6 +52,8 @@ import jdbm.recman.RecordManager;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
+
 
 /**
  *  MRU - Most Recently Used cache policy.
@@ -59,7 +61,7 @@ import java.util.Hashtable;
  *  Methods are *not* synchronized, so no concurrent access is allowed.
  *
  *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
- *  @version $Id: MRU.java,v 1.1 2000/05/24 01:49:04 boisvert Exp $
+ *  @version $Id: MRU.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
  */
 public class MRU implements CachePolicy {
 
@@ -84,6 +86,11 @@ public class MRU implements CachePolicy {
     CacheEntry _last;
 
 
+    /**
+     * Cache eviction listeners
+     */
+    Vector listeners = new Vector();
+
 
     /**
      * Construct an MRU with a given maximum number of objects.
@@ -96,7 +103,7 @@ public class MRU implements CachePolicy {
     /**
      * Place an object in the cache.
      */
-    public void put(Object key, Object value) {
+    public void put(Object key, Object value) throws CacheEvictionException {
         CacheEntry entry = (CacheEntry)_hash.get(key);
         if (entry != null) {
             entry.setValue(value);
@@ -160,6 +167,23 @@ public class MRU implements CachePolicy {
         return new MRUEnumeration(_hash.elements());
     }
 
+    /**
+     * Add a listener to this cache policy
+     *
+     * @arg listener Listener to add to this policy
+     */
+    public void addListener(CachePolicyListener listener) {
+        listeners.addElement(listener);
+    }
+
+    /**
+     * Remove a listener from this cache policy
+     *
+     * @arg listener Listener to remove from this policy
+     */
+    public void removeListener(CachePolicyListener listener) {
+        listeners.removeElement(listener);
+    }
 
     /**
      * Add a CacheEntry.  Entry goes at the end of the list.
@@ -214,10 +238,18 @@ public class MRU implements CachePolicy {
      *
      * @return recyclable CacheEntry
      */
-    protected CacheEntry purgeEntry() {
+    protected CacheEntry purgeEntry() throws CacheEvictionException {
         CacheEntry entry = _first;
         removeEntry(entry);
         _hash.remove(entry.getKey());
+
+        // notify policy listeners
+        CachePolicyListener listener;
+        for (int i=0; i<listeners.size(); i++) {
+            listener = (CachePolicyListener)listeners.elementAt(i);
+            listener.cacheObjectEvicted(entry.getValue());
+        }
+
         entry.setValue(null);
         return entry;
     }

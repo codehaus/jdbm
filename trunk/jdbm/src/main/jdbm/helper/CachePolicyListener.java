@@ -42,71 +42,25 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CachePolicy.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
+ * $Id: CachePolicyListener.java,v 1.1 2000/05/24 18:25:47 boisvert Exp $
  */
 
 package jdbm.helper;
 
-import java.util.Enumeration;
-
 /**
- *  CachePolicity is an abstraction for different cache policies.
- *  (ie. MRU, time-based, soft-refs, ...)
+ *  Callback interface between CachePolicy and a Cache implementation
+ *  to notify about cached object eviction.
  *
  *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
- *  @version $Id: CachePolicy.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
+ *  @version $Id: CachePolicyListener.java,v 1.1 2000/05/24 18:25:47 boisvert Exp $
  */
-public interface CachePolicy {
+public interface CachePolicyListener {
 
     /**
-     * Place an object in the cache.
+     * Notification that cache is evicting an object
      *
-     * @arg key key for the cached object
-     * @arg value the cached object
+     * @arg obj object evited from cache
      */
-    public void put(Object key, Object value) throws CacheEvictionException;
-
-
-    /**
-     * Obtain an object in the cache
-     *
-     * @arg key Key of the cached object
-     */
-    public Object get(Object key);
-
-
-    /**
-     * Remove an object from the cache
-     *
-     * @arg key Key of the cached object
-     */
-    public void remove(Object key);
-
-
-    /**
-     * Remove all objects from the cache
-     */
-    public void removeAll();
-
-
-    /**
-     * Enumerate elements' values in the cache
-     */
-    public Enumeration elements();
-
-
-    /**
-     * Add a listener to this cache policy
-     *
-     * @arg listener Listener to add to this policy
-     */
-    public void addListener(CachePolicyListener listener);
-
-    /**
-     * Remove a listener from this cache policy
-     *
-     * @arg listener Listener to remove from this policy
-     */
-    public void removeListener(CachePolicyListener listener);
+    public void cacheObjectEvicted(Object obj) throws CacheEvictionException;
 
 }
