@@ -1,5 +1,5 @@
 /*
- *  $Id: TransactionManager.java,v 1.1 2000/04/03 12:13:48 cdegroot Exp $
+ *  $Id: TransactionManager.java,v 1.2 2000/04/11 04:23:59 boisvert Exp $
  *
  *  Transaction manager
  *
@@ -7,8 +7,8 @@
  *  Copyright (C) 2000 Cees de Groot <cg@cdegroot.com>
  *
  *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public License 
- *  as published by the Free Software Foundation; either version 2 
+ *  modify it under the terms of the GNU Library General Public License
+ *  as published by the Free Software Foundation; either version 2
  *  of the License, or (at your option) any later version.
  *
  *  This library is distributed in the hope that it will be useful,
@@ -16,8 +16,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Library General Public License for more details.
  *
- *  You should have received a copy of the GNU Library General Public License 
- *  along with this library; if not, write to the Free Software Foundation, 
+ *  You should have received a copy of the GNU Library General Public License
+ *  along with this library; if not, write to the Free Software Foundation,
  *  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 package com.cdegroot.db.recman;
@@ -26,10 +26,10 @@ import java.io.*;
 import java.util.*;
 
 /**
- *  This class manages the transaction log that belongs to every 
+ *  This class manages the transaction log that belongs to every
  *  {@link RecordFile}. The transaction log is either clean, or
  *  in progress. In the latter case, the transaction manager
- *  takes care of a roll forward. 
+ *  takes care of a roll forward.
  *
  *  Implementation note: this is a proof-of-concept implementation
  *  which hasn't been optimized for speed. For instance, all sorts
@@ -40,7 +40,7 @@ import java.util.*;
 
 final class TransactionManager {
     private RecordFile owner;
-    
+
     // streams for transaction log.
     private FileOutputStream fos;
     private ObjectOutputStream oos;
@@ -78,7 +78,7 @@ final class TransactionManager {
 
     /** Synchs in-core transactions to data file and opens a fresh log */
     private void synchronizeLog() throws IOException {
-	close();	
+	close();
 	for (int i = 0; i < TXNS_IN_LOG; i++) {
 	    if (txns[i] == null)
 		continue;
@@ -87,7 +87,7 @@ final class TransactionManager {
 	}
 	open();
     }
-    
+
     /** Opens the log file */
     private void open() throws IOException {
 	fos = new FileOutputStream(makeLogName());
@@ -99,7 +99,6 @@ final class TransactionManager {
 
     /** Startup recovery on all files */
     private void recover() throws IOException {
-	
 	String logName = makeLogName();
 	File logFile = new File(logName);
 	if (!logFile.exists())
@@ -131,13 +130,17 @@ final class TransactionManager {
 		break;
 	    }
 	    synchronizeBlocks(blocks, false);
+
+            // ObjectInputStream must match exactly each
+            // ObjectOutputStream created during writes
+            ois = new ObjectInputStream(fis);
 	}
 	owner.sync();
 	logFile.delete();
     }
 
     /** Synchronizes the indicated blocks with the owner. */
-    private void synchronizeBlocks(ArrayList blocks, boolean fromCore) 
+    private void synchronizeBlocks(ArrayList blocks, boolean fromCore)
 	throws IOException {
 	// write block vector elements to the data file.
 	for (Iterator k = blocks.iterator(); k.hasNext(); ) {
@@ -164,7 +167,7 @@ final class TransactionManager {
 	}
 	txns[curTxn] = new ArrayList();
     }
-    
+
     /**
      *  Indicates the block is part of the transaction.
      */
@@ -172,15 +175,19 @@ final class TransactionManager {
 	block.incrementTransactionCount();
 	txns[curTxn].add(block);
     }
-    
+
     /**
      *  Commits the transaction to the log file.
      */
     void commit() throws IOException {
-	oos.writeObject(txns[curTxn]);
-	sync();
+        oos.writeObject(txns[curTxn]);
+        sync();
+
+        // open a new ObjectOutputStream in order to store
+        // newer states of BlockIo
+        oos = new ObjectOutputStream(fos);
     }
-    
+
     /** Flushes and syncs */
     private void sync() throws IOException {
 	oos.flush();
@@ -196,7 +203,7 @@ final class TransactionManager {
 	synchronizeLog();
 	close();
     }
-    
+
     /**
      *  Closes open files.
      */
