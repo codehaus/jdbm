@@ -42,74 +42,80 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: Location.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: Location.java,v 1.2 2003/11/01 14:17:21 dranatunga Exp $
  */
 
 package jdbm.recman;
 
 /**
- *  This class represents a location within a file. Both physical and
- *  logical rowids are based on locations internally - this version is
- *  used when there is no file block to back the location's data.
+ * This class represents a location within a file. Both physical and
+ * logical rowids are based on locations internally - this version is
+ * used when there is no file block to back the location's data.
  */
 final class Location {
     private long block;
     private short offset;
 
     /**
-     *  Creates a location from a (block, offset) tuple.
+     * Creates a location from a (block, offset) tuple.
      */
     Location(long block, short offset) {
-  this.block = block;
-  this.offset = offset;
+        this.block = block;
+        this.offset = offset;
     }
 
     /**
-     *  Creates a location from a combined block/offset long, as 
-     *  used in the external representation of logical rowids.
-     *
-     *  @see toLong()
+     * Creates a location from a combined block/offset long, as
+     * used in the external representation of logical rowids.
+     * 
+     * @see #toLong()
      */
     Location(long blockOffset) {
-  this.offset = (short) (blockOffset & 0xffff);
-  this.block = blockOffset >> 16;
+        this.offset = (short) (blockOffset & 0xffff);
+        this.block = blockOffset >> 16;
     }
 
     /**
-     *  Creates a location based on the data of the physical rowid.
+     * Creates a location based on the data of the physical rowid.
      */
     Location(PhysicalRowId src) {
-  block = src.getBlock();
-  offset = src.getOffset();
-    }
-
-    /** Returns the file block of the location */
-    long getBlock() {
-  return block;
-    }
-    /** Returns the offset within the block of the location */
-    short getOffset() {
-  return offset;
+        block = src.getBlock();
+        offset = src.getOffset();
     }
 
     /**
-     *  Returns the external representation of a location when used
-     *  as a logical rowid, which combines the block and the offset
-     *  in a single long.
+     * Returns the file block of the location
+     */
+    long getBlock() {
+        return block;
+    }
+
+    /**
+     * Returns the offset within the block of the location
+     */
+    short getOffset() {
+        return offset;
+    }
+
+    /**
+     * Returns the external representation of a location when used
+     * as a logical rowid, which combines the block and the offset
+     * in a single long.
      */
     long toLong() {
-  return (block << 16) + (long) offset;
+        return (block << 16) + (long) offset;
     }
 
     // overrides of java.lang.Object
 
     public boolean equals(Object o) {
-  if (o == null || !(o instanceof Location))
-      return false;
-  Location ol = (Location) o;
-  return ol.block == block && ol.offset == offset;
+        if (o == null || !(o instanceof Location))
+            return false;
+        Location ol = (Location) o;
+        return ol.block == block && ol.offset == offset;
     }
+
     public String toString() {
-  return "PL(" + block + ":" + offset + ")";
+        return "PL(" + block + ":" + offset + ")";
     }
 }
