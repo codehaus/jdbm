@@ -1,4 +1,4 @@
-$Id: CHANGES.txt,v 1.9 2002/10/13 14:51:31 boisvert Exp $
+$Id: CHANGES.txt,v 1.10 2002/10/13 18:52:33 boisvert Exp $
 
 CHANGE LOG
 ==========
@@ -23,6 +23,9 @@ For version "CVS":
     * Performance improvement in BlockIo.readLong() contributed by
       Erwin Bolwidt <ejb@klomp.org>
 
+    * Switched to using java.util.Comparator interface instead of
+      JDBM-specific comparator.
+      
 
 For version 0.13:
 
