@@ -1,5 +1,5 @@
 /*
- *  $Id: TestFreeLogicalRowIdPageManager.java,v 1.1 2000/05/06 00:00:53 boisvert Exp $
+ *  $Id: TestFreeLogicalRowIdPageManager.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
  *
  *  Unit tests for FreeLogicalRowIdPageManager class
  *
@@ -7,8 +7,8 @@
  *  Copyright (C) 1999, 2000 Cees de Groot <cg@cdegroot.com>
  *
  *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public License 
- *  as published by the Free Software Foundation; either version 2 
+ *  modify it under the terms of the GNU Library General Public License
+ *  as published by the Free Software Foundation; either version 2
  *  of the License, or (at your option) any later version.
  *
  *  This library is distributed in the hope that it will be useful,
@@ -16,8 +16,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Library General Public License for more details.
  *
- *  You should have received a copy of the GNU Library General Public License 
- *  along with this library; if not, write to the Free Software Foundation, 
+ *  You should have received a copy of the GNU Library General Public License
+ *  along with this library; if not, write to the Free Software Foundation,
  *  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 package jdbm.recman;
@@ -34,7 +34,7 @@ public class TestFreeLogicalRowIdPageManager extends TestCase {
     public TestFreeLogicalRowIdPageManager(String name) {
   super(name);
     }
-    
+
     public void setUp() {
   TestRecordFile.deleteTestFile();
     }
@@ -48,8 +48,11 @@ public class TestFreeLogicalRowIdPageManager extends TestCase {
     public void testCtor() throws Exception {
   RecordFile f = new RecordFile(TestRecordFile.testFileName);
   PageManager pm = new PageManager(f);
-  FreeLogicalRowIdPageManager freeMgr = 
+  FreeLogicalRowIdPageManager freeMgr =
       new FreeLogicalRowIdPageManager(f, pm);
+
+      pm.close();
+      f.close();
     }
 
     /**
@@ -58,13 +61,15 @@ public class TestFreeLogicalRowIdPageManager extends TestCase {
     public void testBasics() throws Exception {
   RecordFile f = new RecordFile(TestRecordFile.testFileName);
   PageManager pm = new PageManager(f);
-  FreeLogicalRowIdPageManager freeMgr = 
+  FreeLogicalRowIdPageManager freeMgr =
       new FreeLogicalRowIdPageManager(f, pm);
 
   // allocate a rowid - should fail on an empty file
   Location loc = freeMgr.get();
   assert("loc is not null?", loc == null);
-  
+
+      pm.close();
+      f.close();
     }
 
 

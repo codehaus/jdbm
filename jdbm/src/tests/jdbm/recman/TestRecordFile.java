@@ -1,5 +1,5 @@
 /*
- *  $Id: TestRecordFile.java,v 1.1 2000/05/06 00:00:53 boisvert Exp $
+ *  $Id: TestRecordFile.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
  *
  *  Unit tests for RecordFile class
  *
@@ -7,8 +7,8 @@
  *  Copyright (C) 1999, 2000 Cees de Groot <cg@cdegroot.com>
  *
  *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public License 
- *  as published by the Free Software Foundation; either version 2 
+ *  modify it under the terms of the GNU Library General Public License
+ *  as published by the Free Software Foundation; either version 2
  *  of the License, or (at your option) any later version.
  *
  *  This library is distributed in the hope that it will be useful,
@@ -16,8 +16,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Library General Public License for more details.
  *
- *  You should have received a copy of the GNU Library General Public License 
- *  along with this library; if not, write to the Free Software Foundation, 
+ *  You should have received a copy of the GNU Library General Public License
+ *  along with this library; if not, write to the Free Software Foundation,
  *  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 package jdbm.recman;
@@ -36,15 +36,55 @@ public class TestRecordFile extends TestCase {
     public TestRecordFile(String name) {
         super(name);
     }
-    
-    public static void deleteTestFile() {
-        try {
-            new File(testFileName + RecordFile.extension).delete();
-        } catch (Exception e) { }
-        try {
-            new File(testFileName + TransactionManager.extension).delete();
-        } catch (Exception e) {
+
+    public static void deleteFile(String filename) {
+        System.gc();
+
+        File f = new File(filename);
+
+        if (f.exists()) {
+            try {
+                f.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (f.exists()) {
+                System.out.println("File still exists: " + f );
+                throw new Error("Unable to delete file: "+f);
+            }
         }
+
+        /*
+        int loop = 0;
+        while (f.exists()) {
+           loop++;
+           if (loop > 5) {
+               throw new Error("Unable to delete file: "+f);
+           }
+            try {
+                f.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (f.exists()) {
+              System.out.println("Waiting for file "+f+" to be deleted...");
+              try { Thread.currentThread().sleep(1000); } catch (Exception e) {}
+              System.gc();
+              if (f.exists()) {
+                 new Exception("File not deleted yet: "+f).printStackTrace();
+              }
+            }
+        }
+        */
+    }
+
+
+    public static void deleteTestFile() {
+        deleteFile(testFileName);
+
+        deleteFile(testFileName + RecordFile.extension);
+
+        deleteFile(testFileName + TransactionManager.extension);
     }
 
     public void setUp() {
@@ -54,13 +94,14 @@ public class TestRecordFile extends TestCase {
     public void tearDown() {
         deleteTestFile();
     }
-    
+
 
     /**
      *  Test constructor
      */
     public void testCtor() throws Exception {
         RecordFile f = new RecordFile(testFileName);
+        f.close();
     }
 
     /**
@@ -78,7 +119,7 @@ public class TestRecordFile extends TestCase {
         f.release(0, false);
         f.close();
     }
-    
+
     /**
      *  Test addition of a number of records, with holes.
      */
@@ -106,11 +147,11 @@ public class TestRecordFile extends TestCase {
         data = f.get(0).getData();
         assertEquals("0 = b", (byte) 'b', data[0]);
         f.release(0, false);
-  
+
         data = f.get(5).getData();
         assertEquals("5 = 0", 0, data[5]);
         f.release(5, false);
-    
+
         data = f.get(10).getData();
         assertEquals("10 = c", (byte) 'c', data[10]);
         f.release(10, false);
@@ -133,10 +174,18 @@ public class TestRecordFile extends TestCase {
         } catch (IOException e) {
         }
         f.release(0, false);
-  
+
         f.close();
+
+        // @alex retry to open the file
+        /*
+        f = new RecordFile(testFileName);
+        PageManager pm = new PageManager(f);
+        pm.close();
+        f.close();
+        */
     }
-    
+
 
     /**
      *  Runs all tests in this class

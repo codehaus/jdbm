@@ -1,5 +1,5 @@
 /*
- *  $Id: TestPageManager.java,v 1.1 2000/05/06 00:00:53 boisvert Exp $
+ *  $Id: TestPageManager.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
  *
  *  Unit tests for PageManager class
  *
@@ -7,8 +7,8 @@
  *  Copyright (C) 1999, 2000 Cees de Groot <cg@cdegroot.com>
  *
  *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Library General Public License 
- *  as published by the Free Software Foundation; either version 2 
+ *  modify it under the terms of the GNU Library General Public License
+ *  as published by the Free Software Foundation; either version 2
  *  of the License, or (at your option) any later version.
  *
  *  This library is distributed in the hope that it will be useful,
@@ -16,8 +16,8 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Library General Public License for more details.
  *
- *  You should have received a copy of the GNU Library General Public License 
- *  along with this library; if not, write to the Free Software Foundation, 
+ *  You should have received a copy of the GNU Library General Public License
+ *  along with this library; if not, write to the Free Software Foundation,
  *  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 package jdbm.recman;
@@ -32,58 +32,61 @@ import java.io.IOException;
 public class TestPageManager extends TestCase {
 
     public TestPageManager(String name) {
-  super(name);
+        super(name);
     }
-    
+
     public void setUp() {
-  TestRecordFile.deleteTestFile();
+        TestRecordFile.deleteTestFile();
     }
+
     public void tearDown() {
-  TestRecordFile.deleteTestFile();
+        TestRecordFile.deleteTestFile();
     }
 
     /**
      *  Test constructor
      */
     public void testCtor() throws Exception {
-  RecordFile f = new RecordFile(TestRecordFile.testFileName);
-  PageManager pm = new PageManager(f);
+        RecordFile f = new RecordFile(TestRecordFile.testFileName);
+        PageManager pm = new PageManager(f);
+
+        f.forceClose();
     }
 
     /**
      *  Test allocations on a single list.
      */
     public void testAllocSingleList() throws Exception {
-  RecordFile f = new RecordFile(TestRecordFile.testFileName);
-  PageManager pm = new PageManager(f);
-  for (int i = 0; i < 100; i++) {
-      assertEquals("allocate ", (long) i + 1,
-       pm.allocate(Magic.USED_PAGE));
-  }
-  pm.close();
-  f.close();
-  
-  f = new RecordFile(TestRecordFile.testFileName);
-  pm = new PageManager(f);
-  PageCursor curs = new PageCursor(pm, Magic.USED_PAGE);
-  long i = 1;
-  while (true) {
-      long cur = curs.next();
-      if (cur == 0)
-    break;
-      assertEquals("next", i++, cur);     
-      if (i > 120)
-    fail("list structure not ok");
-  }
-  assertEquals("total", 101, i);
-  pm.close();
-  f.close();
+        RecordFile f = new RecordFile(TestRecordFile.testFileName);
+        PageManager pm = new PageManager(f);
+        for (int i = 0; i < 100; i++) {
+            assertEquals("allocate ", (long) i + 1,
+             pm.allocate(Magic.USED_PAGE));
+        }
+        pm.close();
+        f.close();
+
+        f = new RecordFile(TestRecordFile.testFileName);
+        pm = new PageManager(f);
+        PageCursor curs = new PageCursor(pm, Magic.USED_PAGE);
+        long i = 1;
+        while (true) {
+            long cur = curs.next();
+            if (cur == 0)
+          break;
+            assertEquals("next", i++, cur);
+            if (i > 120)
+          fail("list structure not ok");
+        }
+        assertEquals("total", 101, i);
+        pm.close();
+        f.close();
     }
 
     /**
      *  Runs all tests in this class
      */
     public static void main(String[] args) {
-  junit.textui.TestRunner.run(new TestSuite(TestPageManager.class));
+        junit.textui.TestRunner.run(new TestSuite(TestPageManager.class));
     }
 }
