@@ -58,7 +58,7 @@ import java.io.IOException;
  *            *must* be discarded after a rollback.
  *
  *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id: HTree.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ *  @version $Id: HTree.java,v 1.2 2003/03/21 02:54:58 boisvert Exp $
  */
 public class HTree
 {
@@ -110,15 +110,10 @@ public class HTree
         HTree tree;
         HashDirectory root;
 
-        try {
-            root = (HashDirectory) recman.fetchObject(root_recid);
-            root.setPersistenceContext(recman, root_recid);
-            tree = new HTree( root );
-            return tree;
-        } catch (ClassNotFoundException cnfe) {
-            cnfe.printStackTrace();
-            throw new Error("Hashtable root object must be HashDirectory");
-        }
+        root = (HashDirectory) recman.fetch( root_recid );
+        root.setPersistenceContext( recman, root_recid );
+        tree = new HTree( root );
+        return tree;
     }
 
 
@@ -190,3 +185,4 @@ public class HTree
     }
 
 }
+

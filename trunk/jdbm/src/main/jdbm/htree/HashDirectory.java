@@ -64,7 +64,7 @@ import java.util.Iterator;
  *  Hashtable directory page.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: HashDirectory.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ *  @version $Id: HashDirectory.java,v 1.2 2003/03/21 02:54:58 boisvert Exp $
  */
 final class HashDirectory
     extends HashNode
@@ -182,30 +182,26 @@ final class HashDirectory
      * @arg key key whose associated value is to be returned
      */
     Object get(Object key)
-    throws IOException {
-        int hash = hashCode(key);
-        long child_recid = _children[hash];
-        if (child_recid == 0) {
+        throws IOException
+    {
+        int hash = hashCode( key );
+        long child_recid = _children[ hash ];
+        if ( child_recid == 0 ) {
             // not bucket/page --> not found
             return null;
         } else {
-            HashNode node = null;
-            try {
-                node = (HashNode) _recman.fetchObject( child_recid );
-                // System.out.println("HashDirectory.get() child is : "+node);
-            } catch (ClassNotFoundException cnfe) {
-                cnfe.printStackTrace();
-                throw new Error("Unknown class for HashNode");
-            }
-            if (node instanceof HashDirectory) {
+            HashNode node = (HashNode) _recman.fetch( child_recid );
+            // System.out.println("HashDirectory.get() child is : "+node);
+
+            if ( node instanceof HashDirectory ) {
                 // recurse into next directory level
-                HashDirectory dir = (HashDirectory)node;
-                dir.setPersistenceContext(_recman, child_recid);
-                return dir.get(key);
+                HashDirectory dir = (HashDirectory) node;
+                dir.setPersistenceContext( _recman, child_recid );
+                return dir.get( key );
             } else {
                 // node is a bucket
-                HashBucket bucket = (HashBucket)node;
-                return bucket.getValue(key);
+                HashBucket bucket = (HashBucket) node;
+                return bucket.getValue( key );
             }
         }
     }
@@ -241,18 +237,13 @@ final class HashDirectory
             // System.out.println("Added: "+bucket);
             return existing;
         } else {
-            HashNode node;
-            try {
-                node = (HashNode) _recman.fetchObject( child_recid );
-            } catch (ClassNotFoundException cnfe) {
-                cnfe.printStackTrace();
-                throw new Error("Unknown class for HashNode");
-            }
-            if (node instanceof HashDirectory) {
+            HashNode node = (HashNode) _recman.fetch( child_recid );
+
+            if ( node instanceof HashDirectory ) {
                 // recursive insert in next directory level
-                HashDirectory dir = (HashDirectory)node;
-                dir.setPersistenceContext(_recman, child_recid);
-                return dir.put(key, value);
+                HashDirectory dir = (HashDirectory) node;
+                dir.setPersistenceContext( _recman, child_recid );
+                return dir.put( key, value );
             } else {
                 // node is a bucket
                 HashBucket bucket = (HashBucket)node;
@@ -308,14 +299,9 @@ final class HashDirectory
             // not bucket/page --> not found
             return null;
         } else {
-            HashNode node = null;
-            try {
-                node = (HashNode) _recman.fetchObject( child_recid );
-                // System.out.println("HashDirectory.remove() child is : "+node);
-            } catch (ClassNotFoundException cnfe) {
-                cnfe.printStackTrace();
-                throw new Error("Unknown class for HashNode");
-            }
+            HashNode node = (HashNode) _recman.fetch( child_recid );
+            // System.out.println("HashDirectory.remove() child is : "+node);
+
             if (node instanceof HashDirectory) {
                 // recurse into next directory level
                 HashDirectory dir = (HashDirectory)node;
@@ -532,14 +518,10 @@ final class HashDirectory
                 throw new Error("child_recid cannot be 0");
             }
 
-            HashNode node = null;
-            try {
-                node = (HashNode) _recman.fetchObject( child_recid );
-                // System.out.println("HDEnumeration.get() child is : "+node);
-            } catch ( ClassNotFoundException except ) {
-                throw new WrappedRuntimeException( except );
-            }
-            if (node instanceof HashDirectory) {
+            HashNode node = (HashNode) _recman.fetch( child_recid );
+            // System.out.println("HDEnumeration.get() child is : "+node);
+ 
+            if ( node instanceof HashDirectory ) {
                 // save current position
                 _dirStack.add( _dir );
                 _childStack.add( new Integer( _child ) );
@@ -563,5 +545,4 @@ final class HashDirectory
     }
 
 }
-
 
