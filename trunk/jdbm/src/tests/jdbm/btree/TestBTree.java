@@ -70,18 +70,18 @@ import java.util.NoSuchElementException;
  *  This class contains all Unit tests for {@link BTree}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestBTree.java,v 1.2 2001/09/25 06:24:54 boisvert Exp $
+ *  @version $Id: TestBTree.java,v 1.3 2001/11/10 19:55:15 boisvert Exp $
  */
 public class TestBTree extends TestCase {
 
-  static final boolean DEBUG = true;
+  static final boolean DEBUG = false;
       // the number of threads to be started in the synchronization test
   static final int THREAD_NUMBER = 5;
       // the size of the content of the maps for the synchronization
       // test. Beware that THREAD_NUMBER * THREAD_CONTENT_COUNT < Integer.MAX_VALUE.
-  static final int THREAD_CONTENT_SIZE = 1000;
+  static final int THREAD_CONTENT_SIZE = 150;
       // for how long should the threads run.
-  static final int THREAD_RUNTIME = 1000;
+  static final int THREAD_RUNTIME = 10 * 1000;
 
   protected TestResult result_;
 
@@ -456,18 +456,25 @@ Integer(thread_count*THREAD_CONTENT_SIZE+content_count));
 
     try {
       Thread.sleep(THREAD_RUNTIME);
+    } catch( InterruptedException ignore ) {
+      ignore.printStackTrace();
     }
-    catch(InterruptedException ignore) {}
-        // stop threads:
+
+    // stop threads:
     for(int thread_count = 0; thread_count < THREAD_NUMBER; thread_count++) {
+      if ( DEBUG ) System.out.println("Stop threads");
       thread_pool[thread_count].setStop();
     }
         // wait until the threads really stop:
     try {
-      for(int thread_count = 0; thread_count < THREAD_NUMBER; thread_count++)
+      for(int thread_count = 0; thread_count < THREAD_NUMBER; thread_count++) {
+        if ( DEBUG ) System.out.println("Join thread " + thread_count );
         thread_pool[thread_count].join();
+        if ( DEBUG ) System.out.println("Joined thread " + thread_count );
+      }
+    } catch( InterruptedException ignore ) {
+        ignore.printStackTrace();
     }
-    catch(InterruptedException ignore) {}
     recman.close();
   }
 
@@ -487,14 +494,16 @@ Integer(thread_count*THREAD_CONTENT_SIZE+content_count));
   protected static boolean containsValue(Object value, BTree btree)
     throws IOException
   {
-    TupleBrowser browser = btree.browse();
-    Tuple tuple = new Tuple();
-    while(browser.getNext(tuple))
-    {
-      if(tuple.getValue().equals(value))
-        return(true);
+    // we must synchronize on the BTree while browsing
+    synchronized ( btree ) {
+        TupleBrowser browser = btree.browse();
+        Tuple tuple = new Tuple();
+        while(browser.getNext(tuple)) {
+          if(tuple.getValue().equals(value))
+            return(true);
+        }
     }
-//    System.out.println("Comparation of '"+value+"' with '"+ tuple.getValue()+"' FAILED");
+    //    System.out.println("Comparation of '"+value+"' with '"+ tuple.getValue()+"' FAILED");
     return(false);
   }
 
@@ -528,7 +537,7 @@ class TestThread
 {
     Map _content;
     BTree _btree;
-    boolean _continue = true;
+    volatile boolean _continue = true;
     int THREAD_SLEEP_TIME = 50; // in ms
     String _name;
 
@@ -590,24 +599,17 @@ class TestThread
     {
       if(DEBUG)
         System.out.println("Thread "+_name+": started.");
-      try
-      {
-        while(_continue)
-        {
+      try {
+        while(_continue) {
           action();
-          try
-          {
+          try {
             Thread.sleep(THREAD_SLEEP_TIME);
-          }
-          catch(InterruptedException ie)
-          {
+          } catch( InterruptedException except ) {
+            except.printStackTrace();
           }
         }
-      }
-      catch(Throwable t)
-      {
-        if(DEBUG)
-        {
+      } catch( Throwable t ) {
+        if ( DEBUG ) {
           System.err.println("Thread "+_name+" threw an exception:");
           t.printStackTrace();
         }
