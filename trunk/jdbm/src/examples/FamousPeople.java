@@ -6,7 +6,7 @@ import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 import jdbm.helper.StringComparator;
 
-import jdbm.btree.ObjectBTree;
+import jdbm.btree.BTree;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -19,7 +19,7 @@ import java.util.Properties;
  * ordered traversal, reverse traversal and range lookup of records.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: FamousPeople.java,v 1.3 2002/05/31 06:35:36 boisvert Exp $
+ * @version $Id: FamousPeople.java,v 1.4 2003/03/21 03:12:23 boisvert Exp $
  */
 public class FamousPeople {
 
@@ -58,7 +58,7 @@ public class FamousPeople {
         long          recid;
         Tuple         tuple = new Tuple();
         TupleBrowser  browser;
-        ObjectBTree   tree;
+        BTree         tree;
         Properties    props;
 
         props = new Properties();
@@ -70,13 +70,13 @@ public class FamousPeople {
             // try to reload an existing B+Tree
             recid = recman.getNamedObject( BTREE_NAME );
             if ( recid != 0 ) {
-                tree = ObjectBTree.load( recman, recid );
+                tree = BTree.load( recman, recid );
                 System.out.println( "Reloaded existing BTree with " + tree.size()
                                     + " famous people." );
             } else {
                 // create a new B+Tree data structure and use a StringComparator
                 // to order the records based on people's name.
-                tree = ObjectBTree.createInstance( recman, new StringComparator() );
+                tree = BTree.createInstance( recman, new StringComparator() );
                 recman.setNamedObject( BTREE_NAME, tree.getRecid() );
                 System.out.println( "Created a new empty BTree" );
             }
@@ -155,3 +155,4 @@ public class FamousPeople {
     }
 
 }
+
