@@ -130,7 +130,7 @@
     <mkdir    dir="${build}/doc" />
     <mkdir    dir="${build}/doc/javadoc" />
     <property name="copyright"
-              value="Cees de Groot (C) 2000. All rights reserved  http://jdbm.sourceforge.net" />
+              value="Cees de Groot (C) 2000-2001. All rights reserved  http://jdbm.sourceforge.net" />
     <javadoc  sourcepath="${main}" destdir="${build}/doc/javadoc" dir="."
               doctitle="JDBM JavaDoc" windowtitle="JDBM JavaDoc" bottom="${copyright}"
               package="true" author="true" version="true" noindex="true"
