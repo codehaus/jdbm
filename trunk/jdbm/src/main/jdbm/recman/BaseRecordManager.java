@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: BaseRecordManager.java,v 1.5 2003/07/31 14:59:17 boisvert Exp $
+ * $Id: BaseRecordManager.java,v 1.6 2003/08/06 23:58:24 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -83,7 +83,7 @@ import jdbm.helper.DefaultSerializer;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: BaseRecordManager.java,v 1.5 2003/07/31 14:59:17 boisvert Exp $
+ * @version $Id: BaseRecordManager.java,v 1.6 2003/08/06 23:58:24 boisvert Exp $
  */
 public final class BaseRecordManager
     implements RecordManager
@@ -150,6 +150,17 @@ public final class BaseRecordManager
 
 
     /**
+     *  Get the underlying Transaction Manager
+     */
+    public synchronized TransactionManager getTransactionManager()
+    {
+        checkIfClosed();
+
+        return _file.txnMgr;
+    }
+
+
+    /**
      *  Switches off transactioning for the record manager. This means
      *  that a) a transaction log is not kept, and b) writes aren't
      *  synch'ed after every update. This is useful when batch inserting
@@ -165,7 +176,7 @@ public final class BaseRecordManager
         _file.disableTransactions();
     }
 
-
+    
     /**
      *  Closes the record manager.
      *
