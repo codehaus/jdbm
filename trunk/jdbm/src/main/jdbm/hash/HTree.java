@@ -60,20 +60,41 @@ import java.io.IOException;
  *            *must* be discarded after a rollback.
  *
  *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id: HTree.java,v 1.3 2001/05/19 14:01:06 boisvert Exp $
+ *  @version $Id: HTree.java,v 1.4 2001/06/02 14:28:29 boisvert Exp $
  */
 public class HTree implements JDBMHashtable {
 
-    HashDirectory _root;
+    /**
+     * Root hash directory.
+     */
+    private HashDirectory _root;
+
 
     /**
-     * Create a persistent hashtable
+     * Private constructor
+     *
+     * @param root Root hash directory.
      */
-    public static long createRootDirectory(RecordManager recman)
-    throws IOException {
-        HashDirectory root = new HashDirectory((byte)0);
-        return recman.insert(root);
+    private HTree( HashDirectory root ) {
+        _root = root;
     }
+
+
+    /**
+     * Create a persistent hashtable.
+     *
+     * @param recman Record manager used for persistence.
+     * @param cache Object cache for the record manager
+     */
+    public HTree( RecordManager recman, ObjectCache cache )
+    throws IOException {
+        long recid;
+
+        _root = new HashDirectory( (byte) 0 );
+        recid = recman.insert( _root );
+        _root.setPersistenceContext( recman, cache, recid );
+    }
+
 
     /**
      * Load a persistent hashtable
@@ -81,17 +102,23 @@ public class HTree implements JDBMHashtable {
      * @arg recman RecordManager used to store the persistent hashtable
      * @arg root_recid Record id of the root directory of the HTree
      */
-    public HTree(RecordManager recman, ObjectCache cache, long root_recid)
+    public static HTree load( RecordManager recman, ObjectCache cache,
+                              long root_recid )
     throws IOException {
+        HTree tree;
+        HashDirectory root;
+
         try {
-            Object obj = recman.fetchObject(root_recid);
-            _root = (HashDirectory)obj;
-            _root.setPersistenceContext(recman, cache, root_recid);
+            root = (HashDirectory) recman.fetchObject(root_recid);
+            root.setPersistenceContext(recman, cache, root_recid);
+            tree = new HTree( root );
+            return tree;
         } catch (ClassNotFoundException cnfe) {
             cnfe.printStackTrace();
             throw new Error("Hashtable root object must be HashDirectory");
         }
     }
+
 
     /**
      * Associates the specified value with the specified key.
@@ -115,6 +142,7 @@ public class HTree implements JDBMHashtable {
         return _root.get(key);
     }
 
+
     /**
      * Remove the value which is associated with the given key.  If the
      * key does not exist, this method simply ignores the operation.
@@ -125,6 +153,7 @@ public class HTree implements JDBMHashtable {
         _root.remove(key);
     }
 
+
     /**
      * Returns an enumeration of the keys contained in this
      */
@@ -132,6 +161,7 @@ public class HTree implements JDBMHashtable {
     throws IOException {
         return _root.keys();
     }
+
 
     /**
      * Returns an enumeration of the values contained in this
@@ -141,6 +171,7 @@ public class HTree implements JDBMHashtable {
         return _root.values();
     }
 
+
     /**
      * Disposes of any resources used by this class
      */
@@ -148,4 +179,13 @@ public class HTree implements JDBMHashtable {
     throws IOException {
         _root = null;
     }
+
+
+    /**
+     * Get the record identifier used to load this hashtable.
+     */
+    public long getRecid() {
+        return _root.getRecid();
+    }
+
 }
