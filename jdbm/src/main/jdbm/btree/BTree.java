@@ -83,7 +83,7 @@ import java.io.ObjectOutput;
  * the key size, which impacts all non-leaf <code>BPage</code> objects.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: BTree.java,v 1.1 2001/05/19 14:17:12 boisvert Exp $
+ * @version $Id: BTree.java,v 1.2 2001/06/02 14:29:06 boisvert Exp $
  */
 public class BTree implements Externalizable {
 
@@ -161,6 +161,8 @@ public class BTree implements Externalizable {
     /**
      * Create a new persistent BTree, with 16 entries per node.
      *
+     * @param recman Record manager used for persistence.
+     * @param cache Object cache for the record manager
      * @param comparator Comparator used to order index entries
      */
     public BTree( RecordManager recman, ObjectCache cache,
@@ -173,10 +175,10 @@ public class BTree implements Externalizable {
     /**
      * Create a new persistent BTree with the given number of entries per node.
      *
-     * @param comparator Comparator used to order index entries
-     * @param pageSize Number of entries per page (must be even).
      * @param recman Record manager used for persistence.
      * @param cache Object cache for the record manager
+     * @param comparator Comparator used to order index entries
+     * @param pageSize Number of entries per page (must be even).
      */
     public BTree( RecordManager recman, ObjectCache cache,
                   Comparator comparator, int pageSize )
@@ -211,7 +213,7 @@ public class BTree implements Externalizable {
     /**
      * Load a persistent BTree.
      *
-     * @arg recman RecordManager used to store the persistent hashtable
+     * @arg recman RecordManager used to store the persistent btree
      * @arg cache Cache for the record manager.
      * @arg recid Record id of the BTree
      */
@@ -428,6 +430,14 @@ public class BTree implements Externalizable {
      */
     public synchronized int size() {
         return _size;
+    }
+
+
+    /**
+     * Return the persistent record identifier of the BTree.
+     */
+    public long getRecid() {
+        return _recid;
     }
 
 
