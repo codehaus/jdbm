@@ -1,5 +1,5 @@
 /*
- *  $Id: TestTransactionManager.java,v 1.3 2001/09/25 06:10:02 boisvert Exp $
+ *  $Id: TestTransactionManager.java,v 1.4 2003/08/07 06:53:58 boisvert Exp $
  *
  *  Unit tests for TransactionManager class
  *
@@ -91,7 +91,7 @@ public class TestTransactionManager extends TestCase {
         RecordFile file1 = new RecordFile(TestRecordFile.testFileName);
 
         // Do enough transactions to fill the first slot
-        int txnCount = TransactionManager.TXNS_IN_LOG + 5;
+        int txnCount = TransactionManager.DEFAULT_TXNS_IN_LOG + 5;
         for (int i = 0; i < txnCount; i++) {
             BlockIo node = file1.get(i);
             node.setDirty();
@@ -101,7 +101,7 @@ public class TestTransactionManager extends TestCase {
         file1.forceClose();
 
         // The data file now has the first slotfull
-        assertDataSizeEquals("len1", TransactionManager.TXNS_IN_LOG *
+        assertDataSizeEquals("len1", TransactionManager.DEFAULT_TXNS_IN_LOG *
                              RecordFile.BLOCK_SIZE);
         assertLogSizeNotZero("len1");
 
