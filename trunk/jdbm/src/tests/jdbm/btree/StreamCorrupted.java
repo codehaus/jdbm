@@ -46,12 +46,12 @@
 
 package jdbm.btree;
 
+import jdbm.RecordManager;
+import jdbm.RecordManagerFactory;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 import jdbm.helper.MRU;
-import jdbm.helper.ObjectCache;
 import jdbm.helper.StringComparator;
-import jdbm.recman.RecordManager;
 import jdbm.recman.TestRecordFile;
 import jdbm.btree.BTree;
 
@@ -91,7 +91,7 @@ import junit.framework.*;
  * </pre>
  *
  *  @author <a href="mailto:cdaller@iicm.edu">Christof Dallermassl</a>
- *  @version $Id: StreamCorrupted.java,v 1.1 2001/08/28 06:15:24 boisvert Exp $
+ *  @version $Id: StreamCorrupted.java,v 1.2 2002/05/31 06:34:29 boisvert Exp $
  */
 public class StreamCorrupted
     extends TestCase
@@ -117,18 +117,16 @@ public class StreamCorrupted
         throws IOException
     {
         RecordManager  recman;
-        ObjectCache    cache;
-        BTree          btree;
+        ObjectBTree    btree;
         int            iterations;
 
         iterations = 100; // 23 works :-(((((
 
         // open database
-        recman = new RecordManager( TestRecordFile.testFileName );
-        cache = new ObjectCache( recman, new MRU( 100 ) );
+        recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
 
         // create a new B+Tree data structure
-        btree = new BTree( recman, cache, new StringComparator() );
+        btree = ObjectBTree.createInstance( recman, new StringComparator() );
         recman.setNamedObject( "testbtree", btree.getRecid() );
 
         // action:

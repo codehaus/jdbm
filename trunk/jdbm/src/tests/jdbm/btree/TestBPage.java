@@ -46,12 +46,12 @@
 
 package jdbm.btree;
 
-import jdbm.recman.RecordManager;
+import jdbm.RecordManager;
+import jdbm.RecordManagerFactory;
 import jdbm.recman.TestRecordFile;
 
 import jdbm.helper.MRU;
-import jdbm.helper.ObjectCache;
-import jdbm.helper.StringComparator;
+import jdbm.helper.ByteArrayComparator;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
@@ -63,7 +63,7 @@ import junit.framework.*;
  *  This class contains all Unit tests for {@link Bpage}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestBPage.java,v 1.2 2001/11/10 18:37:13 boisvert Exp $
+ *  @version $Id: TestBPage.java,v 1.3 2002/05/31 06:34:29 boisvert Exp $
  */
 public class TestBPage extends TestCase {
 
@@ -84,29 +84,36 @@ public class TestBPage extends TestCase {
      *  Basic tests
      */
     public void testBasics() throws IOException {
+        RecordManager recman;
+        byte[] test, test1, test2, test3;
 
-        RecordManager recman = new RecordManager( TestRecordFile.testFileName );
-        ObjectCache cache = new ObjectCache( recman, new MRU( 100 ) );
-        BTree tree = new BTree( recman, cache, new StringComparator(), 32 );
-        BPage page = new BPage( tree, "test", "test", 32 );
+        test = "test".getBytes();
+        test1 = "test1".getBytes();
+        test2 = "test2".getBytes();
+        test3 = "test3".getBytes();
+
+        recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
+
+        BTree tree = BTree.createInstance( recman, new ByteArrayComparator(), 32 );
+        BPage page = new BPage( tree, test, test, 32 );
 
         TupleBrowser browser;
         Tuple tuple = new Tuple();
 
         // test insertion
-        page.insert( 1, "test2", "test2", false );
-        page.insert( 1, "test3", "test3", false );
-        page.insert( 1, "test1", "test1", false );
+        page.insert( 1, test2, test2, false );
+        page.insert( 1, test3, test3, false );
+        page.insert( 1, test1, test1, false );
 
         // test binary search
-        browser = page.find( 1, "test2" );
+        browser = page.find( 1, test2 );
         if ( browser.getNext( tuple ) == false ) {
             throw new IllegalStateException( "Browser didn't have 'test2'" );
         }
-        if ( ! tuple.getKey().equals( "test2" ) ) {
+        if ( ! tuple.getKey().equals( test2 ) ) {
             throw new IllegalStateException( "Tuple key is not 'test2'" );
         }
-        if ( ! tuple.getValue().equals( "test2" ) ) {
+        if ( ! tuple.getValue().equals( test2 ) ) {
             throw new IllegalStateException( "Tuple value is not 'test2'" );
         }
 

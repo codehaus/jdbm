@@ -46,15 +46,17 @@
 
 package jdbm.helper;
 
+import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * Comparator for Integer objects.
  *
  * @author <a href="mailto:cdaller@iicm.edu">Christof Dallermassl</a>
- * @version $Id: IntegerComparator.java,v 1.1 2001/09/23 01:32:34 boisvert Exp $
+ * @version $Id: IntegerComparator.java,v 1.2 2002/05/31 06:33:20 boisvert Exp $
  */
 public final class IntegerComparator
-    extends Comparator
+    implements Comparator, Serializable
 {
 
     /**

@@ -71,9 +71,11 @@ import java.io.ObjectOutput;
  * pseudo-key
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: BPage.java,v 1.2 2001/08/28 05:49:33 boisvert Exp $
+ * @version $Id: BPage.java,v 1.3 2002/05/31 06:33:20 boisvert Exp $
  */
-public final class BPage implements Externalizable {
+public final class BPage
+    implements Externalizable
+{
 
     private static final boolean DEBUG = false;
 
@@ -137,7 +139,8 @@ public final class BPage implements Externalizable {
     /**
      * No-argument constructor used by serialization.
      */
-    public BPage() {
+    public BPage()
+    {
         // empty
     }
 
@@ -146,7 +149,8 @@ public final class BPage implements Externalizable {
      * Root page overflow constructor
      */
     BPage( BTree btree, BPage root, BPage overflow, int pageSize )
-    throws IOException {
+        throws IOException
+    {
         _btree = btree;
 
         _isLeaf = false;
@@ -168,8 +172,9 @@ public final class BPage implements Externalizable {
     /**
      * Root page (first insert) constructor.
      */
-    BPage( BTree btree, Object key, Object value, int pageSize)
-    throws IOException {
+    BPage( BTree btree, byte[] key, byte[] value, int pageSize )
+        throws IOException
+    {
         _btree = btree;
 
         _isLeaf = true;
@@ -192,7 +197,8 @@ public final class BPage implements Externalizable {
      * Overflow page constructor.  Creates an empty BPage.
      */
     BPage( BTree btree, int pageSize, boolean isLeaf )
-    throws IOException {
+        throws IOException
+    {
         _btree = btree;
 
         _isLeaf = isLeaf;
@@ -211,15 +217,17 @@ public final class BPage implements Externalizable {
      * Get largest key under this BPage.  Null is considered to be the
      * greatest possible key.
      */
-    Object getLargestKey() {
-        return _keys[ _keys.length-1 ];
+    byte[] getLargestKey()
+    {
+        return (byte[]) _keys[ _keys.length-1 ];
     }
 
 
     /**
      * Return true if BPage is empty.
      */
-    boolean isEmpty() {
+    boolean isEmpty()
+    {
         return ( _first == _values.length-1 );
     }
 
@@ -240,7 +248,9 @@ public final class BPage implements Externalizable {
      * @return TupleBrowser positionned just before the given key, or before
      *                      next greater key if key isn't found.
      */
-    TupleBrowser find( int height, Object key ) throws IOException {
+    TupleBrowser find( int height, byte[] key )
+        throws IOException
+    {
         int index = findChildren( key );
 
         /*
@@ -268,7 +278,9 @@ public final class BPage implements Externalizable {
      *
      * @return TupleBrowser positionned just before the first entry.
      */
-    TupleBrowser findFirst() throws IOException {
+    TupleBrowser findFirst()
+        throws IOException
+    {
         if ( _isLeaf ) {
             return new Browser( this, _first );
         } else {
@@ -291,8 +303,9 @@ public final class BPage implements Externalizable {
      * @return Insertion result containing existing value OR a BPage if the key
      *         was inserted and provoked a BPage overflow.
      */
-    InsertResult insert( int height, Object key, Object value, boolean replace )
-    throws IOException {
+    InsertResult insert( int height, byte[] key, byte[] value, boolean replace )
+        throws IOException
+    {
         InsertResult result;
 
         int index = findChildren( key );
@@ -307,15 +320,15 @@ public final class BPage implements Externalizable {
                 System.out.println( "Bpage.insert() Insert on leaf Bpage key=" + key
                                     + " value=" + value + " index="+index);
             }
-            if ( compare( key, _keys[ index ] ) == 0 ) {
+            if ( compare( key, (byte[]) _keys[ index ] ) == 0 ) {
                 // key already exists
                 if ( DEBUG ) {
                     System.out.println( "Bpage.insert() Key already exists." ) ;
                 }
-                result._existing = _values[ index ];
+                result._existing = (byte[]) _values[ index ];
                 if ( replace ) {
                     _values [ index ] = value;
-                    _btree._cache.update( _recid, this );
+                    _btree._recman.update( _recid, this );
                 }
                 // return the existing key
                 return result;
@@ -354,7 +367,7 @@ public final class BPage implements Externalizable {
         // before _children[ index ]
         if ( !isFull() ) {
             insertEntry( this, index-1, key, value );
-            _btree._cache.update( _recid, this );
+            _btree._recman.update( _recid, this );
             return result;
         }
 
@@ -396,13 +409,13 @@ public final class BPage implements Externalizable {
             if ( _previous != 0 ) {
                 BPage previous = loadBPage( _previous );
                 previous._next = newPage._recid;
-                _btree._cache.update( _previous, previous );
+                _btree._recman.update( _previous, previous );
             }
             _previous = newPage._recid;
         }
 
-        _btree._cache.update( _recid, this );
-        _btree._cache.update( newPage._recid, newPage );
+        _btree._recman.update( _recid, this );
+        _btree._recman.update( newPage._recid, newPage );
 
         result._overflow = newPage;
         return result;
@@ -414,10 +427,11 @@ public final class BPage implements Externalizable {
      *
      * @param height Height of the current BPage (zero is leaf page)
      * @param key Removal key
-     * @return TODO
+     * @return Remove result object
      */
-    RemoveResult remove( int height, Object key )
-    throws IOException {
+    RemoveResult remove( int height, byte[] key )
+        throws IOException
+    {
         RemoveResult result;
 
         int half = _keys.length / 2;
@@ -426,15 +440,15 @@ public final class BPage implements Externalizable {
         height -= 1;
         if ( height == 0 ) {
             // remove leaf entry
-            if ( compare( _keys[ index ], key ) != 0) {
+            if ( compare( (byte[]) _keys[ index ], key ) != 0 ) {
                 throw new IllegalArgumentException( "Key not found: " + key );
             }
             result = new RemoveResult();
-            result._value = _values[ index ];
+            result._value = (byte[]) _values[ index ];
             removeEntry( this, index );
 
             // update this BPage
-            _btree._cache.update( _recid, this );
+            _btree._recman.update( _recid, this );
 
         } else {
             // recurse into Btree to remove entry on a children page
@@ -443,7 +457,7 @@ public final class BPage implements Externalizable {
 
             // update children
             _keys[ index ] = child.getLargestKey();
-            _btree._cache.update( _recid, this );
+            _btree._recman.update( _recid, this );
 
             if ( result._underflow ) {
                 // underflow occured
@@ -472,9 +486,9 @@ public final class BPage implements Externalizable {
                         // no change in previous/next BPage
 
                         // update BPages
-                        _btree._cache.update( _recid, this );
-                        _btree._cache.update( brother._recid, brother );
-                        _btree._cache.update( child._recid, child );
+                        _btree._recman.update( _recid, this );
+                        _btree._recman.update( brother._recid, brother );
+                        _btree._recman.update( child._recid, child );
 
                     } else {
                         // move all entries from page "child" to "brother"
@@ -484,30 +498,29 @@ public final class BPage implements Externalizable {
 
                         brother._first = 1;
                         copyEntries( child, half+1, brother, 1, half-1 );
-                        _btree._cache.update( brother._recid, brother );
+                        _btree._recman.update( brother._recid, brother );
 
                         // remove "child" from current BPage
                         copyEntries( this, _first, this, _first+1, index-_first );
                         setEntry( this, _first, null, null );
                         _first += 1;
-                        _btree._cache.update( _recid, this );
+                        _btree._recman.update( _recid, this );
 
                         // re-link previous and next BPages
                         if ( child._previous != 0 ) {
                             BPage prev = loadBPage( child._previous );
                             prev._next = child._next;
-                            _btree._cache.update( prev._recid, prev );
+                            _btree._recman.update( prev._recid, prev );
                         }
                         if ( child._next != 0 ) {
                             BPage next = loadBPage( child._next );
                             next._previous = child._previous;
-                            _btree._cache.update( next._recid, next );
+                            _btree._recman.update( next._recid, next );
                         }
 
 
                         // delete "child" BPage
                         _btree._recman.delete( child._recid );
-                        _btree._cache.invalidate( child._recid );
                     }
                 } else {
                     // page "brother" is before "child"
@@ -533,9 +546,9 @@ public final class BPage implements Externalizable {
                         // no change in previous/next BPage
 
                         // update BPages
-                        _btree._cache.update( _recid, this );
-                        _btree._cache.update( brother._recid, brother );
-                        _btree._cache.update( child._recid, child );
+                        _btree._recman.update( _recid, this );
+                        _btree._recman.update( brother._recid, brother );
+                        _btree._recman.update( child._recid, child );
 
                     } else {
                         // move all entries from page "brother" to "child"
@@ -545,29 +558,28 @@ public final class BPage implements Externalizable {
 
                         child._first = 1;
                         copyEntries( brother, half, child, 1, half );
-                        _btree._cache.update( child._recid, child );
+                        _btree._recman.update( child._recid, child );
 
                         // remove "brother" from current BPage
                         copyEntries( this, _first, this, _first+1, index-1-_first );
                         setEntry( this, _first, null, null );
                         _first += 1;
-                        _btree._cache.update( _recid, this );
+                        _btree._recman.update( _recid, this );
 
                         // re-link previous and next BPages
                         if ( brother._previous != 0 ) {
                             BPage prev = loadBPage( brother._previous );
                             prev._next = brother._next;
-                            _btree._cache.update( prev._recid, prev );
+                            _btree._recman.update( prev._recid, prev );
                         }
                         if ( brother._next != 0 ) {
                             BPage next = loadBPage( brother._next );
                             next._previous = brother._previous;
-                            _btree._cache.update( next._recid, next );
+                            _btree._recman.update( next._recid, next );
                         }
 
                         // delete "brother" BPage
                         _btree._recman.delete( brother._recid );
-                        _btree._cache.invalidate( brother._recid );
                     }
                 }
             }
@@ -586,14 +598,15 @@ public final class BPage implements Externalizable {
      *
      * @return index of first children with equal or greater key.
      */
-    private int findChildren( Object key ) {
+    private int findChildren( byte[] key )
+    {
         int left = _first;
         int right = _keys.length-1;
 
         // binary search
         while ( left < right )  {
             int middle = ( left + right ) / 2;
-            if ( compare( _keys[ middle ], key ) < 0 ) {
+            if ( compare( (byte[]) _keys[ middle ], key ) < 0 ) {
                 left = middle+1;
             } else {
                 right = middle;
@@ -607,7 +620,8 @@ public final class BPage implements Externalizable {
      * Insert entry at given position.
      */
     private static void insertEntry( BPage page, int index,
-                                     Object key, Object value ) {
+                                     byte[] key, byte[] value )
+    {
         Object[] keys = page._keys;
         Object[] values = page._values;
         int start = page._first;
@@ -625,7 +639,8 @@ public final class BPage implements Externalizable {
     /**
      * Remove entry at given position.
      */
-    private static void removeEntry( BPage page, int index ) {
+    private static void removeEntry( BPage page, int index )
+    {
         Object[] keys = page._keys;
         Object[] values = page._values;
         int start = page._first;
@@ -642,7 +657,8 @@ public final class BPage implements Externalizable {
     /**
      * Set the entry at the given index.
      */
-    private static void setEntry( BPage page, int index, Object key, Object value ) {
+    private static void setEntry( BPage page, int index, byte[] key, byte[] value )
+    {
         page._keys[ index ] = key;
         page._values[ index ] = value;
     }
@@ -652,7 +668,8 @@ public final class BPage implements Externalizable {
      * Copy entries between two BPages
      */
     private static void copyEntries( BPage source, int indexSource,
-                                       BPage dest, int indexDest, int count ) {
+                                     BPage dest, int indexDest, int count )
+    {
         System.arraycopy( source._keys, indexSource, dest._keys, indexDest, count);
         System.arraycopy( source._values, indexSource, dest._values, indexDest, count);
     }
@@ -661,8 +678,10 @@ public final class BPage implements Externalizable {
     /**
      * Return the child BPage at given index.
      */
-    BPage childBPage( int index ) throws IOException {
-        long recid = convertRecid( _values[ index ] );
+    BPage childBPage( int index )
+        throws IOException
+    {
+        long recid = convertRecid( (byte[]) _values[ index ] );
         return loadBPage( recid );
     }
 
@@ -670,9 +689,11 @@ public final class BPage implements Externalizable {
     /**
      * Load the BPage at the given recid.
      */
-    private BPage loadBPage( long recid ) throws IOException {
+    private BPage loadBPage( long recid )
+        throws IOException
+    {
         try {
-            BPage child = (BPage) _btree._cache.fetchObject( recid );
+            BPage child = (BPage) _btree._recman.fetchObject( recid );
             child._recid = recid;
             child._btree = _btree;
             return child;
@@ -683,18 +704,20 @@ public final class BPage implements Externalizable {
 
 
     /**
-     * Conver the given recid into a serializable object.
+     * Convert the given recid into a serializable object.
      */
-    private Object convertRecid( long recid ) {
-        return new Long( recid );
+    private byte[] convertRecid( long recid )
+    {
+        return Conversion.convertToByteArray( recid );
     }
 
 
     /**
      * Convert the given serializable object into a recid.
      */
-    private long convertRecid( Object recid ) {
-        return ( (Long) recid ).longValue();
+    private long convertRecid( byte[] recid )
+    {
+        return Conversion.convertToLong( recid );
     }
 
 
@@ -702,7 +725,8 @@ public final class BPage implements Externalizable {
      * Implement Externalizable interface.
      */
     public void readExternal( ObjectInput in )
-    throws IOException, ClassNotFoundException {
+        throws IOException, ClassNotFoundException
+    {
         int size = in.readInt();
 
         _isLeaf = in.readBoolean();
@@ -715,20 +739,22 @@ public final class BPage implements Externalizable {
 
         _keys = new Object[ size ];
         for ( int i=_first; i<size; i++ ) {
-            _keys[ i ] = in.readObject();
+            _keys[ i ] = readByteArray( in );
         }
 
         _values = new Object[ size ];
         for ( int i=_first; i<size; i++ ) {
-            _values[ i ] = in.readObject();
+            _values[ i ] = readByteArray( in );
         }
     }
+
 
     /**
      * Implement Externalizable interface.
      */
     public void writeExternal( ObjectOutput out )
-    throws IOException {
+        throws IOException
+    {
         out.writeInt( _keys.length );
 
         out.writeBoolean( _isLeaf );
@@ -740,22 +766,48 @@ public final class BPage implements Externalizable {
         out.writeInt( _first );
 
         for ( int i=_first; i<_keys.length; i++ ) {
-            out.writeObject( _keys[ i ] );
+            writeByteArray( out, (byte[]) _keys[ i ] );
         }
 
         for ( int i=_first; i<_keys.length; i++ ) {
-            out.writeObject( _values[ i ] );
+            writeByteArray( out, (byte[]) _values[ i ] );
         }
     }
 
-    private final int compare( Object obj1, Object obj2 ) {
-        if ( obj1 == null ) {
+    private final int compare( byte[] value1, byte[] value2 )
+    {
+        if ( value1 == null ) {
             return 1;
         }
-        if ( obj2 == null ) {
+        if ( value2 == null ) {
             return -1;
         }
-        return _btree._comparator.compare( obj1, obj2 );
+        return _btree._comparator.compare( value1, value2 );
+    }
+
+
+    static byte[] readByteArray( ObjectInput in )
+        throws IOException, ClassNotFoundException
+    {
+        int len = in.readInt();
+        if ( len < 0 ) {
+            return null;
+        }
+        byte[] buf = new byte[ len ];
+        in.readFully( buf );
+        return buf;
+    }
+
+
+    static void writeByteArray( ObjectOutput out, byte[] buf )
+        throws IOException
+    {
+        if ( buf == null ) {
+            out.writeInt( -1 );
+        } else {
+            out.writeInt( buf.length );
+            out.write( buf );
+        }
     }
 
 
@@ -763,7 +815,8 @@ public final class BPage implements Externalizable {
      * Dump the structure of the tree on the screen.  This is used for debugging
      * purposes only.
      */
-    private void dump( int height ) {
+    private void dump( int height )
+    {
         String prefix = "";
         for ( int i=0; i<height; i++ ) {
            prefix += "    ";
@@ -781,7 +834,9 @@ public final class BPage implements Externalizable {
      * Recursively dump the state of the BTree on screen.  This is used for
      * debugging purposes only.
      */
-    void dumpRecursive( int height, int level ) throws IOException {
+    void dumpRecursive( int height, int level )
+        throws IOException
+    {
         height -= 1;
         level += 1;
         if ( height > 0 ) {
@@ -799,10 +854,10 @@ public final class BPage implements Externalizable {
      * Assert the ordering of the keys on the BPage.  This is used for testing
      * purposes only.
      */
-    private void assert() {
+    private void assert()
+    {
         for ( int i=_first; i<_keys.length-1; i++ ) {
-
-            if ( compare( _keys[ i ], _keys[ i+1 ] ) >= 0 ) {
+            if ( compare( (byte[]) _keys[ i ], (byte[]) _keys[ i+1 ] ) >= 0 ) {
                 dump( 0 );
                 throw new Error( "BPage not ordered" );
             }
@@ -820,7 +875,7 @@ public final class BPage implements Externalizable {
             for ( int i=_first; i<_keys.length; i++ ) {
                 if ( _keys[ i ] == null ) break;
                 BPage child = childBPage( i );
-                if ( compare( _keys[ i ], child.getLargestKey() ) != 0 ) {
+                if ( compare( (byte[]) _keys[ i ], child.getLargestKey() ) != 0 ) {
                     dump( 0 );
                     child.dump( 0 );
                     throw new Error( "Invalid child subordinate key" );
@@ -844,7 +899,7 @@ public final class BPage implements Externalizable {
         /**
          * Existing value for the insertion key.
          */
-        Object _existing;
+        byte[] _existing;
 
     }
 
@@ -861,14 +916,16 @@ public final class BPage implements Externalizable {
         /**
          * Removed entry value
          */
-        Object _value;
+        byte[] _value;
     }
 
 
     /** PRIVATE INNER CLASS
      * Browser to traverse leaf BPages.
      */
-    static class Browser extends TupleBrowser {
+    static class Browser
+        extends TupleBrowser
+    {
 
         /**
          * Current page.
@@ -889,12 +946,15 @@ public final class BPage implements Externalizable {
          * @param page Current page
          * @param index Position of the next tuple to return.
          */
-        Browser( BPage page, int index ) {
+        Browser( BPage page, int index )
+        {
             _page = page;
             _index = index;
         }
 
-        public boolean getNext( Tuple tuple ) throws IOException {
+        public boolean getNext( Tuple tuple )
+            throws IOException
+        {
             if ( _index < _page._keys.length ) {
                 if ( _page._keys[ _index ] == null ) {
                     // reached end of the tree.
@@ -911,7 +971,9 @@ public final class BPage implements Externalizable {
             return true;
         }
 
-        public boolean getPrevious( Tuple tuple ) throws IOException {
+        public boolean getPrevious( Tuple tuple )
+            throws IOException
+        {
             if ( _index == _page._first ) {
 
                 if ( _page._previous != 0 ) {

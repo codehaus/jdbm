@@ -42,37 +42,34 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CacheEvictionException.java,v 1.2 2001/05/19 14:02:00 boisvert Exp $
+ * $Id: CacheEvictionException.java,v 1.3 2002/05/31 06:33:20 boisvert Exp $
  */
 
 package jdbm.helper;
-
-import jdbm.recman.RecordCache;
-import jdbm.recman.RecordManager;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
 
 /**
  *  Exception that occurs during eviction of an object in the cache.
  *
  *  @author <a href="mailto:boisvert@intalio.com>Alex Boisvert</a>
- *  @version $Id: CacheEvictionException.java,v 1.2 2001/05/19 14:02:00 boisvert Exp $
+ *  @version $Id: CacheEvictionException.java,v 1.3 2002/05/31 06:33:20 boisvert Exp $
  */
-public class CacheEvictionException extends Exception {
+public class CacheEvictionException
+    extends Exception
+{
 
     /**
      * Nested exception -- the original exception that occured, if any.
      */
-    Exception _nested;
+    protected Exception _nested;
 
 
-    public CacheEvictionException(Exception nested) {
+    public CacheEvictionException( Exception nested )
+    {
         _nested = nested;
     }
 
-    public Exception getNestedException() {
+    public Exception getNestedException()
+    {
         return _nested;
     }
 }
-

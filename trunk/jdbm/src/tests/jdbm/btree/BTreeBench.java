@@ -46,10 +46,9 @@
 
 package jdbm.btree;
 
+import jdbm.RecordManager;
+import jdbm.RecordManagerFactory;
 import jdbm.helper.LongComparator;
-import jdbm.recman.RecordManager;
-import jdbm.helper.MRU;
-import jdbm.helper.ObjectCache;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -60,7 +59,7 @@ import java.io.IOException;
  *  Random insertion/removal test for B+Tree data structure.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: BTreeBench.java,v 1.1 2001/05/19 14:38:19 boisvert Exp $
+ *  @version $Id: BTreeBench.java,v 1.2 2002/05/31 06:34:29 boisvert Exp $
  */
 public class BTreeBench {
 
@@ -69,13 +68,11 @@ public class BTreeBench {
     public static void main( String[] args ) {
 
         RecordManager recman;
-        ObjectCache cache;
-        BTree tree = null;
+        ObjectBTree tree = null;
 
         try {
-            recman = new RecordManager( "test" );
-            cache = new ObjectCache( recman, new MRU( 2000 ) );
-            tree = new BTree( recman, cache, new LongComparator(), 32 );
+            recman = RecordManagerFactory.createRecordManager( "test" );
+            tree = ObjectBTree.createInstance( recman, new LongComparator(), 32 );
 
             Hashtable hash = new Hashtable();
 
@@ -112,7 +109,7 @@ public class BTreeBench {
         return Math.round( Math.random() * ( max-min) ) + min;
     }
 
-    static void compare( BTree tree, Hashtable hash ) throws IOException {
+    static void compare( ObjectBTree tree, Hashtable hash ) throws IOException {
         boolean failed = false;
         Enumeration enum;
 

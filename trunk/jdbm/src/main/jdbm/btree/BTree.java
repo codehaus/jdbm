@@ -46,10 +46,8 @@
 
 package jdbm.btree;
 
-import jdbm.recman.RecordManager;
+import jdbm.RecordManager;
 
-import jdbm.helper.Comparator;
-import jdbm.helper.ObjectCache;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
@@ -57,6 +55,9 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.Serializable;
+
+import java.util.Comparator;
 
 /**
  * B+Tree persistent indexing data structure.  B+Trees are optimized for
@@ -83,9 +84,11 @@ import java.io.ObjectOutput;
  * the key size, which impacts all non-leaf <code>BPage</code> objects.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: BTree.java,v 1.3 2001/11/10 19:52:38 boisvert Exp $
+ * @version $Id: BTree.java,v 1.4 2002/05/31 06:33:20 boisvert Exp $
  */
-public class BTree implements Externalizable {
+public class BTree
+    implements Externalizable
+{
 
     private static final boolean DEBUG = false;
 
@@ -105,12 +108,6 @@ public class BTree implements Externalizable {
      * Page manager used to persist changes in BPages
      */
     protected transient RecordManager _recman;
-
-
-    /**
-     * Object cache to reduce serializing/deserializing objects
-     */
-    protected transient ObjectCache _cache;
 
 
     /**
@@ -153,7 +150,8 @@ public class BTree implements Externalizable {
     /**
      * No-argument constructor used by serialization.
      */
-    public BTree() {
+    public BTree()
+    {
         // empty
     }
 
@@ -162,13 +160,13 @@ public class BTree implements Externalizable {
      * Create a new persistent BTree, with 16 entries per node.
      *
      * @param recman Record manager used for persistence.
-     * @param cache Object cache for the record manager
      * @param comparator Comparator used to order index entries
      */
-    public BTree( RecordManager recman, ObjectCache cache,
-                  Comparator comparator )
-    throws IOException {
-        this( recman, cache, comparator, DEFAULT_SIZE );
+    public static BTree createInstance( RecordManager recman,
+                                        Comparator comparator )
+        throws IOException
+    {
+        return createInstance( recman, comparator, DEFAULT_SIZE );
     }
 
 
@@ -176,37 +174,40 @@ public class BTree implements Externalizable {
      * Create a new persistent BTree with the given number of entries per node.
      *
      * @param recman Record manager used for persistence.
-     * @param cache Object cache for the record manager
      * @param comparator Comparator used to order index entries
      * @param pageSize Number of entries per page (must be even).
      */
-    public BTree( RecordManager recman, ObjectCache cache,
-                  Comparator comparator, int pageSize )
-    throws IOException {
+    public static BTree createInstance( RecordManager recman,
+                                        Comparator comparator,
+                                        int pageSize )
+        throws IOException
+    {
+        BTree tree;
 
         if ( recman == null ) {
             throw new IllegalArgumentException( "Argument 'recman' is null" );
-        }
-
-        if ( cache == null ) {
-            throw new IllegalArgumentException( "Argument 'cache' is null" );
         }
 
         if ( comparator == null ) {
             throw new IllegalArgumentException( "Argument 'comparator' is null" );
         }
 
-        // make sure there's an even number of
-        if ( ( pageSize & 1 ) != 0 ) {
-            throw new IllegalArgumentException( "Argument 'pageSize' must be even");
+        if ( ! ( comparator instanceof Serializable ) ) {
+            throw new IllegalArgumentException( "Argument 'comparator' must be serializable" );
         }
 
-        _comparator = comparator;
-        _pageSize = pageSize;
-        _recman = recman;
-        _cache = cache;
+        // make sure there's an even number of entries per BPage
+        if ( ( pageSize & 1 ) != 0 ) {
+            throw new IllegalArgumentException( "Argument 'pageSize' must be even" );
+        }
 
-        _recid = _recman.insert( this );
+        tree = new BTree();
+        tree._recman = recman;
+        tree._comparator = comparator;
+        tree._pageSize = pageSize;
+
+        tree._recid = recman.insert( tree );
+        return tree;
     }
 
 
@@ -214,17 +215,15 @@ public class BTree implements Externalizable {
      * Load a persistent BTree.
      *
      * @arg recman RecordManager used to store the persistent btree
-     * @arg cache Cache for the record manager.
      * @arg recid Record id of the BTree
      */
-    public static BTree load( RecordManager recman, ObjectCache cache,
-                              long recid )
-    throws IOException {
+    public static BTree load( RecordManager recman, long recid )
+        throws IOException
+    {
         try {
             BTree btree = (BTree) recman.fetchObject( recid );
             btree._recid = recid;
             btree._recman = recman;
-            btree._cache = cache;
             return btree;
         } catch ( ClassNotFoundException except ) {
             throw new Error( except.getMessage() );
@@ -244,8 +243,10 @@ public class BTree implements Externalizable {
      * @param replace Set to true to replace an existing key-value pair.
      * @return Existing value, if any.
      */
-    public synchronized Object insert( Object key, Object value, boolean replace )
-    throws IOException {
+    public synchronized Object insert( byte[] key, byte[] value,
+                                       boolean replace )
+        throws IOException
+    {
         if ( key == null ) {
             throw new IllegalArgumentException( "Argument 'key' is null" );
         }
@@ -264,7 +265,7 @@ public class BTree implements Externalizable {
             _root = rootPage._recid;
             _height = 1;
             _size = 1;
-            _cache.update( _recid, this );
+            _recman.update( _recid, this );
             return null;
         } else {
             BPage.InsertResult insert = rootPage.insert( _height, key, value, replace );
@@ -284,7 +285,7 @@ public class BTree implements Externalizable {
                 dirty = true;
             }
             if ( dirty ) {
-                _cache.update( _recid, this );
+                _recman.update( _recid, this );
             }
             // insert might have returned an existing value
             return insert._existing;
@@ -299,8 +300,9 @@ public class BTree implements Externalizable {
      * @return Value associated with the key, or null if no entry with given
      *         key existed in the BTree.
      */
-    public synchronized Object remove( Object key )
-    throws IOException {
+    public synchronized byte[] remove( byte[] key )
+        throws IOException
+    {
         if ( key == null ) {
             throw new IllegalArgumentException( "Argument 'key' is null" );
         }
@@ -327,7 +329,7 @@ public class BTree implements Externalizable {
             dirty = true;
         }
         if ( dirty ) {
-            _cache.update( _recid, this );
+            _recman.update( _recid, this );
         }
         return remove._value;
     }
@@ -339,7 +341,9 @@ public class BTree implements Externalizable {
      * @param key Lookup key.
      * @return Value associated with the key, or null if not found.
      */
-    public synchronized Object find( Object key ) throws IOException {
+    public synchronized byte[] find( byte[] key )
+        throws IOException
+    {
         if ( key == null ) {
             throw new IllegalArgumentException( "Argument 'key' is null" );
         }
@@ -357,7 +361,7 @@ public class BTree implements Externalizable {
             if ( _comparator.compare( key, tuple.getKey() ) != 0 ) {
                 return null;
             } else {
-                return tuple.getValue();
+                return (byte[]) tuple.getValue();
             }
         } else {
             return null;
@@ -373,10 +377,20 @@ public class BTree implements Externalizable {
      * @return Value associated with the key, or a greater entry, or null if no
      *         greater entry was found.
      */
-    public synchronized Tuple findGreaterOrEqual(Object key)
-    throws IOException {
-        Tuple tuple = new Tuple( null, null );
-        TupleBrowser browser = browse( key );
+    public synchronized Tuple findGreaterOrEqual( byte[] key )
+        throws IOException
+    {
+        Tuple         tuple;
+        TupleBrowser  browser;
+
+        if ( key == null ) {
+            // there can't be a key greater than or equal to "null"
+            // because null is considered an infinite key.
+            return null;
+        }
+
+        tuple = new Tuple( null, null );
+        browser = browse( key );
         if ( browser.getNext( tuple ) ) {
             return tuple;
         } else {
@@ -388,17 +402,18 @@ public class BTree implements Externalizable {
     /**
      * Get a browser initially positioned at the beginning of the BTree.
      * <p><b>
-     * WARNING:  If you make structural modifications to the BTree during
+     * WARNING:  If you make structural modifications to the BTree during
      * browsing, you will get inconsistent browing results.
      * </b>
      *
      * @return Browser positionned at the beginning of the BTree.
      */
     public synchronized TupleBrowser browse()
-    throws IOException {
+        throws IOException
+    {
         BPage rootPage = getRoot();
         if ( rootPage == null ) {
-            return EmptyBrowser.instance;
+            return EmptyBrowser.INSTANCE;
         }
         TupleBrowser browser = rootPage.findFirst();
         return browser;
@@ -408,7 +423,7 @@ public class BTree implements Externalizable {
     /**
      * Get a browser initially positioned just before the given key.
      * <p><b>
-     * WARNING:  If you make structural modifications to the BTree during
+     * WARNING:  If you make structural modifications to the BTree during
      * browsing, you will get inconsistent browing results.
      * </b>
      *
@@ -417,16 +432,12 @@ public class BTree implements Externalizable {
      *            (Null is considered to be an "infinite" key)
      * @return Browser positionned just before the given key.
      */
-    public synchronized TupleBrowser browse( Object key )
-    throws IOException {
-        /*
-        if ( key == null ) {
-            throw new IllegalArgumentException( "Argument 'key' is null" );
-        }
-        */
+    public synchronized TupleBrowser browse( byte[] key )
+        throws IOException
+    {
         BPage rootPage = getRoot();
         if ( rootPage == null ) {
-            return EmptyBrowser.instance;
+            return EmptyBrowser.INSTANCE;
         }
         TupleBrowser browser = rootPage.find( _height, key );
         return browser;
@@ -436,7 +447,8 @@ public class BTree implements Externalizable {
     /**
      * Return the number of entries (size) of the BTree.
      */
-    public synchronized int size() {
+    public synchronized int size()
+    {
         return _size;
     }
 
@@ -444,7 +456,8 @@ public class BTree implements Externalizable {
     /**
      * Return the persistent record identifier of the BTree.
      */
-    public long getRecid() {
+    public long getRecid()
+    {
         return _recid;
     }
 
@@ -452,12 +465,14 @@ public class BTree implements Externalizable {
     /**
      * Return the root BPage, or null if it doesn't exist.
      */
-    private BPage getRoot() throws IOException {
+    private BPage getRoot()
+        throws IOException
+    {
         if ( _root == 0 ) {
             return null;
         }
         try {
-            BPage root = (BPage) _cache.fetchObject( _root );
+            BPage root = (BPage) _recman.fetchObject( _root );
             root._recid = _root;
             root._btree = this;
             return root;
@@ -470,7 +485,8 @@ public class BTree implements Externalizable {
      * Implement Externalizable interface.
      */
     public void readExternal( ObjectInput in )
-    throws IOException, ClassNotFoundException {
+        throws IOException, ClassNotFoundException
+    {
         _comparator = (Comparator) in.readObject();
         _height = in.readInt();
         _root = in.readLong();
@@ -483,7 +499,8 @@ public class BTree implements Externalizable {
      * Implement Externalizable interface.
      */
     public void writeExternal( ObjectOutput out )
-    throws IOException {
+        throws IOException
+    {
         out.writeObject( _comparator );
         out.writeInt( _height );
         out.writeLong( _root );
@@ -515,15 +532,19 @@ public class BTree implements Externalizable {
     /** PRIVATE INNER CLASS
      *  Browser returning no element.
      */
-    static class EmptyBrowser extends TupleBrowser {
+    static class EmptyBrowser
+        extends TupleBrowser
+    {
 
-        static TupleBrowser instance = new EmptyBrowser();
+        static TupleBrowser INSTANCE = new EmptyBrowser();
 
-        public boolean getNext( Tuple tuple ) {
+        public boolean getNext( Tuple tuple )
+        {
             return false;
         }
 
-        public boolean getPrevious( Tuple tuple ) {
+        public boolean getPrevious( Tuple tuple )
+        {
             return false;
         }
     }

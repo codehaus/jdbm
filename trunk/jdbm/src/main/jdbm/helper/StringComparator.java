@@ -46,15 +46,17 @@
 
 package jdbm.helper;
 
+import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * Comparator for String objects.  Delegates to String.compareTo().
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: StringComparator.java,v 1.3 2001/09/23 01:31:38 boisvert Exp $
+ * @version $Id: StringComparator.java,v 1.4 2002/05/31 06:33:20 boisvert Exp $
  */
 public final class StringComparator
-    extends Comparator
+    implements Comparator, Serializable
 {
 
     /**
@@ -71,7 +73,8 @@ public final class StringComparator
      * @return a positive integer if obj1 > obj2, 0 if obj1 == obj2,
      *         and a negative integer if obj1 < obj2
      */
-     public int compare( Object obj1, Object obj2 ) {
+     public int compare( Object obj1, Object obj2 )
+     {
         if ( obj1 == null ) {
             throw new IllegalArgumentException( "Argument 'obj1' is null" );
         }

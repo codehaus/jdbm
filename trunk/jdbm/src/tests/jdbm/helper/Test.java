@@ -52,7 +52,7 @@ import junit.framework.*;
  *  Package test suite.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: Test.java,v 1.2 2001/05/19 14:18:44 boisvert Exp $
+ * @version $Id: Test.java,v 1.3 2002/05/31 06:34:29 boisvert Exp $
  */
 public class Test extends TestCase {
 
@@ -61,7 +61,6 @@ public class Test extends TestCase {
   public static junit.framework.Test suite() {
       TestSuite retval = new TestSuite();
       retval.addTest(new TestSuite(TestMRU.class));
-      retval.addTest(new TestSuite(TestObjectCache.class));
       return retval;
   }
 

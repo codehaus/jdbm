@@ -46,15 +46,17 @@
 
 package jdbm.helper;
 
+import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * Comparator for java.lang.Long objects.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: LongComparator.java,v 1.3 2001/09/23 01:31:38 boisvert Exp $
+ * @version $Id: LongComparator.java,v 1.4 2002/05/31 06:33:20 boisvert Exp $
  */
 public final class LongComparator
-    extends Comparator
+    implements Comparator, Serializable
 {
 
     /**

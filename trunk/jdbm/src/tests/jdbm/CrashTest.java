@@ -1,45 +1,39 @@
 
 package jdbm;
 
-import jdbm.JDBMEnumeration;
-import jdbm.JDBMHashtable;
-import jdbm.recman.RecordManager;
-import jdbm.hash.HTree;
-import jdbm.helper.ObjectCache;
-import jdbm.helper.MRU;
+import jdbm.RecordManager;
+import jdbm.htree.HTree;
 import java.io.IOException;
 
 /**
  * Sample JDBM application to demonstrate the use of basic JDBM operations
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: CrashTest.java,v 1.6 2001/11/17 16:15:05 boisvert Exp $
+ * @version $Id: CrashTest.java,v 1.7 2002/05/31 06:34:29 boisvert Exp $
  */
-public class CrashTest {
-    RecordManager recman;
-    JDBMHashtable hashtable;
+public class CrashTest
+{
+    private RecordManager _recman;
+    private HTree _htree;
 
-    public CrashTest() {
+    public CrashTest()
+    {
         try {
-            // open persistent hashtable
-            recman = new RecordManager("crashtest");
+            _recman = RecordManagerFactory.createRecordManager( "crashtest" );
 
-            ObjectCache cache = new ObjectCache(recman, new MRU(1));
-
-            long root_recid = recman.getNamedObject("crash");
-            if (root_recid == 0) {
-                // create a new one
-                hashtable = new HTree( recman, cache );
-                recman.setNamedObject("crash", hashtable.getRecid() );
-                recman.commit();
+            // create or reload HTree
+            long recid = _recman.getNamedObject( "htree" );
+            if ( recid == 0 ) {
+                _htree = HTree.createInstance( _recman );
+                _recman.setNamedObject( "htree", _htree.getRecid() );
             } else {
-                hashtable = HTree.load(recman, cache, root_recid);
+                _htree = HTree.load( _recman, recid );
             }
 
             checkConsistency();
 
             while (true) {
-                Integer countInt = (Integer)hashtable.get("count");
+                Integer countInt = (Integer)_htree.get("count");
                 if (countInt == null) {
                     System.out.println("Create new crash test");
                     countInt = new Integer(0);
@@ -57,14 +51,14 @@ public class CrashTest {
                     // create some entries
                     for (int i=0; i<10; i++) {
                         String id = " "+count+"-"+i;
-                        hashtable.put("key"+id, "value"+id);
+                        _htree.put("key"+id, "value"+id);
                     }
 
                     // delete some entries
                     if (count > delete_window) {
                         for (int i=0; i<10; i++) {
                             String id = " "+(count-delete_window)+"-"+i;
-                            hashtable.remove("key"+id);
+                            _htree.remove("key"+id);
                         }
                     }
                 } else if ((mod) == 1) {
@@ -72,20 +66,20 @@ public class CrashTest {
                         // update some stuff
                         for (int i=0; i<5; i++) {
                             String id = " "+(count-update_window+1)+"-"+i;
-                            String s = (String)hashtable.get("key"+id);
+                            String s = (String)_htree.get("key"+id);
                             if ((s == null) || !s.equals("value"+id)) {
                                 throw new Error("Invalid value.  Expected: "
                                                 +("value"+id)
                                                 +", got: "
                                                 +s);
                             }
-                            hashtable.put("key"+id, s+"-updated");
+                            _htree.put("key"+id, s+"-updated");
                         }
                     }
                 }
 
-                hashtable.put("count", new Integer(count+1));
-                recman.commit();
+                _htree.put("count", new Integer(count+1));
+                _recman.commit();
 
                 count++;
             }
