@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -55,15 +55,15 @@ import junit.framework.*;
 /**
  *  This class contains all Unit tests for {@link HashBucket}.
  *
- *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestHashBucket.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
+ *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ *  @version $Id: TestHashBucket.java,v 1.3 2001/05/19 14:19:34 boisvert Exp $
  */
 public class TestHashBucket extends TestCase {
 
     public TestHashBucket(String name) {
         super(name);
     }
-    
+
     public void setUp() {
         TestRecordFile.deleteTestFile();
     }
@@ -72,7 +72,7 @@ public class TestHashBucket extends TestCase {
         TestRecordFile.deleteTestFile();
     }
 
-    
+
     /**
      *  Basic tests
      */
@@ -106,7 +106,7 @@ public class TestHashBucket extends TestCase {
 
         recman.close();
     }
-    
+
 
     /**
      *  Runs all tests in this class

@@ -54,8 +54,8 @@ import jdbm.recman.TestRecordFile;
 /**
  *  Unit test for {@link MRU}.
  *
- *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
- *  @version $Id: TestObjectCache.java,v 1.2 2001/04/05 07:02:39 boisvert Exp $
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id: TestObjectCache.java,v 1.3 2001/05/19 14:18:45 boisvert Exp $
  */
 public class TestObjectCache extends TestCase {
 
