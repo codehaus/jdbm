@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: FastIterator.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ * $Id: FastIterator.java,v 1.2 2003/10/21 15:43:58 boisvert Exp $
  */
 
 package jdbm.helper;
@@ -51,8 +51,8 @@ package jdbm.helper;
 /**
  * Fast and simple iterator.
  *
- * @version $Revision: 1.1 $
- * @author <a href="boisvert@intalio.com">Aelx Boisvert</a>
+ * @version $Revision: 1.2 $
+ * @author <a href="boisvert@intalio.com">Alex Boisvert</a>
  */
 public abstract class FastIterator
 {
