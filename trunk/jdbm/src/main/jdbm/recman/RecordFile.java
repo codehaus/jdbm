@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordFile.java,v 1.2 2000/05/23 21:54:25 boisvert Exp $
+ * $Id: RecordFile.java,v 1.3 2001/04/03 15:23:09 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -98,7 +98,7 @@ public final class RecordFile {
         file = new RandomAccessFile(fileName + extension, "rw");
         txnMgr = new TransactionManager(this);
     }
-    
+
     /**
      *  Returns the file name.
      */
@@ -182,7 +182,7 @@ public final class RecordFile {
             node.setDirty();
         release(node);
     }
-    
+
     /**
      *  Releases a block.
      *
@@ -271,7 +271,7 @@ public final class RecordFile {
                             + inTxn.size() + ")");
         };
     }
-    
+
     /**
      *  Commits and closes file.
      */
@@ -280,7 +280,7 @@ public final class RecordFile {
             commit();
         }
         txnMgr.shutdown();
-        
+
         if (!inTxn.isEmpty()) {
             showList(inTxn.values().iterator());
             throw new Error("In transaction not empty");
@@ -303,6 +303,16 @@ public final class RecordFile {
         file.close();
     }
 
+
+    /**
+     * Force closing the file and underlying transaction manager.
+     * Used for testing purposed only.
+     */
+    void forceClose() throws IOException {
+      txnMgr.forceClose();
+      file.close();
+    }
+
     /**
      *  Prints contents of a list
      */
@@ -321,19 +331,19 @@ public final class RecordFile {
      */
     private BlockIo getNewNode(long blockid)
     throws IOException {
-        
+
         BlockIo retval = null;
         if (!free.isEmpty()) {
             retval = (BlockIo) free.removeFirst();
         }
         if (retval == null)
             retval = new BlockIo(0, new byte[BLOCK_SIZE]);
-        
+
         retval.setBlockId(blockid);
         retval.setView(null);
         return retval;
     }
-    
+
     /**
      *  Synchs a node to disk. This is called by the transaction manager's
      *  synchronization code.
@@ -353,7 +363,7 @@ public final class RecordFile {
      *
      *  @arg recycle true if block data can be reused
      */
-    void releaseFromTransaction(BlockIo node, boolean recycle) 
+    void releaseFromTransaction(BlockIo node, boolean recycle)
     throws IOException {
         Long key = new Long(node.getBlockId());
         if ((inTxn.remove(key) != null) && recycle) {
