@@ -43,12 +43,13 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordManager.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ * $Id: RecordManager.java,v 1.2 2003/03/21 02:42:52 boisvert Exp $
  */
 
 package jdbm;
 
 import java.io.IOException;
+import jdbm.helper.Serializer;
 
 /**
  *  An interface to manages records, which are uninterpreted blobs of data.
@@ -61,7 +62,7 @@ import java.io.IOException;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: RecordManager.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ * @version $Id: RecordManager.java,v 1.2 2003/03/21 02:42:52 boisvert Exp $
  */
 public interface RecordManager
 {
@@ -73,25 +74,25 @@ public interface RecordManager
 
 
     /**
-     *  Inserts a new record.
-     *
-     *  @param data the data for the new record.
-     *  @returns the rowid for the new record.
-     *  @throws IOException when one of the underlying I/O operations fails.
-     */
-    public abstract long insert( byte[] data )
-        throws IOException;
-
-
-    /**
-     *  Inserts a new record.  This is a utility method which serializes the
-     *  object into a byte[].
+     *  Inserts a new record using standard java object serialization.
      *
      *  @param obj the object for the new record.
      *  @returns the rowid for the new record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public abstract long insert( Object obj )
+        throws IOException;
+
+    
+    /**
+     *  Inserts a new record using a custom serializer.
+     *
+     *  @param obj the object for the new record.
+     *  @param serializer a custom serializer
+     *  @returns the rowid for the new record.
+     *  @throws IOException when one of the underlying I/O operations fails.
+     */
+    public abstract long insert( Object obj, Serializer serializer )
         throws IOException;
 
 
@@ -106,19 +107,7 @@ public interface RecordManager
 
 
     /**
-     *  Updates a record.
-     *
-     *  @param recid the recid for the record that is to be updated.
-     *  @param data the new data for the record.
-     *  @throws IOException when one of the underlying I/O operations fails.
-     */
-    public abstract void update( long recid, byte[] data )
-        throws IOException;
-
-
-    /**
-     *  Updates a record.  This is a utility method which serializes the
-     *  object into a byte[].
+     *  Updates a record using standard java object serialization.
      *
      *  @param recid the recid for the record that is to be updated.
      *  @param obj the new object for the record.
@@ -129,25 +118,38 @@ public interface RecordManager
 
 
     /**
-     *  Fetches a record.
+     *  Updates a record using a custom serializer.
      *
-     *  @param recid the recid for the record that must be fetched.
-     *  @returns the data representing the record.
+     *  @param recid the recid for the record that is to be updated.
+     *  @param obj the new object for the record.
+     *  @param serializer a custom serializer
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public abstract byte[] fetchByteArray( long recid )
+    public abstract void update( long recid, Object obj, Serializer serializer )
         throws IOException;
 
-
+    
     /**
-     *  Fetches a record.
+     *  Fetches a record using standard java object serialization.
      *
      *  @param recid the recid for the record that must be fetched.
      *  @returns the object contained in the record.
      *  @throws IOException when one of the underlying I/O operations fails.
      */
-    public abstract Object fetchObject( long recid )
-        throws IOException, ClassNotFoundException;
+    public abstract Object fetch( long recid )
+        throws IOException;
+
+
+    /**
+     *  Fetches a record using a custom serializer.
+     *
+     *  @param recid the recid for the record that must be fetched.
+     *  @param serializer a custom serializer
+     *  @returns the object contained in the record.
+     *  @throws IOException when one of the underlying I/O operations fails.
+     */
+    public abstract Object fetch( long recid, Serializer serializer )
+        throws IOException;
 
 
     /**
@@ -217,3 +219,4 @@ public interface RecordManager
         throws IOException;
 
 }
+
