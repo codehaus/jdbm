@@ -71,7 +71,7 @@ import java.io.ObjectOutput;
  * pseudo-key
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: BPage.java,v 1.3 2002/05/31 06:33:20 boisvert Exp $
+ * @version $Id: BPage.java,v 1.4 2002/10/12 14:52:06 boisvert Exp $
  */
 public final class BPage
     implements Externalizable
@@ -854,7 +854,7 @@ public final class BPage
      * Assert the ordering of the keys on the BPage.  This is used for testing
      * purposes only.
      */
-    private void assert()
+    private void assertConsistency()
     {
         for ( int i=_first; i<_keys.length-1; i++ ) {
             if ( compare( (byte[]) _keys[ i ], (byte[]) _keys[ i+1 ] ) >= 0 ) {
@@ -869,8 +869,8 @@ public final class BPage
      * Recursively assert the ordering of the BPage entries on this page
      * and sub-pages.  This is used for testing purposes only.
      */
-    void assertRecursive( int height ) throws IOException {
-        assert();
+    void assertConsistencyRecursive( int height ) throws IOException {
+        assertConsistency();
         if ( --height > 0 ) {
             for ( int i=_first; i<_keys.length; i++ ) {
                 if ( _keys[ i ] == null ) break;
@@ -880,7 +880,7 @@ public final class BPage
                     child.dump( 0 );
                     throw new Error( "Invalid child subordinate key" );
                 }
-                child.assertRecursive( height );
+                child.assertConsistencyRecursive( height );
             }
         }
     }
