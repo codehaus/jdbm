@@ -91,7 +91,7 @@ import junit.framework.*;
  * </pre>
  *
  *  @author <a href="mailto:cdaller@iicm.edu">Christof Dallermassl</a>
- *  @version $Id: StreamCorrupted.java,v 1.2 2002/05/31 06:34:29 boisvert Exp $
+ *  @version $Id: StreamCorrupted.java,v 1.3 2003/03/21 03:09:43 boisvert Exp $
  */
 public class StreamCorrupted
     extends TestCase
@@ -117,7 +117,7 @@ public class StreamCorrupted
         throws IOException
     {
         RecordManager  recman;
-        ObjectBTree    btree;
+        BTree          btree;
         int            iterations;
 
         iterations = 100; // 23 works :-(((((
@@ -126,7 +126,7 @@ public class StreamCorrupted
         recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
 
         // create a new B+Tree data structure
-        btree = ObjectBTree.createInstance( recman, new StringComparator() );
+        btree = BTree.createInstance( recman, new StringComparator() );
         recman.setNamedObject( "testbtree", btree.getRecid() );
 
         // action:

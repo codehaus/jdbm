@@ -59,7 +59,7 @@ import java.io.IOException;
  *  Random insertion/removal test for B+Tree data structure.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: BTreeBench.java,v 1.3 2003/01/17 16:05:58 boisvert Exp $
+ *  @version $Id: BTreeBench.java,v 1.4 2003/03/21 03:09:42 boisvert Exp $
  */
 public class BTreeBench {
 
@@ -68,11 +68,11 @@ public class BTreeBench {
     public static void main( String[] args ) {
 
         RecordManager recman;
-        ObjectBTree tree = null;
+        BTree tree = null;
 
         try {
             recman = RecordManagerFactory.createRecordManager( "test" );
-            tree = ObjectBTree.createInstance( recman, new LongComparator(), 32 );
+            tree = BTree.createInstance( recman, new LongComparator(), null, null, 32 );
 
             Hashtable hash = new Hashtable();
 
@@ -109,7 +109,7 @@ public class BTreeBench {
         return Math.round( Math.random() * ( max-min) ) + min;
     }
 
-    static void compare( ObjectBTree tree, Hashtable hash ) throws IOException {
+    static void compare( BTree tree, Hashtable hash ) throws IOException {
         boolean failed = false;
         Enumeration enum;
 

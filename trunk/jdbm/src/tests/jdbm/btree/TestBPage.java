@@ -51,7 +51,7 @@ import jdbm.RecordManagerFactory;
 import jdbm.recman.TestRecordFile;
 
 import jdbm.helper.MRU;
-import jdbm.helper.ByteArrayComparator;
+import jdbm.helper.StringComparator;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
@@ -63,7 +63,7 @@ import junit.framework.*;
  *  This class contains all Unit tests for {@link Bpage}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestBPage.java,v 1.3 2002/05/31 06:34:29 boisvert Exp $
+ *  @version $Id: TestBPage.java,v 1.4 2003/03/21 03:09:43 boisvert Exp $
  */
 public class TestBPage extends TestCase {
 
@@ -85,17 +85,17 @@ public class TestBPage extends TestCase {
      */
     public void testBasics() throws IOException {
         RecordManager recman;
-        byte[] test, test1, test2, test3;
+        String test, test1, test2, test3;
 
-        test = "test".getBytes();
-        test1 = "test1".getBytes();
-        test2 = "test2".getBytes();
-        test3 = "test3".getBytes();
+        test = "test";
+        test1 = "test1";
+        test2 = "test2";
+        test3 = "test3";
 
         recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
 
-        BTree tree = BTree.createInstance( recman, new ByteArrayComparator(), 32 );
-        BPage page = new BPage( tree, test, test, 32 );
+        BTree tree = BTree.createInstance( recman, new StringComparator(), null, null, 32 );
+        BPage page = new BPage( tree, test, test );
 
         TupleBrowser browser;
         Tuple tuple = new Tuple();

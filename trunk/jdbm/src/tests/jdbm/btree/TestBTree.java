@@ -70,13 +70,13 @@ import java.util.NoSuchElementException;
  *  This class contains all Unit tests for {@link BTree}.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: TestBTree.java,v 1.5 2003/01/17 16:05:59 boisvert Exp $
+ *  @version $Id: TestBTree.java,v 1.6 2003/03/21 03:09:43 boisvert Exp $
  */
 public class TestBTree
     extends TestCase
 {
 
-      static final boolean DEBUG = false;
+      static final boolean DEBUG = true;
 
       // the number of threads to be started in the synchronization test
       static final int THREAD_NUMBER = 5;
@@ -172,22 +172,22 @@ public class TestBTree
         tree.insert( test2, value2, false );
 
         byte[] result;
-        result = tree.find( test0 );
+        result = (byte[]) tree.find( test0 );
         if ( result != null ) {
             throw new Error( "Test0 shouldn't be found" );
         }
 
-        result = tree.find( test1 );
+        result = (byte[]) tree.find( test1 );
         if ( result == null || ByteArrayComparator.compareByteArray( result, value1 ) != 0 ) {
             throw new Error( "Invalid value for test1: " + result );
         }
 
-        result = tree.find( test2 );
+        result = (byte[]) tree.find( test2 );
         if ( result == null || ByteArrayComparator.compareByteArray( result, value2 ) != 0 ) {
             throw new Error( "Invalid value for test2: " + result );
         }
 
-        result = tree.find( test3 );
+        result = (byte[]) tree.find( test3 );
         if ( result != null ) {
             throw new Error( "Test3 shouldn't be found" );
         }
@@ -223,9 +223,9 @@ public class TestBTree
         tree.insert( test2, value2, false);
 
         assertEquals( null, tree.find( test0 ) );
-        assertEquals( 0, ByteArrayComparator.compareByteArray( value1, tree.find( test1 ) ) );
-        assertEquals( 0, ByteArrayComparator.compareByteArray( value2, tree.find( test2 ) ) );
-        assertEquals( null, tree.find( test3 ) );
+        assertEquals( 0, ByteArrayComparator.compareByteArray( value1, (byte[]) tree.find( test1 ) ) );
+        assertEquals( 0, ByteArrayComparator.compareByteArray( value2, (byte[]) tree.find( test2 ) ) );
+        assertEquals( null, (byte[]) tree.find( test3 ) );
 
         recman.close();
      }
@@ -263,9 +263,9 @@ public class TestBTree
         tree.insert( test2, value2, false );
 
         assertEquals( null, tree.find( test0 ) );
-        assertEquals( 0, ByteArrayComparator.compareByteArray( value1, tree.find( test1 ) ) );
-        assertEquals( 0, ByteArrayComparator.compareByteArray( value2, tree.find( test2 ) ) );
-        assertEquals( null, tree.find( test3 ) );
+        assertEquals( 0, ByteArrayComparator.compareByteArray( value1, (byte[]) tree.find( test1 ) ) );
+        assertEquals( 0, ByteArrayComparator.compareByteArray( value2, (byte[]) tree.find( test2 ) ) );
+        assertEquals( null, (byte[]) tree.find( test3 ) );
 
         recman.close();
 
@@ -322,13 +322,13 @@ public class TestBTree
         throws IOException
     {
         RecordManager  recman;
-        ObjectBTree    tree;
+        BTree          tree;
 
         if ( DEBUG )
             System.out.println("TestBTree.testInsert");
 
         recman = RecordManagerFactory.createRecordManager( "test" );
-        tree = ObjectBTree.createInstance( recman, new StringComparator() );
+        tree = BTree.createInstance( recman, new StringComparator() );
 
         // insert differnt objects and retrieve them
         tree.insert("test1", "value1",false);
@@ -364,14 +364,14 @@ public class TestBTree
         throws IOException
     {
         RecordManager  recman;
-        ObjectBTree    tree;
+        BTree          tree;
 
         if ( DEBUG ) {
             System.out.println( "TestBTree.testRemove" );
         }
 
         recman = RecordManagerFactory.createRecordManager( "test" );
-        tree = ObjectBTree.createInstance( recman, new StringComparator() );
+        tree = BTree.createInstance( recman, new StringComparator() );
 
         tree.insert("test1", "value1",false);
         tree.insert("test2","value2",false);
@@ -411,13 +411,13 @@ public class TestBTree
         throws IOException
     {
         RecordManager  recman;
-        ObjectBTree    tree;
+        BTree          tree;
 
         if ( DEBUG )
             System.out.println("TestBTree.testFind");
 
         recman = RecordManagerFactory.createRecordManager( "test" );
-        tree = ObjectBTree.createInstance( recman, new StringComparator() );
+        tree = BTree.createInstance( recman, new StringComparator() );
 
         tree.insert("test1", "value1",false);
         tree.insert("test2","value2",false);
@@ -443,20 +443,27 @@ public class TestBTree
     {
 
         RecordManager  recman;
-        ObjectBTree    tree;
+        BTree          tree;
 
         if ( DEBUG )
             System.out.println("TestBTree.testLargeDataAmount");
 
         recman = RecordManagerFactory.createRecordManager( "test" );
-        tree = ObjectBTree.createInstance( recman, new StringComparator() );
+        // recman = new jdbm.recman.BaseRecordManager( "test" );
+        
+        tree = BTree.createInstance( recman, new StringComparator() );
         // tree.setSplitPoint( 4 );
 
         int iterations = 10000;
 
         // insert data
         for ( int count = 0; count < iterations; count++ ) {
-           assertEquals(null,tree.insert("num"+count,new Integer(count),false));
+           try {
+            assertEquals(null,tree.insert("num"+count,new Integer(count),false));
+           } catch ( IOException except ) {
+               except.printStackTrace();
+               throw except;
+           }
         }
 
            // find data
@@ -486,62 +493,62 @@ public class TestBTree
     throws IOException
   {
         RecordManager  recman;
-        ObjectBTree    tree;
+        BTree          tree;
 
-    if ( DEBUG )
-      System.out.println("TestBTree.testMultithreadAccess");
+        if ( DEBUG )
+            System.out.println("TestBTree.testMultithreadAccess");
 
         recman = RecordManagerFactory.createRecordManager( "test" );
-        tree = ObjectBTree.createInstance( recman, new StringComparator() );
+        tree = BTree.createInstance( recman, new StringComparator() );
 
-    TestThread[] thread_pool = new TestThread[THREAD_NUMBER];
-    String name;
-    Map content;
+        TestThread[] thread_pool = new TestThread[THREAD_NUMBER];
+        String name;
+        Map content;
 
         // create content for the tree, different content for different threads!
-    for(int thread_count = 0; thread_count < THREAD_NUMBER; thread_count++) {
-      name = "thread"+thread_count;
-      content = new TreeMap();
-      for(int content_count = 0; content_count < THREAD_CONTENT_SIZE; content_count++) {
-            // guarantee, that keys and values do not overleap,
-            // otherwise one thread removes some keys/values of
-            // other threads!
-        content.put(name+"_"+content_count,new
-Integer(thread_count*THREAD_CONTENT_SIZE+content_count));
-      }
-      thread_pool[thread_count] = new TestThread(name,tree,content);
-      thread_pool[thread_count].start();
-    }
+        for (int thread_count = 0; thread_count < THREAD_NUMBER; thread_count++) {
+            name = "thread"+thread_count;
+            content = new TreeMap();
+            for(int content_count = 0; content_count < THREAD_CONTENT_SIZE; content_count++) {
+                // guarantee, that keys and values do not overleap,
+                // otherwise one thread removes some keys/values of
+                // other threads!
+                content.put( name+"_"+content_count,
+                             new Integer(thread_count*THREAD_CONTENT_SIZE+content_count) );
+            }
+            thread_pool[thread_count] = new TestThread(name,tree,content);
+            thread_pool[thread_count].start();
+        }
 
-    try {
-      Thread.sleep(THREAD_RUNTIME);
-    } catch( InterruptedException ignore ) {
-      ignore.printStackTrace();
-    }
+        try {
+            Thread.sleep(THREAD_RUNTIME);
+        } catch( InterruptedException ignore ) {
+            ignore.printStackTrace();
+        }
 
-    // stop threads:
-    for(int thread_count = 0; thread_count < THREAD_NUMBER; thread_count++) {
-      if ( DEBUG ) System.out.println("Stop threads");
-      thread_pool[thread_count].setStop();
-    }
+        // stop threads:
+        for (int thread_count = 0; thread_count < THREAD_NUMBER; thread_count++) {
+            if ( DEBUG ) System.out.println("Stop threads");
+            thread_pool[thread_count].setStop();
+        }
         // wait until the threads really stop:
-    try {
-      for(int thread_count = 0; thread_count < THREAD_NUMBER; thread_count++) {
-        if ( DEBUG ) System.out.println("Join thread " + thread_count );
-        thread_pool[thread_count].join();
-        if ( DEBUG ) System.out.println("Joined thread " + thread_count );
-      }
-    } catch( InterruptedException ignore ) {
-        ignore.printStackTrace();
+        try {
+            for (int thread_count = 0; thread_count < THREAD_NUMBER; thread_count++) {
+                if ( DEBUG ) System.out.println("Join thread " + thread_count );
+                thread_pool[thread_count].join();
+                if ( DEBUG ) System.out.println("Joined thread " + thread_count );
+            }
+        } catch( InterruptedException ignore ) {
+            ignore.printStackTrace();
+        }
+        recman.close();
     }
-    recman.close();
-  }
 
 
     /**
      *  Helper method to 'simulate' the methods of an entry set of the btree.
      */
-    protected static boolean containsKey( Object key, ObjectBTree btree )
+    protected static boolean containsKey( Object key, BTree btree )
         throws IOException
     {
         return ( btree.find( key ) != null );
@@ -551,7 +558,7 @@ Integer(thread_count*THREAD_CONTENT_SIZE+content_count));
     /**
      *  Helper method to 'simulate' the methods of an entry set of the btree.
      */
-    protected static boolean containsValue( Object value, ObjectBTree btree )
+    protected static boolean containsValue( Object value, BTree btree )
         throws IOException
   {
     // we must synchronize on the BTree while browsing
@@ -570,7 +577,7 @@ Integer(thread_count*THREAD_CONTENT_SIZE+content_count));
     /**
      *  Helper method to 'simulate' the methods of an entry set of the btree.
      */
-    protected static boolean contains( Map.Entry entry, ObjectBTree btree )
+    protected static boolean contains( Map.Entry entry, BTree btree )
         throws IOException
     {
         Object tree_obj = btree.find(entry.getKey());
@@ -595,12 +602,12 @@ Integer(thread_count*THREAD_CONTENT_SIZE+content_count));
         extends Thread
     {
         Map _content;
-        ObjectBTree _btree;
+        BTree _btree;
         volatile boolean _continue = true;
         int THREAD_SLEEP_TIME = 50; // in ms
         String _name;
 
-        TestThread( String name, ObjectBTree btree, Map content )
+        TestThread( String name, BTree btree, Map content )
         {
             _content = content;
             _btree = btree;
