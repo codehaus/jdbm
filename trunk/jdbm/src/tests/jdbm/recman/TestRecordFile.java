@@ -1,5 +1,5 @@
 /*
- *  $Id: TestRecordFile.java,v 1.3 2001/06/02 14:32:00 boisvert Exp $
+ *  $Id: TestRecordFile.java,v 1.4 2001/11/10 18:36:50 boisvert Exp $
  *
  *  Unit tests for RecordFile class
  *
@@ -29,57 +29,36 @@ import java.io.IOException;
 /**
  *  This class contains all Unit tests for {@link RecordFile}.
  */
-public class TestRecordFile extends TestCase {
+public class TestRecordFile
+    extends TestCase
+{
 
     public final static String testFileName = "test";
 
-    public TestRecordFile(String name) {
-        super(name);
+    public TestRecordFile( String name )
+    {
+        super( name );
     }
 
-    public static void deleteFile(String filename) {
-        System.gc();
+    public static void deleteFile( String filename )
+    {
+        File file = new File( filename );
 
-        File f = new File(filename);
-
-        if (f.exists()) {
+        if ( file.exists() ) {
             try {
-                f.delete();
-            } catch (Exception e) {
-                e.printStackTrace();
+                file.delete();
+            } catch ( Exception except ) {
+                except.printStackTrace();
             }
-            if (f.exists()) {
-                System.out.println("File still exists: " + f );
-                throw new Error("Unable to delete file: "+f);
+            if ( file.exists() ) {
+                System.out.println( "WARNING:  Cannot delete file: " + file );
             }
         }
-
-        /*
-        int loop = 0;
-        while (f.exists()) {
-           loop++;
-           if (loop > 5) {
-               throw new Error("Unable to delete file: "+f);
-           }
-            try {
-                f.delete();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (f.exists()) {
-              System.out.println("Waiting for file "+f+" to be deleted...");
-              try { Thread.currentThread().sleep(1000); } catch (Exception e) {}
-              System.gc();
-              if (f.exists()) {
-                 new Exception("File not deleted yet: "+f).printStackTrace();
-              }
-            }
-        }
-        */
     }
 
 
-    public static void deleteTestFile() {
+    public static void deleteTestFile()
+    {
         System.gc();
 
         deleteFile(testFileName);
@@ -89,11 +68,13 @@ public class TestRecordFile extends TestCase {
         deleteFile(testFileName + TransactionManager.extension);
     }
 
-    public void setUp() {
+    public void setUp()
+    {
         deleteTestFile();
     }
 
-    public void tearDown() {
+    public void tearDown()
+    {
         deleteTestFile();
     }
 
@@ -101,90 +82,102 @@ public class TestRecordFile extends TestCase {
     /**
      *  Test constructor
      */
-    public void testCtor() throws Exception {
-        RecordFile f = new RecordFile(testFileName);
-        f.close();
+    public void testCtor()
+        throws Exception
+    {
+        RecordFile file = new RecordFile( testFileName );
+        file.close();
     }
+
 
     /**
      *  Test addition of record 0
      */
-    public void testAddZero() throws Exception {
-        RecordFile f = new RecordFile(testFileName);
-        byte[] data = f.get(0).getData();
-        data[14] = (byte) 'b';
-        f.release(0, true);
-        f.close();
-        f = new RecordFile(testFileName);
-        data = f.get(0).getData();
-        assertEquals((byte) 'b', data[14]);
-        f.release(0, false);
-        f.close();
+    public void testAddZero()
+        throws Exception
+    {
+        RecordFile file = new RecordFile( testFileName );
+        byte[] data = file.get( 0 ).getData();
+        data[ 14 ] = (byte) 'b';
+        file.release( 0, true );
+        file.close();
+        file = new RecordFile( testFileName );
+        data = file.get( 0 ).getData();
+        assertEquals( (byte) 'b', data[ 14 ] );
+        file.release( 0, false );
+        file.close();
     }
+
 
     /**
      *  Test addition of a number of records, with holes.
      */
-    public void testWithHoles() throws Exception {
-        RecordFile f = new RecordFile(testFileName);
+    public void testWithHoles()
+        throws Exception
+    {
+        RecordFile file = new RecordFile( testFileName );
 
         // Write recid 0, byte 0 with 'b'
-        byte[] data = f.get(0).getData();
-        data[0] = (byte) 'b';
-        f.release(0, true);
+        byte[] data = file.get( 0 ).getData();
+        data[ 0 ] = (byte) 'b';
+        file.release( 0, true );
 
         // Write recid 10, byte 10 with 'c'
-        data = f.get(10).getData();
-        data[10] = (byte) 'c';
-        f.release(10, true);
+        data = file.get( 10 ).getData();
+        data[ 10 ] = (byte) 'c';
+        file.release( 10, true );
 
         // Write recid 5, byte 5 with 'e' but don't mark as dirty
-        data = f.get(5).getData();
-        data[5] = (byte) 'e';
-        f.release(5, false);
+        data = file.get( 5 ).getData();
+        data[ 5 ] = (byte) 'e';
+        file.release( 5, false );
 
-        f.close();
+        file.close();
 
-        f = new RecordFile(testFileName);
-        data = f.get(0).getData();
-        assertEquals("0 = b", (byte) 'b', data[0]);
-        f.release(0, false);
+        file = new RecordFile( testFileName );
+        data = file.get( 0 ).getData();
+        assertEquals( "0 = b", (byte) 'b', data[ 0 ] );
+        file.release( 0, false );
 
-        data = f.get(5).getData();
-        assertEquals("5 = 0", 0, data[5]);
-        f.release(5, false);
+        data = file.get( 5 ).getData();
+        assertEquals( "5 = 0", 0, data[ 5 ] );
+        file.release( 5, false );
 
-        data = f.get(10).getData();
-        assertEquals("10 = c", (byte) 'c', data[10]);
-        f.release(10, false);
+        data = file.get( 10 ).getData();
+        assertEquals( "10 = c", (byte) 'c', data[ 10 ] );
+        file.release( 10, false );
 
-        f.close();
+        file.close();
     }
+
 
     /**
      *  Test wrong release
      */
-    public void testWrongRelease() throws Exception {
-        RecordFile f = new RecordFile(testFileName);
+    public void testWrongRelease()
+        throws Exception
+    {
+        RecordFile file = new RecordFile( testFileName );
 
         // Write recid 0, byte 0 with 'b'
-        byte[] data = f.get(0).getData();
-        data[0] = (byte) 'b';
+        byte[] data = file.get( 0 ).getData();
+        data[ 0 ] = (byte) 'b';
         try {
-            f.release(1, true);
-            fail("expected exception");
-        } catch (IOException e) {
+            file.release( 1, true );
+            fail( "expected exception" );
+        } catch ( IOException except ) {
+            // ignore
         }
-        f.release(0, false);
+        file.release( 0, false );
 
-        f.close();
+        file.close();
 
         // @alex retry to open the file
         /*
-        f = new RecordFile(testFileName);
-        PageManager pm = new PageManager(f);
+        file = new RecordFile( testFileName );
+        PageManager pm = new PageManager( file );
         pm.close();
-        f.close();
+        file.close();
         */
     }
 
@@ -192,7 +185,8 @@ public class TestRecordFile extends TestCase {
     /**
      *  Runs all tests in this class
      */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestRecordFile.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestRecordFile.class ) );
     }
 }
