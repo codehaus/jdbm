@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CachePolicy.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
+ * $Id: CachePolicy.java,v 1.3 2001/05/19 14:02:00 boisvert Exp $
  */
 
 package jdbm.helper;
@@ -53,8 +53,8 @@ import java.util.Enumeration;
  *  CachePolicity is an abstraction for different cache policies.
  *  (ie. MRU, time-based, soft-refs, ...)
  *
- *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
- *  @version $Id: CachePolicy.java,v 1.2 2000/05/24 18:25:47 boisvert Exp $
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id: CachePolicy.java,v 1.3 2001/05/19 14:02:00 boisvert Exp $
  */
 public interface CachePolicy {
 

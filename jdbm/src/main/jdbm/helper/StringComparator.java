@@ -49,6 +49,9 @@ package jdbm.helper;
 
 /**
  * Comparator for String objects.  Delegates to String.compareTo().
+ *
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id: StringComparator.java,v 1.2 2001/05/19 14:02:00 boisvert Exp $
  */
 public final class StringComparator extends Comparator  {
 

@@ -49,6 +49,9 @@ package jdbm.helper;
 
 /**
  * Tuple consisting of a key-value pair.
+ *
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id: Tuple.java,v 1.2 2001/05/19 14:02:00 boisvert Exp $
  */
 public final class Tuple {
 
