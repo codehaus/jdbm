@@ -52,7 +52,7 @@ import junit.framework.*;
  *  "jdbm.btree.*" package test suite
  *
  *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id: Test.java,v 1.1 2001/05/19 14:38:19 boisvert Exp $
+ *  @version $Id: Test.java,v 1.2 2001/08/28 06:15:24 boisvert Exp $
  */
 public class Test extends TestCase {
 
@@ -64,6 +64,7 @@ public class Test extends TestCase {
         TestSuite retval = new TestSuite();
         retval.addTest( new TestSuite( TestBPage.class ) );
         retval.addTest( new TestSuite( TestBTree.class ) );
+        retval.addTest( new TestSuite( StreamCorrupted.class ) );
         return retval;
     }
 
