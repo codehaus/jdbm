@@ -1,5 +1,5 @@
 /*
- *  $Id: TestPerformance.java,v 1.2 2002/05/31 06:34:29 boisvert Exp $
+ *  $Id: TestPerformance.java,v 1.3 2003/03/21 03:11:01 boisvert Exp $
  *
  *  Package performance test
  *
@@ -140,8 +140,7 @@ public class TestPerformance extends TestCase {
 
             long stop = 0;
             while (true) {
-
-                recman.fetchByteArray(rowids[rnd.nextInt(RECORDS)]);
+                recman.fetch( rowids[ rnd.nextInt( RECORDS ) ] );
                 fetches++;
                 if ((fetches % 25) == 0) {
                     stop = System.currentTimeMillis();

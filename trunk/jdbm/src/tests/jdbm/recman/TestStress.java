@@ -1,5 +1,5 @@
 /*
- *  $Id: TestStress.java,v 1.3 2002/05/31 06:34:29 boisvert Exp $
+ *  $Id: TestStress.java,v 1.4 2003/03/21 03:11:01 boisvert Exp $
  *
  *  Package stress test
  *
@@ -24,6 +24,8 @@ package jdbm.recman;
 
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
+
+import jdbm.helper.ByteArraySerializer;
 
 import junit.framework.*;
 import java.io.File;
@@ -210,7 +212,7 @@ public class TestStress extends TestCase {
                     }
 
                     slot = getRandomAllocatedSlot(d);
-                    byte[] data = recman.fetchByteArray(d[slot].rowid);
+                    byte[] data = (byte[]) recman.fetch(d[slot].rowid, ByteArraySerializer.INSTANCE );
                     assertTrue("fetch round=" + i + ", slot=" + slot
                     + ", " + d[slot],
                     TestUtil.checkRecord(data, d[slot].size, d[slot].b));

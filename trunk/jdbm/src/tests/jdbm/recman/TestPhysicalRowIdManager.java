@@ -1,5 +1,5 @@
 /*
- *  $Id: TestPhysicalRowIdManager.java,v 1.3 2001/09/25 06:10:02 boisvert Exp $
+ *  $Id: TestPhysicalRowIdManager.java,v 1.4 2003/03/21 03:11:01 boisvert Exp $
  *
  *  Unit tests for PhysicalRowIdManager class
  *
@@ -65,26 +65,26 @@ public class TestPhysicalRowIdManager extends TestCase {
 
         // insert a 10,000 byte record.
         byte[] data = TestUtil.makeRecord(10000, (byte) 1);
-        Location loc = physMgr.insert(data);
+        Location loc = physMgr.insert( data, 0, data.length );
         assertTrue("check data1",
                TestUtil.checkRecord(physMgr.fetch(loc), 10000, (byte) 1));
 
         // update it as a 20,000 byte record.
         data = TestUtil.makeRecord(20000, (byte) 2);
-        Location loc2 = physMgr.update(loc, data);
+        Location loc2 = physMgr.update(loc, data, 0, data.length );
         assertTrue("check data2",
                TestUtil.checkRecord(physMgr.fetch(loc2), 20000, (byte) 2));
 
         // insert a third record. This'll effectively block the first one
         // from growing
         data = TestUtil.makeRecord(20, (byte) 3);
-        Location loc3 = physMgr.insert(data);
+        Location loc3 = physMgr.insert(data, 0, data.length );
         assertTrue("check data3",
                TestUtil.checkRecord(physMgr.fetch(loc3), 20, (byte) 3));
 
         // now, grow the first record again
         data = TestUtil.makeRecord(30000, (byte) 4);
-        loc2 = physMgr.update(loc2, data);
+        loc2 = physMgr.update(loc2, data, 0, data.length );
         assertTrue("check data4",
                TestUtil.checkRecord(physMgr.fetch(loc2), 30000, (byte) 4));
 
