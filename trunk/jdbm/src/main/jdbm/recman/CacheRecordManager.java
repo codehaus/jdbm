@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CacheRecordManager.java,v 1.7 2003/07/31 14:59:17 boisvert Exp $
+ * $Id: CacheRecordManager.java,v 1.8 2003/08/06 19:39:27 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -64,7 +64,7 @@ import java.util.Enumeration;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: CacheRecordManager.java,v 1.7 2003/07/31 14:59:17 boisvert Exp $
+ * @version $Id: CacheRecordManager.java,v 1.8 2003/08/06 19:39:27 boisvert Exp $
  */
 public class CacheRecordManager
     implements RecordManager
@@ -207,10 +207,22 @@ public class CacheRecordManager
                                      Serializer serializer )
         throws IOException
     {
+        CacheEntry  entry;
+        Long        id;
+        
         checkIfClosed();
 
+        id = new Long( recid );
         try {
-            _cache.put( new Long( recid ), new CacheEntry( recid, obj, serializer, true ) );
+            entry = (CacheEntry) _cache.get( id );
+            if ( entry != null ) {
+                // reuse existing cache entry
+                entry._obj = obj;
+                entry._serializer = serializer;
+                entry._isDirty = true;
+            } else {
+                _cache.put( id, new CacheEntry( recid, obj, serializer, true ) );
+            }
         } catch ( CacheEvictionException except ) {
             throw new IOException( except.getMessage() );
         }
@@ -270,6 +282,7 @@ public class CacheRecordManager
     {
         checkIfClosed();
 
+        updateCacheEntries();
         _recman.close();
         _recman = null;
         _cache = null;
@@ -324,18 +337,8 @@ public class CacheRecordManager
     public synchronized void commit()
         throws IOException
     {
-        Enumeration enum;
-        
         checkIfClosed();
-
-        // write all dirty data
-        enum = _cache.elements();
-        while ( enum.hasMoreElements() ) {
-            CacheEntry entry = (CacheEntry) enum.nextElement();
-            if ( entry._isDirty ) {
-                _recman.update( entry._recid, entry._obj, entry._serializer );
-            }
-        }
+        updateCacheEntries();
         _recman.commit();
     }
 
@@ -390,6 +393,23 @@ public class CacheRecordManager
     {
         if ( _recman == null ) {
             throw new IllegalStateException( "RecordManager has been closed" );
+        }
+    }
+
+    
+    /**
+     * Update all dirty cache objects to the underlying RecordManager.
+     */
+    protected void updateCacheEntries()
+        throws IOException
+    {
+        Enumeration enum = _cache.elements();
+        while ( enum.hasMoreElements() ) {
+            CacheEntry entry = (CacheEntry) enum.nextElement();
+            if ( entry._isDirty ) {
+                _recman.update( entry._recid, entry._obj, entry._serializer );
+                entry._isDirty = false;
+            }
         }
     }
 
