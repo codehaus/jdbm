@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordManager.java,v 1.6 2001/08/28 06:41:47 boisvert Exp $
+ * $Id: RecordManager.java,v 1.7 2001/11/10 19:53:19 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -111,6 +111,9 @@ public final class RecordManager {
      *  the results will be undefined.
      */
     public synchronized void disableTransactions() {
+        if ( file == null ) {
+            throw new IllegalStateException( "RecordManager has been closed" );
+        }
         file.disableTransactions();
     }
 
@@ -121,6 +124,7 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized void close() throws IOException {
+        checkIfClosed();
         for (int i=0; i<caches.size(); i++) {
             ((RecordCache)caches.elementAt(i)).flushAll();
             ((RecordCache)caches.elementAt(i)).invalidateAll();
@@ -140,6 +144,7 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized long insert(byte[] data) throws IOException {
+        checkIfClosed();
         Location physRowId = physMgr.insert(data);
         return logMgr.insert(physRowId).toLong();
     }
@@ -152,6 +157,7 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public long insert(Object obj) throws IOException {
+        checkIfClosed();
         byte[] buffer = objectToByteArray(obj);
         return insert(buffer);
     }
@@ -163,6 +169,7 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized void delete(long recid) throws IOException {
+        checkIfClosed();
         for (int i=0; i<caches.size(); i++) {
             ((RecordCache)caches.elementAt(i)).invalidate(recid);
         }
@@ -182,6 +189,7 @@ public final class RecordManager {
      */
     public synchronized void update(long recid, byte[] data)
     throws IOException {
+        checkIfClosed();
         for (int i=0; i<caches.size(); i++) {
             ((RecordCache)caches.elementAt(i)).invalidate(recid);
         }
@@ -202,6 +210,7 @@ public final class RecordManager {
      */
     public void update(long recid, Object obj)
     throws IOException {
+        checkIfClosed();
         byte[] buffer = objectToByteArray(obj);
         update(recid, buffer);
     }
@@ -214,6 +223,7 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized byte[] fetchByteArray(long recid) throws IOException {
+        checkIfClosed();
         for (int i=0; i<caches.size(); i++) {
             ((RecordCache)caches.elementAt(i)).flush(recid);
         }
@@ -229,6 +239,7 @@ public final class RecordManager {
      */
     public synchronized Object fetchObject(long recid)
     throws IOException, ClassNotFoundException {
+        checkIfClosed();
         for (int i=0; i<caches.size(); i++) {
             ((RecordCache)caches.elementAt(i)).flush(recid);
         }
@@ -252,6 +263,7 @@ public final class RecordManager {
      *  @see getRootCount
      */
     public synchronized long getRoot(int id) throws IOException {
+        checkIfClosed();
         return pageman.getFileHeader().getRoot(id);
     }
 
@@ -261,6 +273,7 @@ public final class RecordManager {
      *  @see getRootCount
      */
     public synchronized void setRoot(int id, long rowid) throws IOException {
+        checkIfClosed();
         pageman.getFileHeader().setRoot(id, rowid);
     }
 
@@ -268,6 +281,7 @@ public final class RecordManager {
      * Commit (make persistent) all changes since beginning of transaction.
      */
     public synchronized void commit() throws IOException {
+        checkIfClosed();
         for (int i=0; i<caches.size(); i++) {
             ((RecordCache)caches.elementAt(i)).flushAll();
         }
@@ -278,11 +292,25 @@ public final class RecordManager {
      * Rollback (cancel) all changes since beginning of transaction.
      */
     public synchronized void rollback() throws IOException {
+        checkIfClosed();
         for (int i=0; i<caches.size(); i++) {
             ((RecordCache)caches.elementAt(i)).invalidateAll();
         }
         pageman.rollback();
     }
+
+
+    /**
+     * Check if RecordManager has been closed.  If so, throw an IOException.
+     */
+    private void checkIfClosed()
+        throws IOException
+    {
+        if ( file == null ) {
+            throw new IOException( "RecordManager has been closed" );
+        }
+    }
+
 
     /**
      * Recreate a serialized object from a byte array.
@@ -344,6 +372,7 @@ public final class RecordManager {
      * doesn't exist.
      */
     public synchronized long getNamedObject(String name) throws IOException {
+        checkIfClosed();
         Hashtable nameDirectory = getNameDirectory();
         Long recid = (Long)nameDirectory.get(name);
         if (recid == null) {
@@ -357,6 +386,7 @@ public final class RecordManager {
      */
     public synchronized void setNamedObject(String name, long recid)
     throws IOException {
+        checkIfClosed();
         Hashtable nameDirectory = getNameDirectory();
         if (recid == 0) {
             // remove from hashtable
