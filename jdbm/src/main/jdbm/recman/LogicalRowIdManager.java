@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: LogicalRowIdManager.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: LogicalRowIdManager.java,v 1.2 2001/04/05 07:14:41 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -62,14 +62,14 @@ final class LogicalRowIdManager {
      *  Creates a log rowid manager using the indicated record file and
      *  page manager
      */
-    LogicalRowIdManager(RecordFile file, PageManager pageman) 
+    LogicalRowIdManager(RecordFile file, PageManager pageman)
   throws IOException {
   this.file = file;
   this.pageman = pageman;
   this.freeman = new FreeLogicalRowIdPageManager(file, pageman);
-  
+
     }
-  
+
     /**
      *  Creates a new logical rowid pointing to the indicated physical
      *  id
@@ -93,10 +93,10 @@ final class LogicalRowIdManager {
       }
   }
   // write the translation.
-  update(retval, loc);  
+  update(retval, loc);
   return retval;
     }
-    
+
     /**
      *  Releases the indicated logical rowid.
      */
@@ -112,35 +112,34 @@ final class LogicalRowIdManager {
      *  @param rowid The logical rowid
      *  @param loc The physical rowid
      */
-    void update(Location rowid, Location loc) 
-  throws IOException {
+    void update(Location rowid, Location loc)
+    throws IOException {
 
-  TranslationPage xlatPage = TranslationPage.getTranslationPageView(
-                                      file.get(rowid.getBlock()));
-  PhysicalRowId physid = xlatPage.get(rowid.getOffset());
-  physid.setBlock(loc.getBlock());
-  physid.setOffset(loc.getOffset());
-  file.release(rowid.getBlock(), true);
-
+        TranslationPage xlatPage = TranslationPage.getTranslationPageView(
+                                       file.get(rowid.getBlock()));
+        PhysicalRowId physid = xlatPage.get(rowid.getOffset());
+        physid.setBlock(loc.getBlock());
+        physid.setOffset(loc.getOffset());
+        file.release(rowid.getBlock(), true);
     }
-    
+
     /**
-     *  Returns a mapping 
+     *  Returns a mapping
      *
      *  @param rowid The logical rowid
      *  @returns The physical rowid
      */
-    Location fetch(Location rowid) 
-  throws IOException {
-  
-  TranslationPage xlatPage = TranslationPage.getTranslationPageView(
-                                      file.get(rowid.getBlock()));
-  try {
-      Location retval = new Location(xlatPage.get(rowid.getOffset()));
-      return retval;
-  }
-  finally {
-      file.release(rowid.getBlock(), true);
-  }
+    Location fetch(Location rowid)
+    throws IOException {
+
+        TranslationPage xlatPage = TranslationPage.getTranslationPageView(
+                                       file.get(rowid.getBlock()));
+        try {
+            Location retval = new Location(xlatPage.get(rowid.getOffset()));
+            return retval;
+        } finally {
+            file.release(rowid.getBlock(), false);
+        }
     }
+
 }
