@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: MRU.java,v 1.6 2003/09/21 15:47:00 boisvert Exp $
+ * $Id: MRU.java,v 1.7 2003/11/01 13:28:46 dranatunga Exp $
  */
 
 package jdbm.helper;
@@ -58,7 +58,7 @@ import java.util.Vector;
  *  Methods are *not* synchronized, so no concurrent access is allowed.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: MRU.java,v 1.6 2003/09/21 15:47:00 boisvert Exp $
+ * @version $Id: MRU.java,v 1.7 2003/11/01 13:28:46 dranatunga Exp $
  */
 public class MRU implements CachePolicy {
 
@@ -170,16 +170,21 @@ public class MRU implements CachePolicy {
     /**
      * Add a listener to this cache policy
      *
-     * @arg listener Listener to add to this policy
+     * @param listener Listener to add to this policy
      */
     public void addListener(CachePolicyListener listener) {
-        listeners.addElement(listener);
+        if (listener == null) {
+            throw new IllegalArgumentException("Cannot add null listener.");
+        }
+        if ( ! listeners.contains(listener)) {
+            listeners.addElement(listener);
+        }
     }
 
     /**
      * Remove a listener from this cache policy
      *
-     * @arg listener Listener to remove from this policy
+     * @param listener Listener to remove from this policy
      */
     public void removeListener(CachePolicyListener listener) {
         listeners.removeElement(listener);
@@ -240,15 +245,18 @@ public class MRU implements CachePolicy {
      */
     protected CacheEntry purgeEntry() throws CacheEvictionException {
         CacheEntry entry = _first;
-        removeEntry(entry);
-        _hash.remove(entry.getKey());
 
-        // notify policy listeners
+        // Notify policy listeners first. if any of them throw an
+        // eviction exception, then the internal data structure
+        // remains untouched.
         CachePolicyListener listener;
         for (int i=0; i<listeners.size(); i++) {
             listener = (CachePolicyListener)listeners.elementAt(i);
             listener.cacheObjectEvicted(entry.getValue());
         }
+
+        removeEntry(entry);
+        _hash.remove(entry.getKey());
 
         entry.setValue(null);
         return entry;
