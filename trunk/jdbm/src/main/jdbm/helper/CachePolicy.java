@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CachePolicy.java,v 1.4 2003/01/17 16:05:54 boisvert Exp $
+ * $Id: CachePolicy.java,v 1.5 2003/11/01 13:25:02 dranatunga Exp $
  */
 
 package jdbm.helper;
@@ -54,61 +54,89 @@ import java.util.Enumeration;
  *  (ie. MRU, time-based, soft-refs, ...)
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: CachePolicy.java,v 1.4 2003/01/17 16:05:54 boisvert Exp $
+ * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
+ * @version $Id: CachePolicy.java,v 1.5 2003/11/01 13:25:02 dranatunga Exp $
  */
 public interface CachePolicy
 {
 
     /**
-     * Place an object in the cache.
+     * Place an object in the cache. If the cache does not currently contain
+     * an object for the key specified, this mapping is added. If an object
+     * currently exists under the specified key, the current object is
+     * replaced with the new object.
+     * <p>
+     * If the changes to the cache cause the eviction of any objects
+     * <strong>stored under other key(s)</strong>, events corresponding to
+     * the evictions are fired for each object. If an event listener is
+     * unable to handle the eviction, and throws a cache eviction exception,
+     * that exception is propagated to the caller. If such an exception is
+     * thrown, the cache itself should be left as it was before the
+     * <code>put()</code> operation was invoked: the the object whose
+     * eviction failed is still in the cache, and the new insertion or
+     * modification is reverted.
      *
-     * @arg key key for the cached object
-     * @arg value the cached object
+     * @param key key for the cached object
+     * @param value the cached object
+     * @throws CacheEvictionException propagated if, while evicting objects
+     *     to make room for new object, an eviction listener encountered
+     *     this problem.
      */
     public void put( Object key, Object value )
         throws CacheEvictionException;
 
 
     /**
-     * Obtain an object in the cache
+     * Obtain the object stored under the key specified.
      *
-     * @arg key Key of the cached object
+     * @param key key the object was cached under
+     * @return the object if it is still in the cache, null otherwise.
      */
     public Object get( Object key );
 
 
     /**
-     * Remove an object from the cache
+     * Remove the object stored under the key specified. Note that since
+     * eviction notices are only fired when objects under <strong>different
+     * keys</strong> are evicted, no event is fired for any object stored
+     * under this key (see {@link #put(Object, Object) put( )}).
      *
-     * @arg key Key of the cached object
+     * @param key key the object was stored in the cache under.
      */
     public void remove( Object key );
 
 
     /**
-     * Remove all objects from the cache
+     * Remove all objects from the cache. Consistent with
+     * {@link #remove(Object) remove( )}, no eviction notices are fired.
      */
     public void removeAll();
 
 
     /**
-     * Enumerate elements' values in the cache
+     * Enumerate through the objects currently in the cache.
      */
     public Enumeration elements();
 
 
     /**
-     * Add a listener to this cache policy
+     * Add a listener to this cache policy.
+     * <p>
+     * If this cache policy already contains a listener that is equal to
+     * the one being added, this call has no effect.
      *
-     * @arg listener Listener to add to this policy
+     * @param listener the (non-null) listener to add to this policy
+     * @throws IllegalArgumentException if listener is null.
      */
-    public void addListener( CachePolicyListener listener );
+    public void addListener( CachePolicyListener listener )
+            throws IllegalArgumentException;
 
     
     /**
-     * Remove a listener from this cache policy
+     * Remove a listener from this cache policy. The listener is found
+     * using object equality, not identity.
      *
-     * @arg listener Listener to remove from this policy
+     * @param listener the listener to remove from this policy
      */
     public void removeListener( CachePolicyListener listener );
 
