@@ -43,7 +43,7 @@
  * Copyright 2000-2001 (C) Alex Boisvert. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: Provider.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ * $Id: Provider.java,v 1.2 2002/08/06 05:33:00 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -61,7 +61,7 @@ import jdbm.helper.MRU;
  * Provider of the default RecordManager implementation.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: Provider.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ * @version $Id: Provider.java,v 1.2 2002/08/06 05:33:00 boisvert Exp $
  */
 public final class Provider
     implements RecordManagerProvider
@@ -99,14 +99,12 @@ public final class Provider
         value = options.getProperty( RecordManagerOptions.CACHE_TYPE,
                                      RecordManagerOptions.NORMAL_CACHE );
         if ( value.equalsIgnoreCase( RecordManagerOptions.NORMAL_CACHE ) ) {
-            ( (BaseRecordManager) recman ).disableTransactions();
-        } else if ( value.equalsIgnoreCase( RecordManagerOptions.NORMAL_CACHE ) ) {
-            MRU cache = new MRU( 1000 );
+            MRU cache = new MRU( cacheSize );
             recman = new CacheRecordManager( recman, cache );
         } else if ( value.equalsIgnoreCase( RecordManagerOptions.SOFT_REF_CACHE ) ) {
-            throw new IllegalArgumentException( "Soft reference cache not supported" );
+            throw new IllegalArgumentException( "Soft reference cache not implemented" );
         } else if ( value.equalsIgnoreCase( RecordManagerOptions.WEAK_REF_CACHE ) ) {
-            throw new IllegalArgumentException( "Weak reference cache not supported" );
+            throw new IllegalArgumentException( "Weak reference cache not implemented" );
         } else {
             throw new IllegalArgumentException( "Invalid cache type: " + value );
         }
