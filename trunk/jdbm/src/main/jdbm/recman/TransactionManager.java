@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: TransactionManager.java,v 1.3 2001/04/03 15:23:09 boisvert Exp $
+ * $Id: TransactionManager.java,v 1.4 2001/04/05 07:04:29 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -268,6 +268,8 @@ final class TransactionManager {
         sync();
         oos.close();
         fos.close();
+        oos = null;
+        fos = null;
     }
 
     /**
@@ -275,8 +277,10 @@ final class TransactionManager {
      * Used for testing purposes only.
      */
     void forceClose() throws IOException {
-      oos.close();
-      fos.close();
+        oos.close();
+        fos.close();
+        oos = null;
+        fos = null;
     }
 
     /**
