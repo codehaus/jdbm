@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordFile.java,v 1.3 2001/04/03 15:23:09 boisvert Exp $
+ * $Id: RecordFile.java,v 1.4 2001/04/05 07:10:54 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -81,7 +81,7 @@ public final class RecordFile {
     /** A block of clean data to wipe clean pages. */
     final static byte[] cleanData = new byte[BLOCK_SIZE];
 
-    private final RandomAccessFile file;
+    private RandomAccessFile file;
     private final String fileName;
 
     /**
@@ -191,13 +191,16 @@ public final class RecordFile {
     void release(BlockIo block) {
         Long key = new Long(block.getBlockId());
         inUse.remove(key);
-        if (block.isDirty())
+        if (block.isDirty()) {
+            // System.out.println( "Dirty: " + key + block );
             dirty.put(key, block);
-        else
-            if (!transactionsDisabled && block.isInTransaction())
+        } else {
+            if (!transactionsDisabled && block.isInTransaction()) {
                 inTxn.put(key, block);
-            else
+            } else {
                 free.add(block);
+            }
+        }
     }
 
     /**
@@ -224,7 +227,14 @@ public final class RecordFile {
             throw new Error("in use list not empty at commit time ("
                             + inUse.size() + ")");
         }
+
         //  System.out.println("committing...");
+
+        if ( dirty.size() == 0 ) {
+            // if no dirty blocks, skip commit process
+            return;
+        }
+
         if (!transactionsDisabled) {
             txnMgr.start();
         }
@@ -301,6 +311,7 @@ public final class RecordFile {
         // debugging stuff to keep an eye on the free list
         // System.out.println("Free list size:" + free.size());
         file.close();
+        file = null;
     }
 
 
@@ -382,7 +393,7 @@ public final class RecordFile {
     /**
      * Utility method: Read a block from a RandomAccessFile
      */
-    private static void read(RandomAccessFile file, long offset, 
+    private static void read(RandomAccessFile file, long offset,
                              byte[] buffer, int nBytes) throws IOException {
         file.seek(offset);
         int remaining = nBytes;
