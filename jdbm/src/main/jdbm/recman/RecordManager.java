@@ -42,13 +42,14 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: RecordManager.java,v 1.2 2000/05/23 22:00:50 boisvert Exp $
+ * $Id: RecordManager.java,v 1.3 2000/05/24 01:50:24 boisvert Exp $
  */
 
 package jdbm.recman;
 
 import java.io.*;
 import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  *  This class manages records, which are uninterpreted blobs of data. The
@@ -76,7 +77,7 @@ public final class RecordManager {
     private LogicalRowIdManager logMgr;
     private PageManager pageman;
 
-    private RecordCache cache;
+    private Vector caches = new Vector();
 
     public static final int NAME_DIRECTORY_ROOT = 0;
 
@@ -120,9 +121,9 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized void close() throws IOException {
-        if (cache != null) {
-            cache.flushAll();
-            cache.invalidateAll();
+        for (int i=0; i<caches.size(); i++) {
+            ((RecordCache)caches.elementAt(i)).flushAll();
+            ((RecordCache)caches.elementAt(i)).invalidateAll();
         }
         pageman.close();
         file.close();
@@ -159,8 +160,8 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized void delete(long recid) throws IOException {
-        if (cache != null) {
-            cache.invalidate(recid);
+        for (int i=0; i<caches.size(); i++) {
+            ((RecordCache)caches.elementAt(i)).invalidate(recid);
         }
         Location logRowId = new Location(recid);
         Location physRowId = logMgr.fetch(logRowId);
@@ -178,8 +179,8 @@ public final class RecordManager {
      */
     public synchronized void update(long recid, byte[] data)
     throws IOException {
-        if (cache != null) {
-            cache.invalidate(recid);
+        for (int i=0; i<caches.size(); i++) {
+            ((RecordCache)caches.elementAt(i)).invalidate(recid);
         }
         Location logRecid = new Location(recid);
         Location physRecid = logMgr.fetch(logRecid);
@@ -198,8 +199,8 @@ public final class RecordManager {
      */
     public void update(long recid, Object obj)
     throws IOException {
-        if (cache != null) {
-            cache.invalidate(recid);
+        for (int i=0; i<caches.size(); i++) {
+            ((RecordCache)caches.elementAt(i)).invalidate(recid);
         }
         byte[] buffer = objectToByteArray(obj);
         update(recid, buffer);
@@ -213,8 +214,8 @@ public final class RecordManager {
      *  @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized byte[] fetchByteArray(long recid) throws IOException {
-        if (cache != null) {
-            cache.flush(recid);
+        for (int i=0; i<caches.size(); i++) {
+            ((RecordCache)caches.elementAt(i)).flush(recid);
         }
         return physMgr.fetch(logMgr.fetch(new Location(recid)));
     }
@@ -228,8 +229,8 @@ public final class RecordManager {
      */
     public Object fetchObject(long recid) 
     throws IOException, ClassNotFoundException {
-        if (cache != null) {
-            cache.flush(recid);
+        for (int i=0; i<caches.size(); i++) {
+            ((RecordCache)caches.elementAt(i)).flush(recid);
         }
         byte[] buffer = fetchByteArray(recid);
         return byteArrayToObject(buffer);
@@ -267,8 +268,8 @@ public final class RecordManager {
      * Commit (make persistent) all changes since beginning of transaction.
      */
     public void commit() throws IOException {
-        if (cache != null) {
-            cache.flushAll();
+        for (int i=0; i<caches.size(); i++) {
+            ((RecordCache)caches.elementAt(i)).flushAll();
         }
         pageman.commit();
     }
@@ -277,8 +278,8 @@ public final class RecordManager {
      * Rollback (cancel) all changes since beginning of transaction.
      */
     public void rollback() throws IOException {
-        if (cache != null) {
-            cache.invalidateAll();
+        for (int i=0; i<caches.size(); i++) {
+            ((RecordCache)caches.elementAt(i)).invalidateAll();
         }
         pageman.rollback();
     }
@@ -366,5 +367,19 @@ public final class RecordManager {
         saveNameDirectory(nameDirectory);
     }
 
+    /**
+     * Add a RecordCache which synchronizes with this RecordManager.
+     */
+    public void addCache(RecordCache cache) {
+        if (!caches.contains(cache)) {
+            caches.addElement(cache);
+        }
+    }
 
+    /**
+     * Remove a RecordCache which synchronizes with this RecordManager.
+     */
+    public void removeCache(RecordCache cache) {
+        caches.removeElement(cache);
+    }
 }
