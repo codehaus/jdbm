@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.1 2000/05/05 23:59:52 boisvert Exp $
+$Id: README.txt,v 1.2 2001/04/05 07:33:54 boisvert Exp $
 
 Package readme for: jdbm.*
 Package version: see VERSION
@@ -15,7 +15,8 @@ WHAT IT IS
 
 - Easy API to persist Java objects (or byte arrays).  
 - Basic layers are meant to ressemble the popular GDBM API.
-- Provides advanced API for explicit transaction processing.
+- Transaction support for fail-safe operation.
+
 
 
 WHAT IT'S *NOT*
@@ -38,8 +39,7 @@ FEATURES
 - Fast: Uses no persistent rollback buffer.  An in-memory transaction log is
   kept.  (It can be disabled for even greater performance.)
 
-- ACID database properties 
-  (atomicity, consistency, isolation, durability)
+- Transactional:  Updates are garanteed to be atomic and durable once commited.
 
 - Auto-recovery.  If your application crashes, the next time your application
   opens the database, it will automatically recover any completed transactions.
@@ -65,5 +65,5 @@ CONTRIBUTORS
 Cees de Groot <cg@cdegroot.com> wrote the original RecordManager 
 implementation and started the project.
 
-Alex Boisvert <boisvert@exoffice.com> added GDBM-like interface, 
+Alex Boisvert <boisvert@intalio.com> added GDBM-like interface, 
 rollback functionality and some bug fixing.

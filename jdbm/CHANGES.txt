@@ -1,7 +1,15 @@
-$Id: CHANGES.txt,v 1.1 2000/05/05 23:59:52 boisvert Exp $
+$Id: CHANGES.txt,v 1.2 2001/04/05 07:33:54 boisvert Exp $
 
 CHANGE LOG
 ==========
+
+For version 0.10:
+    * Bug fix release with performance enhancements.
+    * Fixed an infinite loop bug in Enumeration returned by HashDirectory
+      (reported by Daniel Herlemont).  Added HashtableTest regression test.
+    * Fixed LogicalRowIdManager.fetch() which dirtied blocks unnecessarily.
+    * RecordFile.commit() optimized to avoid disk writes & sync() if no
+      blocks have been dirtied in the transaction.
 
 For version 0.09:
     * This is a major upgrade in terms of functionality.  We now have
