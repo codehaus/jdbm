@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: ObjectCache.java,v 1.4 2001/05/18 15:48:19 boisvert Exp $
+ * $Id: ObjectCache.java,v 1.5 2001/05/19 14:02:00 boisvert Exp $
  */
 
 package jdbm.helper;
@@ -60,8 +60,8 @@ import java.util.Hashtable;
  *  It synchronizes its data with a RecordManager using the RecordCache
  *  interface.
  *
- *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
- *  @version $Id: ObjectCache.java,v 1.4 2001/05/18 15:48:19 boisvert Exp $
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id: ObjectCache.java,v 1.5 2001/05/19 14:02:00 boisvert Exp $
  */
 public class ObjectCache implements RecordCache {
 
