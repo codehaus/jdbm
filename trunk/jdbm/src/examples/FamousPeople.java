@@ -1,23 +1,25 @@
 
+import jdbm.RecordManager;
+import jdbm.RecordManagerFactory;
+
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
-import jdbm.helper.MRU;
-import jdbm.helper.ObjectCache;
 import jdbm.helper.StringComparator;
-import jdbm.recman.RecordManager;
-import jdbm.btree.BTree;
+
+import jdbm.btree.ObjectBTree;
 
 import java.io.IOException;
+import java.util.Properties;
 
 /**
- *  Famous People example.
- *  <p>
- *  Demonstrates the use of B+Tree data structure to manage a list of
- *  people and their occupation.  The example covers insertion,
- *  ordered traversal, reverse traversal and range lookup of records.
+ * Famous People example.
+ * <p>
+ * Demonstrates the use of B+Tree data structure to manage a list of
+ * people and their occupation.  The example covers insertion,
+ * ordered traversal, reverse traversal and range lookup of records.
  *
- *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id: FamousPeople.java,v 1.2 2001/06/02 14:37:02 boisvert Exp $
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id: FamousPeople.java,v 1.3 2002/05/31 06:35:36 boisvert Exp $
  */
 public class FamousPeople {
 
@@ -53,27 +55,28 @@ public class FamousPeople {
      */
     public static void main( String[] args ) {
         RecordManager recman;
-        ObjectCache   cache;
-        BTree         tree;
         long          recid;
         Tuple         tuple = new Tuple();
         TupleBrowser  browser;
+        ObjectBTree   tree;
+        Properties    props;
+
+        props = new Properties();
 
         try {
             // open database and setup an object cache
-            recman = new RecordManager( DATABASE );
-            cache = new ObjectCache( recman, new MRU( 100 ) );
+            recman = RecordManagerFactory.createRecordManager( DATABASE, props );
 
             // try to reload an existing B+Tree
             recid = recman.getNamedObject( BTREE_NAME );
             if ( recid != 0 ) {
-                tree = BTree.load( recman, cache, recid );
+                tree = ObjectBTree.load( recman, recid );
                 System.out.println( "Reloaded existing BTree with " + tree.size()
                                     + " famous people." );
             } else {
                 // create a new B+Tree data structure and use a StringComparator
                 // to order the records based on people's name.
-                tree = new BTree( recman, cache, new StringComparator() );
+                tree = ObjectBTree.createInstance( recman, new StringComparator() );
                 recman.setNamedObject( BTREE_NAME, tree.getRecid() );
                 System.out.println( "Created a new empty BTree" );
             }
@@ -150,4 +153,5 @@ public class FamousPeople {
         }
         return buf.toString();
     }
+
 }
