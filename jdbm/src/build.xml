@@ -13,7 +13,7 @@
     <property name="schema" value="${source}/schema" />
 
     <property name="classpath" value="${classpath}:${classes}" />
-    <property name="build.compiler" file="classic" />
+    <property name="build.compiler" value="classic" />
     <property name="deprecation" value="true" />
     <property file="VERSION" />
     <property name="archive" value="${project}-${version}" />
