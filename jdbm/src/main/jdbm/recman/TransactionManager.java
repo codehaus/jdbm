@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: TransactionManager.java,v 1.2 2000/05/23 21:55:44 boisvert Exp $
+ * $Id: TransactionManager.java,v 1.3 2001/04/03 15:23:09 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -122,7 +122,7 @@ final class TransactionManager {
         oos.flush();
         curTxn = -1;
     }
-    
+
     /** Startup recovery on all files */
     private void recover() throws IOException {
         String logName = makeLogName();
@@ -157,7 +157,7 @@ final class TransactionManager {
                 break;
             }
             synchronizeBlocks(blocks, false);
-            
+
             // ObjectInputStream must match exactly each
             // ObjectOutputStream created during writes
             try {
@@ -268,6 +268,15 @@ final class TransactionManager {
         sync();
         oos.close();
         fos.close();
+    }
+
+    /**
+     * Force closing the file without synchronizing pending transaction data.
+     * Used for testing purposes only.
+     */
+    void forceClose() throws IOException {
+      oos.close();
+      fos.close();
     }
 
     /**
