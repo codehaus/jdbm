@@ -1,0 +1,229 @@
+<project name="JDBM" default="main" basedir=".">
+
+  <target name="init">
+    <property name="project" value="jdbm" />
+    <property name="source" value="./src" />
+    <property name="main" value="${source}/main" />
+    <property name="etc" value="${source}/etc" />
+    <property name="build" value="build" />
+    <property name="classes" value="${build}/classes" />
+    <property name="dist" value="dist" />
+    <property name="lib" value="lib" />
+    <property name="doc" value="${source}/doc" />
+    <property name="schema" value="${source}/schema" />
+
+    <property name="classpath" value="${classpath}:${classes}" />
+    <property name="build.compiler" file="classic" />
+    <property name="deprecation" value="true" />
+    <property file="VERSION" />
+    <property name="archive" value="${project}-${version}" />
+  </target>
+
+
+  <!-- Display all the targets -->
+  <target name="targets">
+    <echo message=""/>
+    <echo message="ANT build for ${project} ${version}"/>
+    <echo message=""/>
+    <echo message="The following targets are available:"/>
+    <echo message="  targets  Lists the build targets"/>
+    <echo message="  clean    Cleans the build and distribution directories"/>
+    <echo message="  all      Cleans and builds all the packages and examples"/>
+    <echo message="  release  Cleans and builds all the release packages"/>
+    <echo message="           (JAR, source, doc, tarball) in the dist directory"/>
+    <echo message="  main     Builds the main packages (including debugging info)"/>
+    <echo message="  examples Builds the example packages (including debugging info)"/>
+    <echo message="  tests    Builds the test packages (including debugging info)"/>
+    <echo message="  jar      Builds the binary JAR in the dist directory"/>
+    <echo message="  doc      Builds the documentation"/>
+    <echo message="  api      Builds the API JavaDocs"/>
+    <echo message="  javadoc  Builds the full JavaDocs"/>
+    <echo message="  source   Builds the source tarball in the dist directory"/>
+    <echo message="  tarball  Builds the binary distribution in the dist directory"/>
+    <echo message="  cvs      Update the sources from the CVS"/>
+    <echo message=""/>
+  </target>
+
+
+  <!-- Prepare target directories -->
+  <target name="prepare">
+    <mkdir dir="${build}"/>
+    <mkdir dir="${classes}"/>
+    <mkdir dir="${dist}"/>
+  </target>
+
+  <!-- Kill all the directories created in prepare -->
+  <target name="clean">
+    <deltree dir="${build}"/>
+    <deltree dir="${dist}"/>
+  </target>
+
+
+  <!-- Build all the sources with debug and deprecation -->
+  <target name="main" depends="prepare">
+    <javac srcdir="${main}" destdir="${classes}" excludes="**/package.html"
+           classpath="${classpath}" debug="on" deprecation="${deprecation}" />
+  </target>
+
+  <!-- Same as main, but also cleans and additional targets -->
+  <target name="all" depends="clean,main,examples,jar"/>
+
+  <!-- Build the example packages -->
+  <target name="examples" depends="main">
+    <mkdir dir="${build}/examples" />
+    <javac srcdir="${source}/examples" destdir="${build}/examples"
+           classpath="${classpath}" debug="on" deprecation="${deprecation}" />
+  </target>
+
+  <!-- Build the test packages -->
+  <target name="tests" depends="main">
+    <mkdir dir="${build}/tests" />
+    <javac srcdir="${source}/tests" destdir="${build}/tests"
+           classpath="${classpath}" debug="on" deprecation="${deprecation}" />
+  </target>
+  
+
+  <!-- Build the JAR file using main -->
+  <target name="jar" depends="main">
+    <delete   file="${dist}/${archive}.jar" />
+
+    <copyfile src="${etc}/MANIFEST.MF" dest="${classes}/MANIFEST.MF" />
+    <replace  file="${classes}/MANIFEST.MF" token="$$VERSION$$" value="${version}" />
+    <copydir  src="." dest="${classes}" includes="LICENSE.txt,CHANGES.txt,README.txt" />
+
+    <jar      jarfile="${dist}/${archive}.jar" basedir="${classes}"
+              manifest="${classes}/MANIFEST.MF" includes="LICENSE.txt,README.txt,CHANGES.txt,jdbm/**" />
+  </target>
+
+
+
+  <!-- Build the documentation -->
+  <target name="doc" depends="prepare">
+    <mkdir    dir="${build}/doc" />
+    <style    basedir="${doc}" destdir="${build}/doc" style="style/exolab.xsl"
+              includes="**.xml" excludes="style/**,project.xml" />
+    <copydir  src="${doc}" dest="${build}/doc" includes="license.txt,document.dtd" />
+    <copydir  src="${doc}/images" dest="${build}/doc/images" />
+    <copydir  src="${doc}/style" dest="${build}/doc/style" includes="images/**,*.css" />
+
+    <mkdir    dir="${build}/doc/print" />
+    <style    basedir="${doc}" destdir="${build}/doc/print" style="style/print.xsl"
+              includes="**.xml" excludes="style/**,project.xml" />
+    <copydir  src="${doc}" dest="${build}/doc/print" includes="license.txt,document.dtd" />
+    <copydir  src="${doc}/images" dest="${build}/doc/print/images" />
+
+    <copydir  src="${schema}" includes="*.dtd,*.xsd" dest="${build}/doc" />
+    <replace  file="${build}/doc/download.html" token="$$VERSION$$" value="${version}" />
+    <replace  file="${build}/doc/print/download.html" token="$$VERSION$$" value="${version}" />
+
+    <mkdir    dir="${build}/doc/pres" />
+    <style    basedir="${doc}/pres" destdir="${build}/doc/pres" style="style/exolab.xsl"
+              includes="**.xml" excludes="style/**,project.xml" />
+    <copydir  src="${doc}/pres" dest="${build}/doc/pres" includes="license.txt,document.dtd" />
+    <copydir  src="${doc}/pres/images" dest="${build}/doc/pres/images" />
+    <copydir  src="${doc}/pres/style" dest="${build}/doc/pres/style" includes="images/**,*.css" />
+  </target>
+
+
+  <!-- Build the full JavaDocs -->
+  <target name="javadoc" depends="prepare">
+    <mkdir    dir="${build}/doc" />
+    <mkdir    dir="${build}/doc/javadoc" />
+    <property name="copyright"
+              value="Cees de Groot (C) 2000. All rights reserved  http://jdbm.sourceforge.net" />
+    <javadoc  sourcepath="${main}" destdir="${build}/doc/javadoc" dir="."
+              doctitle="JDBM JavaDoc" windowtitle="JDBM JavaDoc" bottom="${copyright}"
+              package="true" author="true" version="true" noindex="true"
+              packagenames="com.*" />
+  </target>
+
+  <!-- Build the API JavaDocs -->
+  <target name="api" depends="prepare">
+    <mkdir    dir="${build}/doc" />
+    <mkdir    dir="${build}/doc/api" />
+    <property name="copyright"
+              value="Cees de Groot (C) 2000. All rights reserved  http://jdbm.sourceforge.net" />
+    <javadoc  sourcepath="${main}" destdir="${build}/doc/api" dir="."
+              doctitle="JDBM JavaDoc" windowtitle="JDBM JavaDoc" bottom="${copyright}"
+              public="true" author="true"
+              packagenames="com.*" />
+  </target>
+
+  <!-- Build the docs, API and full JavaDocs, doc archives -->
+  <target name="docs" depends="doc,api,javadoc">
+    <zip    zipfile="${dist}/${archive}-doc.zip" basedir="${build}" includes="doc/**" />
+    <tar    tarfile="${dist}/${archive}-doc.tar" basedir="${build}" includes="doc/**" />
+    <gzip   src="${dist}/${archive}-doc.tar" zipfile="${dist}/${archive}-doc.tgz" />
+    <delete file="${dist}/${archive}-doc.tar" />
+  </target>
+
+
+  <!-- Build the source distribution -->
+  <target name="source" depends="prepare">
+    <delete  file="${dist}/${archive}-src.tgz" />
+    <delete  file="${dist}/${archive}-src.zip" />
+    <deltree dir="${build}/${archive}" />
+
+    <mkdir   dir="${build}/${archive}" />
+    <mkdir   dir="${build}/${archive}/src" />
+    <copydir src="${source}" dest="${build}/${archive}/src"
+             defaultexcludes="true" />
+    <mkdir   dir="${build}/${archive}/lib" />
+    <copydir src="${lib}" dest="${build}/${archive}/lib"
+             defaultexcludes="true" />
+    <copydir src="." dest="${build}/${archive}"
+             includes="*.sh,*.bat" />
+
+    <tar     includes="${archive}/**" basedir="${build}"
+             tarfile="${dist}/${archive}-src.tar" />
+    <gzip    src="${dist}/${archive}-src.tar" zipfile="${dist}/${archive}-src.tgz"/>
+    <delete  file="${dist}/${archive}-src.tar" />
+    <zip     zipfile="${dist}/${archive}-src.zip" basedir="${build}"
+             includes="${archive}/**" />
+
+  </target>
+
+
+  <!-- Build a full release including JAR, zip/tarball, source and documentation -->
+  <target name="release" depends="clean,jar,source,docs,tarball">
+  </target>
+
+  <!-- Build the tarball including JAR and all dependent packages -->
+  <target name="tarball" depends="prepare,jar,docs">
+    <delete  file="${dist}/${archive}.tgz" />
+    <delete  file="${dist}/${archive}.zip" />
+    <deltree dir="${build}/${archive}" />
+
+    <mkdir   dir="${build}/${archive}" />
+    <copydir src="${etc}" dest="${build}/${archive}"
+             includes="Readme,License,Changes" />
+    <copydir src="${dist}" dest="${build}/${archive}"
+             includes="${archive}.jar" />
+    <copydir src="${build}/doc" dest="${build}/${archive}/doc" />
+    <deltree dir="${build}/${archive}/doc/javadoc" />
+
+    <tar     tarfile="${build}/${archive}/examples.tar" basedir="${source}"
+             includes="examples/**" defaultexcludes="true" />
+    <gzip    src="${build}/${archive}/examples.tar" zipfile="${build}/${archive}/examples.tgz" />
+
+    <tar     tarfile="${dist}/${archive}.tar" basedir="${build}"
+             includes="${archive}/**" excludes="${archive}/*.tar,${archive}/*.zip" />
+    <gzip    src="${dist}/${archive}.tar" zipfile="${dist}/${archive}.tgz" />
+    <delete  file="${dist}/${archive}.tar" />
+
+    <zip     zipfile="${build}/${archive}/examples.zip" basedir="${source}"
+             includes="examples/**" defaultexcludes="true" />
+    <zip     zipfile="${dist}/${archive}.zip" basedir="${build}" 
+             includes="${archive}/**" excludes="${archive}/*.tar,${archive}/*.tgz" />
+  </target>
+
+
+  <!-- Update the sources from the CVS -->
+  <target name="cvs" depends="clean">
+    <cvs cvsRoot=":pserver:anoncvs@cvs.jdbm.sourceforge.net:/cvs/${project}"
+         dest="." package="${project}" />
+  </target>
+
+
+</project>
+
