@@ -1,4 +1,4 @@
-<project name="JDBM" default="main" basedir=".">
+<project name="JDBM" default="main" basedir="..">
 
   <target name="init">
     <property name="project" value="jdbm" />
@@ -13,7 +13,7 @@
     <property name="schema" value="${source}/schema" />
 
     <property name="classpath" value="${classpath}:${classes}" />
-    <property name="build.compiler" value="classic" />
+    <property name="build.compiler" value="modern" />
     <property name="deprecation" value="true" />
     <property file="VERSION" />
     <property name="archive" value="${project}-${version}" />
@@ -46,16 +46,16 @@
 
 
   <!-- Prepare target directories -->
-  <target name="prepare">
+  <target name="prepare" depends="init">
     <mkdir dir="${build}"/>
     <mkdir dir="${classes}"/>
     <mkdir dir="${dist}"/>
   </target>
 
   <!-- Kill all the directories created in prepare -->
-  <target name="clean">
-    <deltree dir="${build}"/>
-    <deltree dir="${dist}"/>
+  <target name="clean" depends="init">
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
   </target>
 
 
@@ -87,41 +87,14 @@
   <target name="jar" depends="main">
     <delete   file="${dist}/${archive}.jar" />
 
-    <copyfile src="${etc}/MANIFEST.MF" dest="${classes}/MANIFEST.MF" />
+    <copy file="${etc}/MANIFEST.MF" tofile="${classes}/MANIFEST.MF" />
     <replace  file="${classes}/MANIFEST.MF" token="$$VERSION$$" value="${version}" />
-    <copydir  src="." dest="${classes}" includes="LICENSE.txt,CHANGES.txt,README.txt" />
+    <copy todir="${classes}">
+        <fileset dir="." includes="LICENSE.txt,CHANGES.txt,README.txt" />
+    </copy>
 
     <jar      jarfile="${dist}/${archive}.jar" basedir="${classes}"
               manifest="${classes}/MANIFEST.MF" includes="LICENSE.txt,README.txt,CHANGES.txt,jdbm/**" />
-  </target>
-
-
-
-  <!-- Build the documentation -->
-  <target name="doc" depends="prepare">
-    <mkdir    dir="${build}/doc" />
-    <style    basedir="${doc}" destdir="${build}/doc" style="style/exolab.xsl"
-              includes="**.xml" excludes="style/**,project.xml" />
-    <copydir  src="${doc}" dest="${build}/doc" includes="license.txt,document.dtd" />
-    <copydir  src="${doc}/images" dest="${build}/doc/images" />
-    <copydir  src="${doc}/style" dest="${build}/doc/style" includes="images/**,*.css" />
-
-    <mkdir    dir="${build}/doc/print" />
-    <style    basedir="${doc}" destdir="${build}/doc/print" style="style/print.xsl"
-              includes="**.xml" excludes="style/**,project.xml" />
-    <copydir  src="${doc}" dest="${build}/doc/print" includes="license.txt,document.dtd" />
-    <copydir  src="${doc}/images" dest="${build}/doc/print/images" />
-
-    <copydir  src="${schema}" includes="*.dtd,*.xsd" dest="${build}/doc" />
-    <replace  file="${build}/doc/download.html" token="$$VERSION$$" value="${version}" />
-    <replace  file="${build}/doc/print/download.html" token="$$VERSION$$" value="${version}" />
-
-    <mkdir    dir="${build}/doc/pres" />
-    <style    basedir="${doc}/pres" destdir="${build}/doc/pres" style="style/exolab.xsl"
-              includes="**.xml" excludes="style/**,project.xml" />
-    <copydir  src="${doc}/pres" dest="${build}/doc/pres" includes="license.txt,document.dtd" />
-    <copydir  src="${doc}/pres/images" dest="${build}/doc/pres/images" />
-    <copydir  src="${doc}/pres/style" dest="${build}/doc/pres/style" includes="images/**,*.css" />
   </target>
 
 
@@ -131,7 +104,7 @@
     <mkdir    dir="${build}/doc/javadoc" />
     <property name="copyright"
               value="Cees de Groot (C) 2000-2001. All rights reserved  http://jdbm.sourceforge.net" />
-    <javadoc  sourcepath="${main}" destdir="${build}/doc/javadoc" dir="."
+    <javadoc  sourcepath="${main}" destdir="${build}/doc/javadoc"
               doctitle="JDBM JavaDoc" windowtitle="JDBM JavaDoc" bottom="${copyright}"
               package="true" author="true" version="true" noindex="true"
               packagenames="jdbm.*" />
@@ -143,10 +116,10 @@
     <mkdir    dir="${build}/doc/api" />
     <property name="copyright"
               value="Cees de Groot (C) 2000. All rights reserved  http://jdbm.sourceforge.net" />
-    <javadoc  sourcepath="${main}" destdir="${build}/doc/api" dir="."
+    <javadoc  sourcepath="${main}" destdir="${build}/doc/api"
               doctitle="JDBM JavaDoc" windowtitle="JDBM JavaDoc" bottom="${copyright}"
               public="true" author="true"
-              packagenames="jdbm" />
+              packagenames="jdbm.*" />
   </target>
 
   <!-- Build the docs, API and full JavaDocs, doc archives -->
@@ -163,17 +136,20 @@
   <target name="source" depends="prepare">
     <delete  file="${dist}/${archive}-src.tgz" />
     <delete  file="${dist}/${archive}-src.zip" />
-    <deltree dir="${build}/${archive}" />
+    <delete dir="${build}/${archive}" />
 
     <mkdir   dir="${build}/${archive}" />
     <mkdir   dir="${build}/${archive}/src" />
-    <copydir src="${source}" dest="${build}/${archive}/src"
-             defaultexcludes="true" />
+    <copy    todir="${build}/${archive}/src">
+      <fileset dir="${source}"/>
+    </copy>
     <mkdir   dir="${build}/${archive}/lib" />
-    <copydir src="${lib}" dest="${build}/${archive}/lib"
-             defaultexcludes="true" />
-    <copydir src="." dest="${build}/${archive}"
-             includes="*.sh,*.bat" />
+    <copy    todir="${build}/${archive}/lib">
+      <fileset dir="${lib}"/>
+    </copy>
+    <copy    todir="${build}/${archive}">
+      <fileset dir="${source}" includes="*.sh,*.bat"/>
+    </copy>
 
     <tar     includes="${archive}/**" basedir="${build}"
              tarfile="${dist}/${archive}-src.tar" />
@@ -193,27 +169,28 @@
   <target name="tarball" depends="prepare,jar,docs">
     <delete  file="${dist}/${archive}.tgz" />
     <delete  file="${dist}/${archive}.zip" />
-    <deltree dir="${build}/${archive}" />
+    <delete  dir="${build}/${archive}" />
 
     <mkdir   dir="${build}/${archive}" />
-    <copydir src="${etc}" dest="${build}/${archive}"
-             includes="Readme,License,Changes" />
-    <copydir src="${dist}" dest="${build}/${archive}"
-             includes="${archive}.jar" />
-    <copydir src="${build}/doc" dest="${build}/${archive}/doc" />
-    <deltree dir="${build}/${archive}/doc/javadoc" />
+    <copy    todir="${build}/${archive}">
+        <fileset dir="." includes="README.txt,LICENSE.txt,CHANGES.txt" />
+    </copy>
+    <copy    todir="${build}/${archive}/lib">
+        <fileset dir="${dist}" includes="${archive}.jar" />
+    </copy>
+    <copy    todir="${build}/${archive}/doc">
+        <fileset dir="${build}/doc/api" includes="**"/>
+    </copy>
 
-    <tar     tarfile="${build}/${archive}/examples.tar" basedir="${source}"
-             includes="examples/**" defaultexcludes="true" />
-    <gzip    src="${build}/${archive}/examples.tar" zipfile="${build}/${archive}/examples.tgz" />
+    <copy    todir="${build}/${archive}">
+        <fileset dir="${source}" includes="examples/**"/>
+    </copy>
 
     <tar     tarfile="${dist}/${archive}.tar" basedir="${build}"
              includes="${archive}/**" excludes="${archive}/*.tar,${archive}/*.zip" />
     <gzip    src="${dist}/${archive}.tar" zipfile="${dist}/${archive}.tgz" />
     <delete  file="${dist}/${archive}.tar" />
 
-    <zip     zipfile="${build}/${archive}/examples.zip" basedir="${source}"
-             includes="examples/**" defaultexcludes="true" />
     <zip     zipfile="${dist}/${archive}.zip" basedir="${build}" 
              includes="${archive}/**" excludes="${archive}/*.tar,${archive}/*.tgz" />
   </target>
