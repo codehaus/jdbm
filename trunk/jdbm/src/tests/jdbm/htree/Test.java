@@ -52,7 +52,7 @@ import junit.framework.*;
  *  "jdbm.hash.*" package test suite
  *
  *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id: Test.java,v 1.1 2002/05/31 06:50:14 boisvert Exp $
+ *  @version $Id: Test.java,v 1.2 2003/05/08 18:01:27 boisvert Exp $
  */
 public class Test extends TestCase {
 
@@ -64,6 +64,7 @@ public class Test extends TestCase {
         TestSuite retval = new TestSuite();
         retval.addTest(new TestSuite(TestHashBucket.class));
         retval.addTest(new TestSuite(TestHashDirectory.class));
+        retval.addTest(new TestSuite(TestRollback.class));
         return retval;
     }
 
