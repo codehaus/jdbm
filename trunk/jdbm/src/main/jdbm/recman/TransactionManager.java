@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: TransactionManager.java,v 1.4 2001/04/05 07:04:29 boisvert Exp $
+ * $Id: TransactionManager.java,v 1.5 2001/11/17 16:13:08 boisvert Exp $
  */
 
 package jdbm.recman;
@@ -101,18 +101,41 @@ final class TransactionManager {
         return owner.getFileName() + extension;
     }
 
+
     /** Synchs in-core transactions to data file and opens a fresh log */
     private void synchronizeLogFromMemory() throws IOException {
         close();
+
+        TreeSet blockList = new TreeSet( new BlockIoComparator() );
+
+        int numBlocks = 0;
+        int writtenBlocks = 0;
         for (int i = 0; i < TXNS_IN_LOG; i++) {
             if (txns[i] == null)
                 continue;
-            synchronizeBlocks(txns[i], true);
+            // Add each block to the blockList, replacing the old copy of this
+            // block if necessary, thus avoiding writing the same block twice
+            for (Iterator k = txns[i].iterator(); k.hasNext(); ) {
+                BlockIo block = (BlockIo)k.next();
+                if ( blockList.contains( block ) ) {
+                    block.decrementTransactionCount();
+                }
+                else {
+                    writtenBlocks++;
+                    boolean result = blockList.add( block );
+                }
+                numBlocks++;
+            }
+
             txns[i] = null;
         }
+        // Write the blocks from the blockList to disk
+        synchronizeBlocks(blockList.iterator(), true);
+
         owner.sync();
         open();
     }
+
 
     /** Opens the log file */
     private void open() throws IOException {
@@ -156,7 +179,7 @@ final class TransactionManager {
                 // corrupted logfile, ignore rest of transactions
                 break;
             }
-            synchronizeBlocks(blocks, false);
+            synchronizeBlocks(blocks.iterator(), false);
 
             // ObjectInputStream must match exactly each
             // ObjectOutputStream created during writes
@@ -172,11 +195,11 @@ final class TransactionManager {
     }
 
     /** Synchronizes the indicated blocks with the owner. */
-    private void synchronizeBlocks(ArrayList blocks, boolean fromCore)
+    private void synchronizeBlocks(Iterator blockIterator, boolean fromCore)
     throws IOException {
         // write block vector elements to the data file.
-        for (Iterator k = blocks.iterator(); k.hasNext(); ) {
-            BlockIo cur = (BlockIo) k.next();
+        while ( blockIterator.hasNext() ) {
+            BlockIo cur = (BlockIo)blockIterator.next();
             owner.synch(cur);
             if (fromCore) {
                 cur.decrementTransactionCount();
@@ -186,6 +209,7 @@ final class TransactionManager {
             }
         }
     }
+
 
     /** Set clean flag on the blocks. */
     private void setClean(ArrayList blocks)
@@ -301,5 +325,36 @@ final class TransactionManager {
         recover();
         open();
     }
+
+
+    /** INNER CLASS.
+     *  Comparator class for use by the tree set used to store the blocks
+     *  to write for this transaction.  The BlockIo objects are ordered by
+     *  their blockIds.
+     */
+    public static class BlockIoComparator
+        implements Comparator
+    {
+
+        public int compare( Object o1, Object o2 ) {
+            BlockIo block1 = (BlockIo)o1;
+            BlockIo block2 = (BlockIo)o2;
+            int result = 0;
+            if ( block1.getBlockId() == block2.getBlockId() ) {
+                result = 0;
+            }
+            else if ( block1.getBlockId() < block2.getBlockId() ) {
+                result = -1;
+            }
+            else {
+                result = 1;
+            }
+            return result;
+        }
+
+        public boolean equals(Object obj) {
+            return super.equals(obj);
+        }
+    } // class BlockIOComparator
 
 }
