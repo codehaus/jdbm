@@ -21,7 +21,7 @@
  *
  * 4. Products derived from this Software may not be called "JDBM"
  *    nor may "JDBM" appear in their names without prior written
- *    permission of Cees de Groot. 
+ *    permission of Cees de Groot.
  *
  * 5. Due credit should be given to the JDBM Project
  *    (http://jdbm.sourceforge.net/).
@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: ObjectCache.java,v 1.3 2000/05/24 23:25:31 boisvert Exp $
+ * $Id: ObjectCache.java,v 1.4 2001/05/18 15:48:19 boisvert Exp $
  */
 
 package jdbm.helper;
@@ -61,7 +61,7 @@ import java.util.Hashtable;
  *  interface.
  *
  *  @author <a href="mailto:boisvert@exoffice.com>Alex Boisvert</a>
- *  @version $Id: ObjectCache.java,v 1.3 2000/05/24 23:25:31 boisvert Exp $
+ *  @version $Id: ObjectCache.java,v 1.4 2001/05/18 15:48:19 boisvert Exp $
  */
 public class ObjectCache implements RecordCache {
 
@@ -93,7 +93,7 @@ public class ObjectCache implements RecordCache {
      *
      * @arg recid Record id of the record to fetch
      */
-    public Object fetchObject(long recid) 
+    public Object fetchObject(long recid)
     throws IOException, ClassNotFoundException {
         if (recid == 0) {
             throw new IllegalArgumentException("recid 0 is reserved.");
@@ -105,7 +105,7 @@ public class ObjectCache implements RecordCache {
             if (obj == null) {
                 throw new Error("Persistent object cannot be null");
             }
-            entry = new RecordEntry(new Long(recid), obj);
+            entry = new RecordEntry( id, obj);
             try {
                 _policy.put(entry.getRecid(), entry);
             } catch (CacheEvictionException cee) {
@@ -214,7 +214,7 @@ public class ObjectCache implements RecordCache {
 
 
     /**
-     * Dispose of any resource used by the cache. 
+     * Dispose of any resource used by the cache.
      * WARNING:  This method *does not* flush any pending data.
      *           You should call flushAll() before.
      */
@@ -234,12 +234,12 @@ public class ObjectCache implements RecordCache {
          *
          * @arg obj object evited from cache
          */
-        public void cacheObjectEvicted(Object obj) 
+        public void cacheObjectEvicted(Object obj)
         throws CacheEvictionException {
             RecordEntry entry = (RecordEntry)obj;
             if (entry.isDirty()) {
                 try {
-                    _recman.update(entry.getRecid().longValue(), 
+                    _recman.update(entry.getRecid().longValue(),
                                    entry.getValue());
                 } catch (IOException ioe) {
                     throw new CacheEvictionException(ioe);
