@@ -1,12 +1,28 @@
-$Id: CHANGES.txt,v 1.8 2001/11/17 23:27:30 boisvert Exp $
+$Id: CHANGES.txt,v 1.9 2002/10/13 14:51:31 boisvert Exp $
 
 CHANGE LOG
 ==========
 
-For version 0.14:
+For version "CVS":
+
+    * Better abstraction for RecordManager, which is now an interface.
+      A concrete RecordManager instance is now obtained from
+      RecordManagerFactory (and RecordManagerFactory supports 'pluggable'
+      RecordManager providers)
 
     * Faster log checkpointing by avoiding unnecessary writes to same block
-      (contributed by Nathan Clement)
+      in TransactionManager (contributed by Nathan Clement)
+
+    * Added ability to set split point in BTree to optimize insert performance
+      of entries with monotonically increasing/decreasing keys.  Also added
+      statistics on BTree to monitor performance.
+      (contributed by Kent Fitch - kentfitch@hotmail.com)
+
+    * Renamed methods called 'assert' which is a reserved word in JDK 1.4+.
+
+    * Performance improvement in BlockIo.readLong() contributed by
+      Erwin Bolwidt <ejb@klomp.org>
+
 
 For version 0.13:
 
@@ -20,7 +36,7 @@ For version 0.13:
     * Added IntegerComparator and updated TestBTree unit test
       (both contributed by Christof Dallermassl)
 
-    * Fixed TestBTree.testBasics() and TestBTree.multiThreadAccess() 
+    * Fixed TestBTree.testBasics() and TestBTree.multiThreadAccess()
       test cases.
 
     * RecordManager now throws IOException if used after being closed()
@@ -50,7 +66,7 @@ For version 0.10:
 
 For version 0.09:
     * This is a major upgrade in terms of functionality.  We now have
-      a GDBM-like API (actually, very much like Hashtable) and added 
+      a GDBM-like API (actually, very much like Hashtable) and added
       explicit commit/rollback functionality.
     * Repackaging com.cdegroot.recman.* to jdbm.recman.*
     * Added jdbm.* package -- GDBM-like access
