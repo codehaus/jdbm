@@ -42,24 +42,35 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: CachePolicyListener.java,v 1.2 2001/05/19 14:02:00 boisvert Exp $
+ * $Id: CachePolicyListener.java,v 1.3 2003/11/01 13:25:41 dranatunga Exp $
  */
 
 package jdbm.helper;
 
 /**
- *  Callback interface between CachePolicy and a Cache implementation
- *  to notify about cached object eviction.
+ * Callback interface between {@link CachePolicy} and a Cache implementation
+ * to notify about cached object eviction.
+ * <p>
+ * Note that <code>CachePolicy</code> implementations typically use
+ * <em>object equality</em> when removing listeners, so concrete
+ * implementations of this interface should also pay attention to
+ * their {@link Object#equals(Object)} and {@link Object#hashCode()}
+ * methods.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: CachePolicyListener.java,v 1.2 2001/05/19 14:02:00 boisvert Exp $
+ * @version $Id: CachePolicyListener.java,v 1.3 2003/11/01 13:25:41 dranatunga Exp $
  */
 public interface CachePolicyListener {
 
     /**
-     * Notification that cache is evicting an object
+     * Notification that the cache this listener is attached to is evicting
+     * the object indicated.
      *
-     * @arg obj object evited from cache
+     * @param obj object being evited from cache
+     * @throws CacheEvictionException if this listener encountered problems
+     *     while preparing for the specified object's eviction. For example,
+     *     a listener may try to persist the object to disk, and encounter
+     *     an <code>IOException</code>.
      */
     public void cacheObjectEvicted(Object obj) throws CacheEvictionException;
 
