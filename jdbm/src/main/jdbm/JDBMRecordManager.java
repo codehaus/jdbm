@@ -42,13 +42,15 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are (C) Copyright 2000 by their associated contributors.
  *
- * $Id: JDBMRecordManager.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ * $Id: JDBMRecordManager.java,v 1.2 2000/05/24 01:52:11 boisvert Exp $
  */
 
 package jdbm;
 
 import jdbm.recman.RecordManager;
 import jdbm.hash.HTree;
+import jdbm.helper.ObjectCache;
+import jdbm.helper.MRU;
 import java.io.IOException;
 
 /**
@@ -72,6 +74,11 @@ import java.io.IOException;
  *
  */
 public final class JDBMRecordManager {
+    /**
+     * Default number of objects kept in cache
+     */
+    private static final int MAX_OBJECT_CACHE = 100;
+
 
     /** Transactional record manager.  This class is really
      *  just a wrapper around it, providing implicit transaction
@@ -79,6 +86,10 @@ public final class JDBMRecordManager {
      */
     private RecordManager _recman;
 
+    /**
+     * Object cache to reduce serialization/deserialization of objects
+     */
+    private ObjectCache _cache;
 
     /**
      *  Creates a record manager for the indicated file
@@ -88,6 +99,7 @@ public final class JDBMRecordManager {
      */
     public JDBMRecordManager(String filename) throws IOException {
         _recman = new RecordManager(filename);
+        _cache = new ObjectCache(_recman, new MRU(MAX_OBJECT_CACHE));
     }
 
     
@@ -112,6 +124,7 @@ public final class JDBMRecordManager {
      */
     public synchronized void close() throws IOException {
         _recman.close();
+        _cache.dispose();
     }
     
     /**
@@ -123,6 +136,20 @@ public final class JDBMRecordManager {
      */
     public synchronized long insert(byte[] data) throws IOException {
         long id = _recman.insert(data);
+        _recman.commit();
+        return id;
+    }
+
+
+    /**
+     *  Inserts a new record.
+     *
+     *  @param obj the object for the new record.
+     *  @returns the rowid for the new record.
+     *  @throws IOException when one of the underlying I/O operations fails.
+     */
+    public synchronized long insert(Object obj) throws IOException {
+        long id = _recman.insert(obj);
         _recman.commit();
         return id;
     }
@@ -153,6 +180,20 @@ public final class JDBMRecordManager {
         _recman.commit();
     }
 
+
+    /**
+     *  Updates a record.
+     *
+     *  @param recid the recid for the record that is to be updated.
+     *  @param obj the new object for the record.
+     *  @throws IOException when one of the underlying I/O operations fails.
+     */
+    public synchronized void update(long recid, Object obj)
+    throws IOException {
+        _cache.update(recid, obj);
+        _recman.commit();
+    }
+
     /**
      *  Fetches a record.
      *
@@ -175,7 +216,7 @@ public final class JDBMRecordManager {
      */
     public synchronized Object fetchObject(long recid) 
     throws IOException, ClassNotFoundException {
-        Object obj = _recman.fetchObject(recid);
+        Object obj = _cache.fetchObject(recid);
         _recman.commit();
         return obj;
     }
@@ -229,7 +270,7 @@ public final class JDBMRecordManager {
             _recman.setNamedObject(name, root_recid);
             _recman.commit();
         }
-        return new HTreeWrapper(_recman, root_recid);
+        return new HTreeWrapper(_recman, _cache, root_recid);
     }
 }
 
@@ -243,10 +284,10 @@ class HTreeWrapper implements JDBMHashtable {
     private HTree _tree;
 
 
-    HTreeWrapper(RecordManager recman, long root_recid) 
+    HTreeWrapper(RecordManager recman, ObjectCache cache, long root_recid) 
     throws IOException {
         _recman = recman;
-        _tree = new HTree(recman, root_recid);
+        _tree = new HTree(recman, cache, root_recid);
     }
 
     /**

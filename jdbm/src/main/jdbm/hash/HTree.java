@@ -49,6 +49,7 @@ package jdbm.hash;
 import jdbm.JDBMEnumeration;
 import jdbm.JDBMHashtable;
 import jdbm.recman.RecordManager;
+import jdbm.helper.ObjectCache;
 import java.io.IOException;
 
 /**
@@ -59,11 +60,10 @@ import java.io.IOException;
  *            *must* be discarded after a rollback.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: HTree.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ *  @version $Id: HTree.java,v 1.2 2000/05/24 01:51:21 boisvert Exp $
  */
 public class HTree implements JDBMHashtable {
 
-    RecordManager _recman;
     HashDirectory _root;
 
     /**
@@ -81,13 +81,12 @@ public class HTree implements JDBMHashtable {
      * @arg recman RecordManager used to store the persistent hashtable
      * @arg root_recid Record id of the root directory of the HTree
      */
-    public HTree(RecordManager recman, long root_recid)
+    public HTree(RecordManager recman, ObjectCache cache, long root_recid)
     throws IOException {
-        _recman = recman;
         try {
-            Object obj = _recman.fetchObject(root_recid);
+            Object obj = recman.fetchObject(root_recid);
             _root = (HashDirectory)obj;
-            _root.setPersistenceContext(recman, root_recid);
+            _root.setPersistenceContext(recman, cache, root_recid);
         } catch (ClassNotFoundException cnfe) {
             cnfe.printStackTrace();
             throw new Error("Hashtable root object must be HashDirectory");
@@ -148,6 +147,5 @@ public class HTree implements JDBMHashtable {
     public synchronized void dispose()
     throws IOException {
         _root = null;
-        _recman = null;
     }
 }

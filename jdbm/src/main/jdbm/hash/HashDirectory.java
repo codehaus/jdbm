@@ -48,6 +48,7 @@ package jdbm.hash;
 
 import jdbm.JDBMEnumeration;
 import jdbm.recman.RecordManager;
+import jdbm.helper.ObjectCache;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -60,7 +61,7 @@ import java.util.Vector;
  *  Hashtable directory page.
  *
  *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id: HashDirectory.java,v 1.1 2000/05/06 00:00:31 boisvert Exp $
+ *  @version $Id: HashDirectory.java,v 1.2 2000/05/24 01:51:21 boisvert Exp $
  */
 public final class HashDirectory extends HashNode implements Externalizable {
 
@@ -103,6 +104,11 @@ public final class HashDirectory extends HashNode implements Externalizable {
     private transient RecordManager _recman;
 
     /**
+     * Object cache to reduce serializing/deserializing objects
+     */
+    private transient ObjectCache _cache;
+
+    /**
      * This directory's record ID in the PageManager.  (transient)
      */
     private transient long _recid;
@@ -133,8 +139,10 @@ public final class HashDirectory extends HashNode implements Externalizable {
      * @arg recman RecordManager which stores this directory
      * @arg recid Record id of this directory.
      */
-    void setPersistenceContext(RecordManager recman, long recid) {
+    void setPersistenceContext(RecordManager recman, ObjectCache cache,
+                               long recid) {
         this._recman = recman;
+        this._cache = cache;
         this._recid = recid;
     }
 
@@ -167,7 +175,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
         } else {
             HashNode node = null;
             try {
-                node = (HashNode)_recman.fetchObject(child_recid);
+                node = (HashNode)_cache.fetchObject(child_recid);
                 // System.out.println("HashDirectory.get() child is : "+node);
             } catch (ClassNotFoundException cnfe) {
                 cnfe.printStackTrace();
@@ -176,7 +184,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
             if (node instanceof HashDirectory) {
                 // recurse into next directory level
                 HashDirectory dir = (HashDirectory)node;
-                dir.setPersistenceContext(_recman, child_recid);
+                dir.setPersistenceContext(_recman, _cache, child_recid);
                 return dir.get(key);
             } else {
                 // node is a bucket
@@ -219,7 +227,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
         } else {
             HashNode node;
             try {
-                node = (HashNode)_recman.fetchObject(child_recid);
+                node = (HashNode)_cache.fetchObject(child_recid);
             } catch (ClassNotFoundException cnfe) {
                 cnfe.printStackTrace();
                 throw new Error("Unknown class for HashNode");
@@ -227,7 +235,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
             if (node instanceof HashDirectory) {
                 // recursive insert in next directory level
                 HashDirectory dir = (HashDirectory)node;
-                dir.setPersistenceContext(_recman, child_recid);
+                dir.setPersistenceContext(_recman, _cache, child_recid);
                 return dir.put(key, value);
             } else {
                 // node is a bucket
@@ -245,7 +253,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
                     }
                     HashDirectory dir = new HashDirectory((byte)(_depth+1));
                     long dir_recid = _recman.insert(dir);
-                    dir.setPersistenceContext(_recman, dir_recid);
+                    dir.setPersistenceContext(_recman, _cache, dir_recid);
 
                     _children[hash] = dir_recid;
                     _recman.update(_recid, this);
@@ -286,7 +294,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
         } else {
             HashNode node = null;
             try {
-                node = (HashNode)_recman.fetchObject(child_recid);
+                node = (HashNode)_cache.fetchObject(child_recid);
                 // System.out.println("HashDirectory.remove() child is : "+node);
             } catch (ClassNotFoundException cnfe) {
                 cnfe.printStackTrace();
@@ -295,7 +303,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
             if (node instanceof HashDirectory) {
                 // recurse into next directory level
                 HashDirectory dir = (HashDirectory)node;
-                dir.setPersistenceContext(_recman, child_recid);
+                dir.setPersistenceContext(_recman, _cache, child_recid);
                 Object existing = dir.remove(key);
                 if (existing != null) {
                     if (dir.isEmpty()) {
@@ -509,7 +517,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
 
             HashNode node = null;
             try {
-                node = (HashNode)_recman.fetchObject(child_recid);
+                node = (HashNode)_cache.fetchObject(child_recid);
                 // System.out.println("HDEnumeration.get() child is : "+node);
             } catch (ClassNotFoundException cnfe) {
                 cnfe.printStackTrace();
@@ -524,7 +532,7 @@ public final class HashDirectory extends HashNode implements Externalizable {
                 _child = -1;
 
                 // recurse into 
-                _dir.setPersistenceContext(_recman, child_recid);
+                _dir.setPersistenceContext(_recman, _cache, child_recid);
                 prepareNext();
             } else {
                 // node is a bucket
