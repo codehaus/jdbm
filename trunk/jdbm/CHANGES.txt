@@ -1,4 +1,4 @@
-$Id: CHANGES.txt,v 1.10 2002/10/13 18:52:33 boisvert Exp $
+$Id: CHANGES.txt,v 1.11 2002/10/13 18:54:42 boisvert Exp $
 
 CHANGE LOG
 ==========
@@ -19,13 +19,14 @@ For version "CVS":
       (contributed by Kent Fitch - kentfitch@hotmail.com)
 
     * Renamed methods called 'assert' which is a reserved word in JDK 1.4+.
+      (suggested by Yonas Jongkind)
 
     * Performance improvement in BlockIo.readLong() contributed by
       Erwin Bolwidt <ejb@klomp.org>
 
     * Switched to using java.util.Comparator interface instead of
       JDBM-specific comparator.
-      
+     
 
 For version 0.13:
 
