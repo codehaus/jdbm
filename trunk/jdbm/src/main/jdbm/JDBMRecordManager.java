@@ -42,7 +42,7 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are (C) Copyright 2000 by their associated contributors.
  *
- * $Id: JDBMRecordManager.java,v 1.3 2001/05/19 14:02:45 boisvert Exp $
+ * $Id: JDBMRecordManager.java,v 1.4 2001/06/02 14:30:38 boisvert Exp $
  */
 
 package jdbm;
@@ -73,7 +73,7 @@ import java.io.IOException;
  *  worry if you see the size going up and down.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- * @version $Id: JDBMRecordManager.java,v 1.3 2001/05/19 14:02:45 boisvert Exp $
+ * @version $Id: JDBMRecordManager.java,v 1.4 2001/06/02 14:30:38 boisvert Exp $
  */
 public final class JDBMRecordManager {
     /**
@@ -265,10 +265,14 @@ public final class JDBMRecordManager {
      */
     public synchronized JDBMHashtable getHashtable(String name)
     throws IOException {
-        long root_recid = _recman.getNamedObject(name);
+        HTree tree;
+        long root_recid;
+
+        root_recid = _recman.getNamedObject(name);
         if (root_recid == 0) {
             // create a new one
-            root_recid = HTree.createRootDirectory(_recman);
+            tree = new HTree( _recman, _cache );
+            root_recid = tree.getRecid();
             _recman.setNamedObject(name, root_recid);
             _recman.commit();
         }
@@ -289,8 +293,9 @@ class HTreeWrapper implements JDBMHashtable {
     HTreeWrapper(RecordManager recman, ObjectCache cache, long root_recid)
     throws IOException {
         _recman = recman;
-        _tree = new HTree(recman, cache, root_recid);
+        _tree = HTree.load( recman, cache, root_recid );
     }
+
 
     /**
      * Associates the specified value with the specified key.
@@ -302,6 +307,7 @@ class HTreeWrapper implements JDBMHashtable {
         _tree.put(key, value);
         _recman.commit();
     }
+
 
     /**
      * Returns the value which is associated with the given key. Returns
@@ -315,6 +321,7 @@ class HTreeWrapper implements JDBMHashtable {
         return obj;
     }
 
+
     /**
      * Remove the value which is associated with the given key.  If the
      * key does not exist, this method simply ignores the operation.
@@ -325,6 +332,7 @@ class HTreeWrapper implements JDBMHashtable {
         _tree.remove(key);
         _recman.commit();
     }
+
 
     /**
      * Returns an enumeration of the keys contained in this hashtable.
@@ -341,6 +349,7 @@ class HTreeWrapper implements JDBMHashtable {
         return _tree.values();
     }
 
+
     /**
      * Disposes from this hashtable instance and frees associated
      * resources.
@@ -349,6 +358,14 @@ class HTreeWrapper implements JDBMHashtable {
         _tree.dispose();
         _tree = null;
         _recman = null;
+    }
+
+
+    /**
+     * Get the persistent record identifier of this hashtable.
+     */
+    public long getRecid() {
+        return _tree.getRecid();
     }
 
 }
