@@ -54,7 +54,7 @@ import jdbm.recman.TestRecordFile;
 import junit.framework.*;
 
 /**
- *  Test cases for HTree rollback
+ * Test cases for HTree rollback
  */
 public class TestRollback
     extends TestCase
@@ -62,7 +62,7 @@ public class TestRollback
 
     public TestRollback( String name )
     {
-        super(name);
+        super( name );
     }
 
     public void setUp()
@@ -78,7 +78,7 @@ public class TestRollback
     /**
      * Test case courtesy of Derek Dick (mailto:ddick@users.sourceforge.net)
      */
-    public void testRollback1() 
+    public void testRollback1()
         throws Exception
     {
         RecordManager recman;
@@ -87,16 +87,19 @@ public class TestRollback
         // Note: We start out with an empty file
         recman = new BaseRecordManager( TestRecordFile.testFileName );
 
-	root = recman.getNamedObject( "xyz" );
-			 			
+        root = recman.getNamedObject( "xyz" );
+
         HTree tree = null;
-        if ( root == 0 ) {
+        if ( root == 0 )
+        {
             // create a new one
             tree = HTree.createInstance( recman );
             root = tree.getRecid();
             recman.setNamedObject( "xyz", root );
             recman.commit();
-        } else {
+        }
+        else
+        {
             tree = HTree.load( recman, root );
         }
 
@@ -113,13 +116,13 @@ public class TestRollback
         assertTrue( tree.get( "Foo" ).equals( "Bar" ) );
         assertTrue( tree.get( "Fo" ).equals( "Fum" ) );
         assertTrue( tree.get( "Hello" ) == null );
-    }		
+    }
 
-    
+
     /**
      * Test case courtesy of Derek Dick (mailto:ddick@users.sourceforge.net)
      */
-    public void testRollback2() 
+    public void testRollback2()
         throws Exception
     {
         RecordManager recman;
@@ -128,16 +131,19 @@ public class TestRollback
         // Note: We start out with an empty file
         recman = new BaseRecordManager( TestRecordFile.testFileName );
 
-	root = recman.getNamedObject( "xyz" );
+        root = recman.getNamedObject( "xyz" );
 
         HTree tree = null;
-        if ( root == 0 ) {
+        if ( root == 0 )
+        {
             // create a new one
             tree = HTree.createInstance( recman );
             root = tree.getRecid();
             recman.setNamedObject( "xyz", root );
             recman.commit();
-        } else {
+        }
+        else
+        {
             tree = HTree.load( recman, root );
         }
 
@@ -152,10 +158,10 @@ public class TestRollback
         assertTrue( tree.get( "goodnight" ).equals( "gracie" ) );
         assertTrue( tree.get( "hello" ).equals( "world" ) );
     }
-	    
-    
+
+
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
     public static void main( String[] args )
     {

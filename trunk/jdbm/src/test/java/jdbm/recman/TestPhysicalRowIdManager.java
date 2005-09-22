@@ -48,53 +48,49 @@ import junit.framework.*;
 
 
 /**
-
- *  This class contains all Unit tests for {@link PhysicalRowIdManager}.
-
+ * This class contains all Unit tests for {@link PhysicalRowIdManager}.
  */
 
-public class TestPhysicalRowIdManager extends TestCase {
+public class TestPhysicalRowIdManager extends TestCase
+{
 
 
+    public TestPhysicalRowIdManager( String name )
+    {
 
-    public TestPhysicalRowIdManager(String name) {
-
-        super(name);
+        super( name );
 
     }
 
 
-
-    public void setUp() {
+    public void setUp()
+    {
 
         TestRecordFile.deleteTestFile();
 
     }
 
 
-
-    public void tearDown() {
+    public void tearDown()
+    {
 
         TestRecordFile.deleteTestFile();
 
     }
-
 
 
     /**
-
-     *  Test constructor
-
+     * Test constructor
      */
 
-    public void testCtor() throws Exception {
+    public void testCtor() throws Exception
+    {
 
-        RecordFile f = new RecordFile(TestRecordFile.testFileName);
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
 
-        PageManager pm = new PageManager(f);
+        PageManager pm = new PageManager( f );
 
-        PhysicalRowIdManager physMgr = new PhysicalRowIdManager(f, pm);
-
+        PhysicalRowIdManager physMgr = new PhysicalRowIdManager( f, pm );
 
 
         f.forceClose();
@@ -102,81 +98,65 @@ public class TestPhysicalRowIdManager extends TestCase {
     }
 
 
-
     /**
-
-     *  Test basics
-
+     * Test basics
      */
 
-    public void testBasics() throws Exception {
+    public void testBasics() throws Exception
+    {
 
 
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
 
-        RecordFile f = new RecordFile(TestRecordFile.testFileName);
+        PageManager pm = new PageManager( f );
 
-        PageManager pm = new PageManager(f);
-
-        PhysicalRowIdManager physMgr = new PhysicalRowIdManager(f, pm);
-
-
+        PhysicalRowIdManager physMgr = new PhysicalRowIdManager( f, pm );
 
         // insert a 10,000 byte record.
 
-        byte[] data = TestUtil.makeRecord(10000, (byte) 1);
+        byte[] data = TestUtil.makeRecord( 10000, (byte) 1 );
 
         Location loc = physMgr.insert( data, 0, data.length );
 
-        assertTrue("check data1",
+        assertTrue( "check data1",
 
-               TestUtil.checkRecord(physMgr.fetch(loc), 10000, (byte) 1));
-
-
+                    TestUtil.checkRecord( physMgr.fetch( loc ), 10000, (byte) 1 ) );
 
         // update it as a 20,000 byte record.
 
-        data = TestUtil.makeRecord(20000, (byte) 2);
+        data = TestUtil.makeRecord( 20000, (byte) 2 );
 
-        Location loc2 = physMgr.update(loc, data, 0, data.length );
+        Location loc2 = physMgr.update( loc, data, 0, data.length );
 
-        assertTrue("check data2",
+        assertTrue( "check data2",
 
-               TestUtil.checkRecord(physMgr.fetch(loc2), 20000, (byte) 2));
-
-
+                    TestUtil.checkRecord( physMgr.fetch( loc2 ), 20000, (byte) 2 ) );
 
         // insert a third record. This'll effectively block the first one
 
         // from growing
 
-        data = TestUtil.makeRecord(20, (byte) 3);
+        data = TestUtil.makeRecord( 20, (byte) 3 );
 
-        Location loc3 = physMgr.insert(data, 0, data.length );
+        Location loc3 = physMgr.insert( data, 0, data.length );
 
-        assertTrue("check data3",
+        assertTrue( "check data3",
 
-               TestUtil.checkRecord(physMgr.fetch(loc3), 20, (byte) 3));
-
-
+                    TestUtil.checkRecord( physMgr.fetch( loc3 ), 20, (byte) 3 ) );
 
         // now, grow the first record again
 
-        data = TestUtil.makeRecord(30000, (byte) 4);
+        data = TestUtil.makeRecord( 30000, (byte) 4 );
 
-        loc2 = physMgr.update(loc2, data, 0, data.length );
+        loc2 = physMgr.update( loc2, data, 0, data.length );
 
-        assertTrue("check data4",
+        assertTrue( "check data4",
 
-               TestUtil.checkRecord(physMgr.fetch(loc2), 30000, (byte) 4));
-
-
-
-
+                    TestUtil.checkRecord( physMgr.fetch( loc2 ), 30000, (byte) 4 ) );
 
         // delete the record
 
-        physMgr.delete(loc2);
-
+        physMgr.delete( loc2 );
 
 
         f.forceClose();
@@ -184,16 +164,14 @@ public class TestPhysicalRowIdManager extends TestCase {
     }
 
 
-
     /**
-
-     *  Runs all tests in this class
-
+     * Runs all tests in this class
      */
 
-    public static void main(String[] args) {
+    public static void main( String[] args )
+    {
 
-        junit.textui.TestRunner.run(new TestSuite(TestPhysicalRowIdManager.class));
+        junit.textui.TestRunner.run( new TestSuite( TestPhysicalRowIdManager.class ) );
 
     }
 

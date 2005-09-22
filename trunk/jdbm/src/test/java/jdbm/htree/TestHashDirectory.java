@@ -51,116 +51,135 @@ import jdbm.RecordManagerFactory;
 import jdbm.recman.TestRecordFile;
 import jdbm.helper.FastIterator;
 import junit.framework.*;
+
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Properties;
 
 /**
- *  This class contains all Unit tests for {@link HashDirectory}.
+ * This class contains all Unit tests for {@link HashDirectory}.
  *
- *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id$
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id$
  */
-public class TestHashDirectory extends TestCase {
+public class TestHashDirectory extends TestCase
+{
 
-    public TestHashDirectory(String name) {
-        super(name);
+    public TestHashDirectory( String name )
+    {
+        super( name );
     }
 
-    public void setUp() {
+    public void setUp()
+    {
         TestRecordFile.deleteTestFile();
     }
 
-    public void tearDown() {
+    public void tearDown()
+    {
         TestRecordFile.deleteTestFile();
     }
 
 
     /**
-     *  Basic tests
+     * Basic tests
      */
-    public void testBasics() throws IOException {
-        System.out.println("testBasics");
+    public void testBasics() throws IOException
+    {
+        System.out.println( "testBasics" );
 
         Properties props = new Properties();
         RecordManager recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName, props );
 
-        HashDirectory dir = new HashDirectory((byte)0);
-        long recid = recman.insert(dir);
-        dir.setPersistenceContext(recman, recid);
+        HashDirectory dir = new HashDirectory( (byte) 0 );
+        long recid = recman.insert( dir );
+        dir.setPersistenceContext( recman, recid );
 
-        dir.put("key", "value");
-        String s = (String)dir.get("key");
-        assertEquals("value", s);
+        dir.put( "key", "value" );
+        String s = (String) dir.get( "key" );
+        assertEquals( "value", s );
 
         recman.close();
     }
 
     /**
-     *  Mixed tests
+     * Mixed tests
      */
-    public void testMixed() throws IOException {
-        System.out.println("testMixed");
+    public void testMixed() throws IOException
+    {
+        System.out.println( "testMixed" );
 
         Properties props = new Properties();
         RecordManager recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName, props );
-        HashDirectory dir = new HashDirectory((byte)0);
-        long recid = recman.insert(dir);
-        dir.setPersistenceContext(recman, recid);
+        HashDirectory dir = new HashDirectory( (byte) 0 );
+        long recid = recman.insert( dir );
+        dir.setPersistenceContext( recman, recid );
 
         Hashtable hash = new Hashtable(); // use to compare results
 
         int max = 30; // must be even
 
         // insert & check values
-        for (int i=0; i<max; i++) {
-            dir.put("key"+i, "value"+i);
-            hash.put("key"+i, "value"+i);
+        for ( int i = 0; i < max; i++ )
+        {
+            dir.put( "key" + i, "value" + i );
+            hash.put( "key" + i, "value" + i );
         }
         recman.commit();
 
-        for (int i=0; i<max; i++) {
-            String s = (String)dir.get("key"+i);
-            assertEquals("value"+i, s);
+        for ( int i = 0; i < max; i++ )
+        {
+            String s = (String) dir.get( "key" + i );
+            assertEquals( "value" + i, s );
         }
         recman.commit();
 
         // replace only even values
-        for (int i=0; i<max; i+=2) {
-            dir.put("key"+i, "value"+(i*2+1));
-            hash.put("key"+i, "value"+(i*2+1));
+        for ( int i = 0; i < max; i += 2 )
+        {
+            dir.put( "key" + i, "value" + ( i * 2 + 1 ) );
+            hash.put( "key" + i, "value" + ( i * 2 + 1 ) );
         }
         recman.commit();
 
-        for (int i=0; i<max; i++) {
-            if ((i%2) == 1) {
+        for ( int i = 0; i < max; i++ )
+        {
+            if ( ( i % 2 ) == 1 )
+            {
                 // odd
-                String s = (String)dir.get("key"+i);
-                assertEquals("value"+i, s);
-            } else {
+                String s = (String) dir.get( "key" + i );
+                assertEquals( "value" + i, s );
+            }
+            else
+            {
                 // even
-                String s = (String)dir.get("key"+i);
-                assertEquals("value"+(i*2+1), s);
+                String s = (String) dir.get( "key" + i );
+                assertEquals( "value" + ( i * 2 + 1 ), s );
             }
         }
         recman.commit();
 
         // remove odd numbers
-        for (int i=1; i<max; i+=2) {
-            dir.remove("key"+i);
-            hash.remove("key"+i);
+        for ( int i = 1; i < max; i += 2 )
+        {
+            dir.remove( "key" + i );
+            hash.remove( "key" + i );
         }
         recman.commit();
 
-        for (int i=0; i<max; i++) {
-            if ((i%2) == 1) {
+        for ( int i = 0; i < max; i++ )
+        {
+            if ( ( i % 2 ) == 1 )
+            {
                 // odd
-                String s = (String)dir.get("key"+i);
-                assertEquals(null, s);
-            } else {
+                String s = (String) dir.get( "key" + i );
+                assertEquals( null, s );
+            }
+            else
+            {
                 // even
-                String s = (String)dir.get("key"+i);
-                assertEquals("value"+(i*2+1), s);
+                String s = (String) dir.get( "key" + i );
+                assertEquals( "value" + ( i * 2 + 1 ), s );
             }
         }
         recman.commit();
@@ -169,8 +188,9 @@ public class TestHashDirectory extends TestCase {
         recman = null;
     }
 
-    void checkEnumerations(Hashtable hash, HashDirectory dir)
-    throws IOException {
+    void checkEnumerations( Hashtable hash, HashDirectory dir )
+        throws IOException
+    {
         // enumeration test
 
         FastIterator iter;
@@ -182,31 +202,34 @@ public class TestHashDirectory extends TestCase {
         count = 0;
         iter = dir.keys();
         String s = (String) iter.next();
-        while ( s != null ) {
+        while ( s != null )
+        {
             count++;
             clone.remove( s );
             s = (String) iter.next();
         }
-        assertEquals(hash.size(), count);
+        assertEquals( hash.size(), count );
 
         // test values
-        clone = (Hashtable)hash.clone();
+        clone = (Hashtable) hash.clone();
         count = 0;
         iter = dir.values();
         s = (String) iter.next();
-        while ( s != null ) {
+        while ( s != null )
+        {
             count++;
             clone.remove( s );
             s = (String) iter.next();
         }
-        assertEquals(hash.size(), count);
+        assertEquals( hash.size(), count );
     }
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestHashDirectory.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestHashDirectory.class ) );
     }
 
 }

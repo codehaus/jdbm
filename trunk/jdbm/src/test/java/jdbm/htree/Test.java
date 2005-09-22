@@ -49,28 +49,32 @@ package jdbm.htree;
 import junit.framework.*;
 
 /**
- *  "jdbm.hash.*" package test suite
+ * "jdbm.hash.*" package test suite
  *
- *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id$
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id$
  */
-public class Test extends TestCase {
+public class Test extends TestCase
+{
 
-    public Test(String name) {
-        super(name);
+    public Test( String name )
+    {
+        super( name );
     }
 
-    public static junit.framework.Test suite() {
+    public static junit.framework.Test suite()
+    {
         TestSuite retval = new TestSuite();
-        retval.addTest(new TestSuite(TestHashBucket.class));
-        retval.addTest(new TestSuite(TestHashDirectory.class));
-        retval.addTest(new TestSuite(TestRollback.class));
-        retval.addTest(new TestSuite(TestHTree.class));
+        retval.addTest( new TestSuite( TestHashBucket.class ) );
+        retval.addTest( new TestSuite( TestHashDirectory.class ) );
+        retval.addTest( new TestSuite( TestRollback.class ) );
+        retval.addTest( new TestSuite( TestHTree.class ) );
         return retval;
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( suite() );
     }
 
 }

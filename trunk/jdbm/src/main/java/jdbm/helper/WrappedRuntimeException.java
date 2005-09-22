@@ -71,17 +71,19 @@ public class WrappedRuntimeException
      * Constructs a new runtime exception based on a checked exception.
      *
      * @param message The error message
-     * @param except The checked exception
+     * @param except  The checked exception
      */
     public WrappedRuntimeException( String message, Exception except )
     {
         super( message == null ? "No message available" : message );
 
         if ( except instanceof WrappedRuntimeException &&
-             ( (WrappedRuntimeException) except )._except != null )
+            ( (WrappedRuntimeException) except )._except != null )
         {
             _except = ( (WrappedRuntimeException) except )._except;
-        } else {
+        }
+        else
+        {
             _except = except;
         }
     }
@@ -97,10 +99,12 @@ public class WrappedRuntimeException
         super( except == null || except.getMessage() == null ? "No message available" : except.getMessage() );
 
         if ( except instanceof WrappedRuntimeException &&
-             ( (WrappedRuntimeException) except )._except != null )
+            ( (WrappedRuntimeException) except )._except != null )
         {
             _except = ( (WrappedRuntimeException) except )._except;
-        } else {
+        }
+        else
+        {
             _except = except;
         }
     }
@@ -119,9 +123,12 @@ public class WrappedRuntimeException
 
     public void printStackTrace()
     {
-        if ( _except == null ) {
+        if ( _except == null )
+        {
             super.printStackTrace();
-        } else {
+        }
+        else
+        {
             _except.printStackTrace();
         }
     }
@@ -129,9 +136,12 @@ public class WrappedRuntimeException
 
     public void printStackTrace( PrintStream stream )
     {
-        if ( _except == null ) {
+        if ( _except == null )
+        {
             super.printStackTrace( stream );
-        } else {
+        }
+        else
+        {
             _except.printStackTrace( stream );
         }
     }
@@ -139,9 +149,12 @@ public class WrappedRuntimeException
 
     public void printStackTrace( PrintWriter writer )
     {
-        if ( _except == null ) {
+        if ( _except == null )
+        {
             super.printStackTrace( writer );
-        } else {
+        }
+        else
+        {
             _except.printStackTrace( writer );
         }
     }

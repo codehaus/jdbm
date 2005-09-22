@@ -61,11 +61,14 @@ public class Conversion
      */
     public static byte[] convertToByteArray( String s )
     {
-        try {
+        try
+        {
             // see the following page for character encoding
             // http://java.sun.com/products/jdk/1.1/docs/guide/intl/encoding.doc.html
             return s.getBytes( "UTF8" );
-        } catch ( java.io.UnsupportedEncodingException uee ) {
+        }
+        catch ( java.io.UnsupportedEncodingException uee )
+        {
             uee.printStackTrace();
             throw new Error( "Platform doesn't support UTF8 encoding" );
         }
@@ -77,8 +80,8 @@ public class Conversion
      */
     public static byte[] convertToByteArray( byte n )
     {
-        n = (byte)( n ^ ( (byte) 0x80 ) ); // flip MSB because "byte" is signed
-        return new byte[] { n };
+        n = (byte) ( n ^ ( (byte) 0x80 ) ); // flip MSB because "byte" is signed
+        return new byte[]{n};
     }
 
 
@@ -99,9 +102,9 @@ public class Conversion
      */
     public static byte[] convertToByteArray( int n )
     {
-        n = (n ^ 0x80000000); // flip MSB because "int" is signed
+        n = ( n ^ 0x80000000 ); // flip MSB because "int" is signed
         byte[] key = new byte[4];
-        pack4(key, 0, n);
+        pack4( key, 0, n );
         return key;
     }
 
@@ -111,7 +114,7 @@ public class Conversion
      */
     public static byte[] convertToByteArray( long n )
     {
-        n = (n ^ 0x8000000000000000L); // flip MSB because "long" is signed
+        n = ( n ^ 0x8000000000000000L ); // flip MSB because "long" is signed
         byte[] key = new byte[8];
         pack8( key, 0, n );
         return key;
@@ -123,11 +126,14 @@ public class Conversion
      */
     public static String convertToString( byte[] buf )
     {
-        try {
+        try
+        {
             // see the following page for character encoding
             // http://java.sun.com/products/jdk/1.1/docs/guide/intl/encoding.doc.html
             return new String( buf, "UTF8" );
-        } catch ( java.io.UnsupportedEncodingException uee ) {
+        }
+        catch ( java.io.UnsupportedEncodingException uee )
+        {
             uee.printStackTrace();
             throw new Error( "Platform doesn't support UTF8 encoding" );
         }
@@ -150,21 +156,19 @@ public class Conversion
      */
     public static long convertToLong( byte[] buf )
     {
-        long value = ( (long) unpack4( buf, 0 ) << 32  )
-                     + ( unpack4( buf, 4 ) & 0xFFFFFFFFL );
+        long value = ( (long) unpack4( buf, 0 ) << 32 )
+            + ( unpack4( buf, 4 ) & 0xFFFFFFFFL );
         value = ( value ^ 0x8000000000000000L ); // flip MSB because "long" is signed
         return value;
     }
 
 
-
-
     static int unpack4( byte[] buf, int offset )
     {
-        int value = ( buf[ offset ] << 24 )
-            | ( ( buf[ offset+1 ] << 16 ) & 0x00FF0000 )
-            | ( ( buf[ offset+2 ] << 8 ) & 0x0000FF00 )
-            | ( ( buf[ offset+3 ] << 0 ) & 0x000000FF );
+        int value = ( buf[offset] << 24 )
+            | ( ( buf[offset + 1] << 16 ) & 0x00FF0000 )
+            | ( ( buf[offset + 2] << 8 ) & 0x0000FF00 )
+            | ( ( buf[offset + 3] << 0 ) & 0x000000FF );
 
         return value;
     }

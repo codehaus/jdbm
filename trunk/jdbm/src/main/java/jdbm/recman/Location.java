@@ -52,14 +52,16 @@ package jdbm.recman;
  * logical rowids are based on locations internally - this version is
  * used when there is no file block to back the location's data.
  */
-final class Location {
+final class Location
+{
     private long block;
     private short offset;
 
     /**
      * Creates a location from a (block, offset) tuple.
      */
-    Location(long block, short offset) {
+    Location( long block, short offset )
+    {
         this.block = block;
         this.offset = offset;
     }
@@ -67,18 +69,20 @@ final class Location {
     /**
      * Creates a location from a combined block/offset long, as
      * used in the external representation of logical rowids.
-     * 
+     *
      * @see #toLong()
      */
-    Location(long blockOffset) {
-        this.offset = (short) (blockOffset & 0xffff);
+    Location( long blockOffset )
+    {
+        this.offset = (short) ( blockOffset & 0xffff );
         this.block = blockOffset >> 16;
     }
 
     /**
      * Creates a location based on the data of the physical rowid.
      */
-    Location(PhysicalRowId src) {
+    Location( PhysicalRowId src )
+    {
         block = src.getBlock();
         offset = src.getOffset();
     }
@@ -86,14 +90,16 @@ final class Location {
     /**
      * Returns the file block of the location
      */
-    long getBlock() {
+    long getBlock()
+    {
         return block;
     }
 
     /**
      * Returns the offset within the block of the location
      */
-    short getOffset() {
+    short getOffset()
+    {
         return offset;
     }
 
@@ -102,20 +108,23 @@ final class Location {
      * as a logical rowid, which combines the block and the offset
      * in a single long.
      */
-    long toLong() {
-        return (block << 16) + (long) offset;
+    long toLong()
+    {
+        return ( block << 16 ) + (long) offset;
     }
 
     // overrides of java.lang.Object
 
-    public boolean equals(Object o) {
-        if (o == null || !(o instanceof Location))
+    public boolean equals( Object o )
+    {
+        if ( o == null || !( o instanceof Location ) )
             return false;
         Location ol = (Location) o;
         return ol.block == block && ol.offset == offset;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return "PL(" + block + ":" + offset + ")";
     }
 }

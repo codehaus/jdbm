@@ -25,52 +25,61 @@ package jdbm.recman;
 import junit.framework.*;
 
 /**
- *  This class contains all Unit tests for {@link FileHeader}.
+ * This class contains all Unit tests for {@link FileHeader}.
  */
-public class TestFileHeader extends TestCase {
+public class TestFileHeader extends TestCase
+{
 
-    public TestFileHeader(String name) {
-  super(name);
+    public TestFileHeader( String name )
+    {
+        super( name );
     }
 
     /**
-     *  Test set, write, read
+     * Test set, write, read
      */
-    public void testSetWriteRead() throws Exception {
-  BlockIo b = new BlockIo(0, new byte[1000]);
-  FileHeader f = new FileHeader(b, true);
-  for (int i = 0; i < Magic.NLISTS; i++) {
-      f.setFirstOf(i, 100 * i);
-      f.setLastOf(i, 200 * i);
-  }
-  
-  f = new FileHeader(b, false);
-  for (int i = 0; i < Magic.NLISTS; i++) {
-      assertEquals("first " + i, i * 100, f.getFirstOf(i));
-      assertEquals("last " + i, i * 200, f.getLastOf(i));
-  }
+    public void testSetWriteRead() throws Exception
+    {
+        BlockIo b = new BlockIo( 0, new byte[1000] );
+        FileHeader f = new FileHeader( b, true );
+        for ( int i = 0; i < Magic.NLISTS; i++ )
+        {
+            f.setFirstOf( i, 100 * i );
+            f.setLastOf( i, 200 * i );
+        }
+
+        f = new FileHeader( b, false );
+        for ( int i = 0; i < Magic.NLISTS; i++ )
+        {
+            assertEquals( "first " + i, i * 100, f.getFirstOf( i ) );
+            assertEquals( "last " + i, i * 200, f.getLastOf( i ) );
+        }
     }
 
     /**
-     *  Test root rowids
+     * Test root rowids
      */
-    public void testRootRowids() throws Exception {
-  BlockIo b = new BlockIo(0, new byte[RecordFile.BLOCK_SIZE]);
-  FileHeader f = new FileHeader(b, true);
-  for (int i = 0; i < FileHeader.NROOTS; i++) {
-      f.setRoot(i, 100 * i);
-  }
-  
-  f = new FileHeader(b, false);
-  for (int i = 0; i < FileHeader.NROOTS; i++) {
-      assertEquals("root " + i, i * 100, f.getRoot(i));
-  }
+    public void testRootRowids() throws Exception
+    {
+        BlockIo b = new BlockIo( 0, new byte[RecordFile.BLOCK_SIZE] );
+        FileHeader f = new FileHeader( b, true );
+        for ( int i = 0; i < FileHeader.NROOTS; i++ )
+        {
+            f.setRoot( i, 100 * i );
+        }
+
+        f = new FileHeader( b, false );
+        for ( int i = 0; i < FileHeader.NROOTS; i++ )
+        {
+            assertEquals( "root " + i, i * 100, f.getRoot( i ) );
+        }
     }
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-  junit.textui.TestRunner.run(new TestSuite(TestFileHeader.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestFileHeader.class ) );
     }
 }

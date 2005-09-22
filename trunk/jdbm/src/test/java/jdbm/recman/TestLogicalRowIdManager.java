@@ -25,59 +25,66 @@ package jdbm.recman;
 import junit.framework.*;
 
 /**
- *  This class contains all Unit tests for {@link LogicalRowIdManager}.
+ * This class contains all Unit tests for {@link LogicalRowIdManager}.
  */
-public class TestLogicalRowIdManager extends TestCase {
+public class TestLogicalRowIdManager extends TestCase
+{
 
-    public TestLogicalRowIdManager(String name) {
-        super(name);
+    public TestLogicalRowIdManager( String name )
+    {
+        super( name );
     }
 
-    public void setUp() {
-          TestRecordFile.deleteTestFile();
+    public void setUp()
+    {
+        TestRecordFile.deleteTestFile();
     }
 
-    public void tearDown() {
-          TestRecordFile.deleteTestFile();
+    public void tearDown()
+    {
+        TestRecordFile.deleteTestFile();
     }
 
     /**
-     *  Test constructor
+     * Test constructor
      */
-    public void testCtor() throws Exception {
-        RecordFile f = new RecordFile(TestRecordFile.testFileName);
-        PageManager pm = new PageManager(f);
-        LogicalRowIdManager logMgr = new LogicalRowIdManager(f, pm);
+    public void testCtor() throws Exception
+    {
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
+        PageManager pm = new PageManager( f );
+        LogicalRowIdManager logMgr = new LogicalRowIdManager( f, pm );
 
         f.forceClose();
     }
 
     /**
-     *  Test basics
+     * Test basics
      */
-    public void testBasics() throws Exception {
-        RecordFile f = new RecordFile(TestRecordFile.testFileName);
-        PageManager pm = new PageManager(f);
-        LogicalRowIdManager logMgr = new LogicalRowIdManager(f, pm);
-        Location physid = new Location(20, (short) 234);
+    public void testBasics() throws Exception
+    {
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
+        PageManager pm = new PageManager( f );
+        LogicalRowIdManager logMgr = new LogicalRowIdManager( f, pm );
+        Location physid = new Location( 20, (short) 234 );
 
-        Location logid = logMgr.insert(physid);
-        assertEquals("check one", physid, logMgr.fetch(logid));
+        Location logid = logMgr.insert( physid );
+        assertEquals( "check one", physid, logMgr.fetch( logid ) );
 
-        physid = new Location(10, (short) 567);
-        logMgr.update(logid, physid);
-        assertEquals("check two", physid, logMgr.fetch(logid));
+        physid = new Location( 10, (short) 567 );
+        logMgr.update( logid, physid );
+        assertEquals( "check two", physid, logMgr.fetch( logid ) );
 
-        logMgr.delete(logid);
+        logMgr.delete( logid );
 
         f.forceClose();
     }
 
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestLogicalRowIdManager.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestLogicalRowIdManager.class ) );
     }
 }

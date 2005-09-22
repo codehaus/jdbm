@@ -50,138 +50,152 @@ import junit.framework.TestSuite;
 
 /**
  * Unit test for {@link MRU}.
- * 
+ *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
  * @version $Id$
  */
-public class TestMRU extends TestCachePolicy {
+public class TestMRU extends TestCachePolicy
+{
 
-    public TestMRU(String name) {
-        super(name);
+    public TestMRU( String name )
+    {
+        super( name );
     }
 
-    protected CachePolicy createInstance(int capacity) {
-        return new MRU(capacity);
+    protected CachePolicy createInstance( int capacity )
+    {
+        return new MRU( capacity );
     }
 
     /**
      * Test constructor
      */
-    public void testConstructor() {
+    public void testConstructor()
+    {
 
-        try {
+        try
+        {
             // should not support 0-size cache
-            MRU m1 = new MRU(0);
-            fail("expected exception");
-        } catch (Exception e) {
+            MRU m1 = new MRU( 0 );
+            fail( "expected exception" );
+        }
+        catch ( Exception e )
+        {
         }
 
-        MRU m5 = new MRU(5);
+        MRU m5 = new MRU( 5 );
     }
 
     /**
      * Test eviction
      */
-    public void testEvict() throws CacheEvictionException {
+    public void testEvict() throws CacheEvictionException
+    {
         Object o1 = new Object();
         Object o2 = new Object();
         Object o3 = new Object();
         Object o4 = new Object();
         Object o5 = new Object();
 
-        MRU m1 = new MRU(3);
+        MRU m1 = new MRU( 3 );
 
-        m1.put("1", o1);
-        m1.put("2", o2);
-        m1.put("3", o3);
-        m1.put("4", o4);
+        m1.put( "1", o1 );
+        m1.put( "2", o2 );
+        m1.put( "3", o3 );
+        m1.put( "4", o4 );
 
-        assertEquals(null, m1.get("1"));
-        assertEquals(o2, m1.get("2"));
-        assertEquals(o3, m1.get("3"));
-        assertEquals(o4, m1.get("4"));
+        assertEquals( null, m1.get( "1" ) );
+        assertEquals( o2, m1.get( "2" ) );
+        assertEquals( o3, m1.get( "3" ) );
+        assertEquals( o4, m1.get( "4" ) );
     }
 
     /**
      * Test key replacement
      */
-    public void testReplace() throws CacheEvictionException {
+    public void testReplace() throws CacheEvictionException
+    {
         Object o1 = new Object();
         Object o2 = new Object();
         Object o3 = new Object();
         Object o4 = new Object();
 
-        MRU m1 = new MRU(3);
+        MRU m1 = new MRU( 3 );
 
-        m1.put("1", o1);
-        m1.put("2", o2);
-        m1.put("3", o3);
-        m1.put("1", o4);
+        m1.put( "1", o1 );
+        m1.put( "2", o2 );
+        m1.put( "3", o3 );
+        m1.put( "1", o4 );
 
-        assertEquals(o4, m1.get("1"));
-        assertEquals(o2, m1.get("2"));
-        assertEquals(o3, m1.get("3"));
+        assertEquals( o4, m1.get( "1" ) );
+        assertEquals( o2, m1.get( "2" ) );
+        assertEquals( o3, m1.get( "3" ) );
     }
 
     /**
      * Test multiple touch
      */
-    public void testMultiple() throws CacheEvictionException {
+    public void testMultiple() throws CacheEvictionException
+    {
         Object o1 = new Object();
         Object o2 = new Object();
         Object o3 = new Object();
         Object o4 = new Object();
 
-        MRU m1 = new MRU(3);
+        MRU m1 = new MRU( 3 );
 
-        m1.put("1", o1);
-        m1.put("2", o2);
-        m1.put("3", o3);
-        m1.put("3", o3);
-        m1.put("3", o3);
-        m1.put("3", o3);
+        m1.put( "1", o1 );
+        m1.put( "2", o2 );
+        m1.put( "3", o3 );
+        m1.put( "3", o3 );
+        m1.put( "3", o3 );
+        m1.put( "3", o3 );
 
-        assertEquals(o1, m1.get("1"));
-        assertEquals(o2, m1.get("2"));
-        assertEquals(o3, m1.get("3"));
+        assertEquals( o1, m1.get( "1" ) );
+        assertEquals( o2, m1.get( "2" ) );
+        assertEquals( o3, m1.get( "3" ) );
 
-        m1.put("1", o3);  // replace with o3
-        m1.put("4", o4);  // should evict 2
+        m1.put( "1", o3 );  // replace with o3
+        m1.put( "4", o4 );  // should evict 2
 
-        assertEquals(o4, m1.get("4"));
-        assertEquals(o3, m1.get("3"));
-        assertEquals(o3, m1.get("1"));
-        assertEquals(null, m1.get("2"));
+        assertEquals( o4, m1.get( "4" ) );
+        assertEquals( o3, m1.get( "3" ) );
+        assertEquals( o3, m1.get( "1" ) );
+        assertEquals( null, m1.get( "2" ) );
     }
 
-    public void testEvictionExceptionRecovery() throws CacheEvictionException {
-        final CachePolicy cache = new MRU(1);
+    public void testEvictionExceptionRecovery() throws CacheEvictionException
+    {
+        final CachePolicy cache = new MRU( 1 );
         final Object oldKey = "to-be-evicted";
         final Object newKey = "insert-attempt";
 
         { // null test
             cache.removeAll();
-            cache.put(oldKey, new Object());
-            assertNotNull(cache.get(oldKey));
-            cache.put(newKey, new Object());
-            assertNull(cache.get(oldKey));
-            assertNotNull(cache.get(newKey));
+            cache.put( oldKey, new Object() );
+            assertNotNull( cache.get( oldKey ) );
+            cache.put( newKey, new Object() );
+            assertNull( cache.get( oldKey ) );
+            assertNotNull( cache.get( newKey ) );
         }
 
         { // stability test.
             cache.removeAll();
-            cache.addListener(new ThrowingListener());
-            cache.put(oldKey, new Object());
-            assertNotNull(cache.get(oldKey));
-            try {
-                cache.put(newKey, new Object());
-                fail("Did not propagate expected exception.");
-            } catch (CacheEvictionException cex) {
-                assertNotNull("old object missing after eviction exception!",
-                              cache.get(oldKey));
-                assertNull("new key -> object mapping added even when eviction exception!",
-                           cache.get(newKey));
+            cache.addListener( new ThrowingListener() );
+            cache.put( oldKey, new Object() );
+            assertNotNull( cache.get( oldKey ) );
+            try
+            {
+                cache.put( newKey, new Object() );
+                fail( "Did not propagate expected exception." );
+            }
+            catch ( CacheEvictionException cex )
+            {
+                assertNotNull( "old object missing after eviction exception!",
+                               cache.get( oldKey ) );
+                assertNull( "new key -> object mapping added even when eviction exception!",
+                            cache.get( newKey ) );
             }
         }
     }
@@ -189,7 +203,8 @@ public class TestMRU extends TestCachePolicy {
     /**
      * Runs all tests in this class
      */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestMRU.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestMRU.class ) );
     }
 }

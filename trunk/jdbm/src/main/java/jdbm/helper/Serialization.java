@@ -67,8 +67,8 @@ public final class Serialization
     public static byte[] serialize( Object obj )
         throws IOException
     {
-        ByteArrayOutputStream  baos;
-        ObjectOutputStream     oos;
+        ByteArrayOutputStream baos;
+        ObjectOutputStream oos;
 
         baos = new ByteArrayOutputStream();
         oos = new ObjectOutputStream( baos );
@@ -85,8 +85,8 @@ public final class Serialization
     public static Object deserialize( byte[] buf )
         throws ClassNotFoundException, IOException
     {
-        ByteArrayInputStream  bais;
-        ObjectInputStream     ois;
+        ByteArrayInputStream bais;
+        ObjectInputStream ois;
 
         bais = new ByteArrayInputStream( buf );
         ois = new ObjectInputStream( bais );

@@ -25,54 +25,62 @@ package jdbm.recman;
 import junit.framework.*;
 
 /**
- *  This class contains all Unit tests for {@link PageCursor}.
+ * This class contains all Unit tests for {@link PageCursor}.
  */
-public class TestPageCursor extends TestCase {
+public class TestPageCursor extends TestCase
+{
 
-    public TestPageCursor(String name) {
-        super(name);
+    public TestPageCursor( String name )
+    {
+        super( name );
     }
 
-    public void setUp() {
-        System.out.println("TestPageCursor.setUp");
+    public void setUp()
+    {
+        System.out.println( "TestPageCursor.setUp" );
         TestRecordFile.deleteTestFile();
     }
 
-    public void tearDown() {
-        System.out.println("TestPageCursor.tearDown");
+    public void tearDown()
+    {
+        System.out.println( "TestPageCursor.tearDown" );
         TestRecordFile.deleteTestFile();
     }
 
     /**
-     *  Test constructor
+     * Test constructor
      */
-    public void testCtor() throws Exception {
-        System.out.println("TestPageCursor.testCtor");
-        RecordFile f = new RecordFile(TestRecordFile.testFileName);
-        PageManager pm = new PageManager(f);
-        PageCursor curs = new PageCursor(pm, 0);
+    public void testCtor() throws Exception
+    {
+        System.out.println( "TestPageCursor.testCtor" );
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
+        PageManager pm = new PageManager( f );
+        PageCursor curs = new PageCursor( pm, 0 );
 
         f.forceClose();
     }
 
     /**
-     *  Test basics
+     * Test basics
      */
-    public void testBasics() throws Exception {
-        System.out.println("TestPageCursor.testBasics");
-        RecordFile f = new RecordFile(TestRecordFile.testFileName);
-        PageManager pm = new PageManager(f);
+    public void testBasics() throws Exception
+    {
+        System.out.println( "TestPageCursor.testBasics" );
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
+        PageManager pm = new PageManager( f );
 
         // add a bunch of pages
         long[] recids = new long[10];
-        for (int i = 0; i < 10; i++) {
-            recids[i] = pm.allocate(Magic.USED_PAGE);
+        for ( int i = 0; i < 10; i++ )
+        {
+            recids[i] = pm.allocate( Magic.USED_PAGE );
         }
 
-        PageCursor curs = new PageCursor(pm, Magic.USED_PAGE);
-        for (int i = 0; i < 10; i++) {
-            assertEquals("record " + i, recids[i],
-             curs.next());
+        PageCursor curs = new PageCursor( pm, Magic.USED_PAGE );
+        for ( int i = 0; i < 10; i++ )
+        {
+            assertEquals( "record " + i, recids[i],
+                          curs.next() );
         }
 
         f.forceClose();
@@ -80,9 +88,10 @@ public class TestPageCursor extends TestCase {
 
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestPageCursor.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestPageCursor.class ) );
     }
 }

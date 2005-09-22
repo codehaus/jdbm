@@ -89,9 +89,7 @@
  */
 
 
-
 package jdbm.btree;
-
 
 
 import jdbm.RecordManager;
@@ -101,7 +99,6 @@ import jdbm.RecordManagerFactory;
 import jdbm.recman.TestRecordFile;
 
 
-
 import jdbm.helper.StringComparator;
 
 import jdbm.helper.Tuple;
@@ -109,69 +106,57 @@ import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
 
 
-
 import java.io.IOException;
-
 
 
 import junit.framework.*;
 
 
-
 /**
-
- *  This class contains all Unit tests for {@link Bpage}.
-
+ * This class contains all Unit tests for {@link Bpage}.
  *
-
- *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
-
- *  @version $Id$
-
+ * @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
+ * @version $Id$
  */
 
-public class TestBPage extends TestCase {
+public class TestBPage extends TestCase
+{
 
 
-
-    public TestBPage( String name ) {
+    public TestBPage( String name )
+    {
 
         super( name );
 
     }
 
 
-
-    public void setUp() {
-
-        TestRecordFile.deleteTestFile();
-
-    }
-
-
-
-    public void tearDown() {
+    public void setUp()
+    {
 
         TestRecordFile.deleteTestFile();
 
     }
 
 
+    public void tearDown()
+    {
 
+        TestRecordFile.deleteTestFile();
+
+    }
 
 
     /**
-
-     *  Basic tests
-
+     * Basic tests
      */
 
-    public void testBasics() throws IOException {
+    public void testBasics() throws IOException
+    {
 
         RecordManager recman;
 
         String test, test1, test2, test3;
-
 
 
         test = "test";
@@ -183,9 +168,7 @@ public class TestBPage extends TestCase {
         test3 = "test3";
 
 
-
         recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
-
 
 
         BTree tree = BTree.createInstance( recman, new StringComparator(), null, null, 32 );
@@ -193,12 +176,9 @@ public class TestBPage extends TestCase {
         BPage page = new BPage( tree, test, test );
 
 
-
         TupleBrowser browser;
 
         Tuple tuple = new Tuple();
-
-
 
         // test insertion
 
@@ -208,30 +188,30 @@ public class TestBPage extends TestCase {
 
         page.insert( 1, test1, test1, false );
 
-
-
         // test binary search
 
         browser = page.find( 1, test2 );
 
-        if ( browser.getNext( tuple ) == false ) {
+        if ( browser.getNext( tuple ) == false )
+        {
 
             throw new IllegalStateException( "Browser didn't have 'test2'" );
 
         }
 
-        if ( ! tuple.getKey().equals( test2 ) ) {
+        if ( ! tuple.getKey().equals( test2 ) )
+        {
 
             throw new IllegalStateException( "Tuple key is not 'test2'" );
 
         }
 
-        if ( ! tuple.getValue().equals( test2 ) ) {
+        if ( ! tuple.getValue().equals( test2 ) )
+        {
 
             throw new IllegalStateException( "Tuple value is not 'test2'" );
 
         }
-
 
 
         recman.close();
@@ -241,21 +221,16 @@ public class TestBPage extends TestCase {
     }
 
 
-
-
-
     /**
-
-     *  Runs all tests in this class
-
+     * Runs all tests in this class
      */
 
-    public static void main(String[] args) {
+    public static void main( String[] args )
+    {
 
         junit.textui.TestRunner.run( new TestSuite( TestBPage.class ) );
 
     }
-
 
 
 }

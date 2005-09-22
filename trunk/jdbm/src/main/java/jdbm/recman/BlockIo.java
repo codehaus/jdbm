@@ -50,15 +50,16 @@ package jdbm.recman;
 import java.io.*;
 
 /**
- *  This class wraps a page-sized byte array and provides methods
- *  to read and write data to and from it. The readers and writers
- *  are just the ones that the rest of the toolkit needs, nothing else.
- *  Values written are compatible with java.io routines.
+ * This class wraps a page-sized byte array and provides methods
+ * to read and write data to and from it. The readers and writers
+ * are just the ones that the rest of the toolkit needs, nothing else.
+ * Values written are compatible with java.io routines.
  *
- *  @see java.io.DataInput
- *  @see java.io.DataOutput
+ * @see java.io.DataInput
+ * @see java.io.DataOutput
  */
-public final class BlockIo implements java.io.Externalizable {
+public final class BlockIo implements java.io.Externalizable
+{
 
     public final static long serialVersionUID = 2L;
 
@@ -72,185 +73,204 @@ public final class BlockIo implements java.io.Externalizable {
     /**
      * Default constructor for serialization
      */
-    public BlockIo() {
+    public BlockIo()
+    {
         // empty
     }
 
     /**
-     *  Constructs a new BlockIo instance working on the indicated
-     *  buffer.
+     * Constructs a new BlockIo instance working on the indicated
+     * buffer.
      */
-    BlockIo(long blockId, byte[] data) {
+    BlockIo( long blockId, byte[] data )
+    {
         // removeme for production version
-        if (blockId > 10000000000L)
-            throw new Error("bogus block id " + blockId);
+        if ( blockId > 10000000000L )
+            throw new Error( "bogus block id " + blockId );
         this.blockId = blockId;
         this.data = data;
     }
 
     /**
-     *  Returns the underlying array
+     * Returns the underlying array
      */
-    byte[] getData() {
+    byte[] getData()
+    {
         return data;
     }
 
     /**
-     *  Sets the block number. Should only be called by RecordFile.
+     * Sets the block number. Should only be called by RecordFile.
      */
-    void setBlockId(long id) {
-        if (isInTransaction())
-            throw new Error("BlockId assigned for transaction block");
+    void setBlockId( long id )
+    {
+        if ( isInTransaction() )
+            throw new Error( "BlockId assigned for transaction block" );
         // removeme for production version
-        if (id > 10000000000L)
-            throw new Error("bogus block id " + id);
+        if ( id > 10000000000L )
+            throw new Error( "bogus block id " + id );
         blockId = id;
     }
 
     /**
-     *  Returns the block number.
+     * Returns the block number.
      */
-    long getBlockId() {
+    long getBlockId()
+    {
         return blockId;
     }
 
     /**
-     *  Returns the current view of the block.
+     * Returns the current view of the block.
      */
-    public BlockView getView() {
+    public BlockView getView()
+    {
         return view;
     }
 
     /**
-     *  Sets the current view of the block.
+     * Sets the current view of the block.
      */
-    public void setView(BlockView view) {
+    public void setView( BlockView view )
+    {
         this.view = view;
     }
 
     /**
-     *  Sets the dirty flag
+     * Sets the dirty flag
      */
-    void setDirty() {
+    void setDirty()
+    {
         dirty = true;
     }
 
     /**
-     *  Clears the dirty flag
+     * Clears the dirty flag
      */
-    void setClean() {
+    void setClean()
+    {
         dirty = false;
     }
 
     /**
-     *  Returns true if the dirty flag is set.
+     * Returns true if the dirty flag is set.
      */
-    boolean isDirty() {
+    boolean isDirty()
+    {
         return dirty;
     }
 
     /**
-     *  Returns true if the block is still dirty with respect to the
-     *  transaction log.
+     * Returns true if the block is still dirty with respect to the
+     * transaction log.
      */
-    boolean isInTransaction() {
+    boolean isInTransaction()
+    {
         return transactionCount != 0;
     }
 
     /**
-     *  Increments transaction count for this block, to signal that this
-     *  block is in the log but not yet in the data file. The method also
-     *  takes a snapshot so that the data may be modified in new transactions.
+     * Increments transaction count for this block, to signal that this
+     * block is in the log but not yet in the data file. The method also
+     * takes a snapshot so that the data may be modified in new transactions.
      */
-    synchronized void incrementTransactionCount() {
+    synchronized void incrementTransactionCount()
+    {
         transactionCount++;
         // @fixme(alex)
         setClean();
     }
 
     /**
-     *  Decrements transaction count for this block, to signal that this
-     *  block has been written from the log to the data file.
+     * Decrements transaction count for this block, to signal that this
+     * block has been written from the log to the data file.
      */
-    synchronized void decrementTransactionCount() {
+    synchronized void decrementTransactionCount()
+    {
         transactionCount--;
-        if (transactionCount < 0)
-            throw new Error("transaction count on block "
-                            + getBlockId() + " below zero!");
+        if ( transactionCount < 0 )
+            throw new Error( "transaction count on block "
+                + getBlockId() + " below zero!" );
 
     }
 
     /**
-     *  Reads a byte from the indicated position
+     * Reads a byte from the indicated position
      */
-    public byte readByte(int pos) {
+    public byte readByte( int pos )
+    {
         return data[pos];
     }
 
     /**
-     *  Writes a byte to the indicated position
+     * Writes a byte to the indicated position
      */
-    public void writeByte(int pos, byte value) {
+    public void writeByte( int pos, byte value )
+    {
         data[pos] = value;
         setDirty();
     }
 
     /**
-     *  Reads a short from the indicated position
+     * Reads a short from the indicated position
      */
-    public short readShort(int pos) {
+    public short readShort( int pos )
+    {
         return (short)
-            (((short) (data[pos+0] & 0xff) << 8) |
-             ((short) (data[pos+1] & 0xff) << 0));
+            ( ( (short) ( data[pos + 0] & 0xff ) << 8 ) |
+                ( (short) ( data[pos + 1] & 0xff ) << 0 ) );
     }
 
     /**
-     *  Writes a short to the indicated position
+     * Writes a short to the indicated position
      */
-    public void writeShort(int pos, short value) {
-        data[pos+0] = (byte)(0xff & (value >> 8));
-        data[pos+1] = (byte)(0xff & (value >> 0));
+    public void writeShort( int pos, short value )
+    {
+        data[pos + 0] = (byte) ( 0xff & ( value >> 8 ) );
+        data[pos + 1] = (byte) ( 0xff & ( value >> 0 ) );
         setDirty();
     }
 
     /**
-     *  Reads an int from the indicated position
+     * Reads an int from the indicated position
      */
-    public int readInt(int pos) {
+    public int readInt( int pos )
+    {
         return
-            (((int)(data[pos+0] & 0xff) << 24) |
-             ((int)(data[pos+1] & 0xff) << 16) |
-             ((int)(data[pos+2] & 0xff) <<  8) |
-             ((int)(data[pos+3] & 0xff) <<  0));
+            ( ( (int) ( data[pos + 0] & 0xff ) << 24 ) |
+                ( (int) ( data[pos + 1] & 0xff ) << 16 ) |
+                ( (int) ( data[pos + 2] & 0xff ) << 8 ) |
+                ( (int) ( data[pos + 3] & 0xff ) << 0 ) );
     }
 
     /**
-     *  Writes an int to the indicated position
+     * Writes an int to the indicated position
      */
-    public void writeInt(int pos, int value) {
-        data[pos+0] = (byte)(0xff & (value >> 24));
-        data[pos+1] = (byte)(0xff & (value >> 16));
-        data[pos+2] = (byte)(0xff & (value >>  8));
-        data[pos+3] = (byte)(0xff & (value >>  0));
+    public void writeInt( int pos, int value )
+    {
+        data[pos + 0] = (byte) ( 0xff & ( value >> 24 ) );
+        data[pos + 1] = (byte) ( 0xff & ( value >> 16 ) );
+        data[pos + 2] = (byte) ( 0xff & ( value >> 8 ) );
+        data[pos + 3] = (byte) ( 0xff & ( value >> 0 ) );
         setDirty();
     }
 
     /**
-     *  Reads a long from the indicated position
+     * Reads a long from the indicated position
      */
     public long readLong( int pos )
     {
         // Contributed by Erwin Bolwidt <ejb@klomp.org>
         // Gives about 15% performance improvement
         return
-            ( (long)( ((data[pos+0] & 0xff) << 24) |
-                      ((data[pos+1] & 0xff) << 16) |
-                      ((data[pos+2] & 0xff) <<  8) |
-                      ((data[pos+3] & 0xff)      ) ) << 32 ) |
-            ( (long)( ((data[pos+4] & 0xff) << 24) |
-                      ((data[pos+5] & 0xff) << 16) |
-                      ((data[pos+6] & 0xff) <<  8) |
-                      ((data[pos+7] & 0xff)      ) ) & 0xffffffff );
+            ( (long) ( ( ( data[pos + 0] & 0xff ) << 24 ) |
+                ( ( data[pos + 1] & 0xff ) << 16 ) |
+                ( ( data[pos + 2] & 0xff ) << 8 ) |
+                ( ( data[pos + 3] & 0xff ) ) ) << 32 ) |
+                ( (long) ( ( ( data[pos + 4] & 0xff ) << 24 ) |
+                    ( ( data[pos + 5] & 0xff ) << 16 ) |
+                    ( ( data[pos + 6] & 0xff ) << 8 ) |
+                    ( ( data[pos + 7] & 0xff ) ) ) & 0xffffffff );
         /* Original version by Alex Boisvert.  Might be faster on 64-bit JVMs.
         return
             (((long)(data[pos+0] & 0xff) << 56) |
@@ -265,23 +285,25 @@ public final class BlockIo implements java.io.Externalizable {
     }
 
     /**
-     *  Writes a long to the indicated position
+     * Writes a long to the indicated position
      */
-    public void writeLong(int pos, long value) {
-        data[pos+0] = (byte)(0xff & (value >> 56));
-        data[pos+1] = (byte)(0xff & (value >> 48));
-        data[pos+2] = (byte)(0xff & (value >> 40));
-        data[pos+3] = (byte)(0xff & (value >> 32));
-        data[pos+4] = (byte)(0xff & (value >> 24));
-        data[pos+5] = (byte)(0xff & (value >> 16));
-        data[pos+6] = (byte)(0xff & (value >>  8));
-        data[pos+7] = (byte)(0xff & (value >>  0));
+    public void writeLong( int pos, long value )
+    {
+        data[pos + 0] = (byte) ( 0xff & ( value >> 56 ) );
+        data[pos + 1] = (byte) ( 0xff & ( value >> 48 ) );
+        data[pos + 2] = (byte) ( 0xff & ( value >> 40 ) );
+        data[pos + 3] = (byte) ( 0xff & ( value >> 32 ) );
+        data[pos + 4] = (byte) ( 0xff & ( value >> 24 ) );
+        data[pos + 5] = (byte) ( 0xff & ( value >> 16 ) );
+        data[pos + 6] = (byte) ( 0xff & ( value >> 8 ) );
+        data[pos + 7] = (byte) ( 0xff & ( value >> 0 ) );
         setDirty();
     }
 
     // overrides java.lang.Object
 
-    public String toString() {
+    public String toString()
+    {
         return "BlockIO("
             + blockId + ","
             + dirty + ","
@@ -289,19 +311,21 @@ public final class BlockIo implements java.io.Externalizable {
     }
 
     // implement externalizable interface
-    public void readExternal(ObjectInput in)
-    throws IOException, ClassNotFoundException {
+    public void readExternal( ObjectInput in )
+        throws IOException, ClassNotFoundException
+    {
         blockId = in.readLong();
         int length = in.readInt();
         data = new byte[length];
-        in.readFully(data);
+        in.readFully( data );
     }
 
     // implement externalizable interface
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeLong(blockId);
-        out.writeInt(data.length);
-        out.write(data);
+    public void writeExternal( ObjectOutput out ) throws IOException
+    {
+        out.writeLong( blockId );
+        out.writeInt( data.length );
+        out.write( data );
     }
 
 }

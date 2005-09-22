@@ -63,7 +63,7 @@ public class IterationException
      * and providing a message.
      *
      * @param message The exception message
-     * @param except The underlying exception
+     * @param except  The underlying exception
      */
     public IterationException( String message, Exception except )
     {

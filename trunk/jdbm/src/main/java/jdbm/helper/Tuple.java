@@ -53,7 +53,8 @@ package jdbm.helper;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id$
  */
-public final class Tuple {
+public final class Tuple
+{
 
     /**
      * Key
@@ -70,7 +71,8 @@ public final class Tuple {
     /**
      * Construct an empty Tuple.
      */
-    public Tuple() {
+    public Tuple()
+    {
         // empty
     }
 
@@ -78,10 +80,11 @@ public final class Tuple {
     /**
      * Construct a Tuple.
      *
-     * @param key The key.
+     * @param key   The key.
      * @param value The value.
      */
-    public Tuple( Object key, Object value ) {
+    public Tuple( Object key, Object value )
+    {
         _key = key;
         _value = value;
     }
@@ -90,7 +93,8 @@ public final class Tuple {
     /**
      * Get the key.
      */
-    public Object getKey() {
+    public Object getKey()
+    {
         return _key;
     }
 
@@ -98,7 +102,8 @@ public final class Tuple {
     /**
      * Set the key.
      */
-    public void setKey( Object key ) {
+    public void setKey( Object key )
+    {
         _key = key;
     }
 
@@ -106,7 +111,8 @@ public final class Tuple {
     /**
      * Get the value.
      */
-    public Object getValue() {
+    public Object getValue()
+    {
         return _value;
     }
 
@@ -114,7 +120,8 @@ public final class Tuple {
     /**
      * Set the value.
      */
-    public void setValue( Object value ) {
+    public void setValue( Object value )
+    {
         _value = value;
     }
 

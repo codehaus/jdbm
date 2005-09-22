@@ -25,43 +25,50 @@ package jdbm.recman;
 import junit.framework.*;
 
 /**
- *  This class contains all Unit tests for {@link Location}.
+ * This class contains all Unit tests for {@link Location}.
  */
-public class TestLocation extends TestCase {
+public class TestLocation extends TestCase
+{
 
-    public TestLocation(String name) {
-  super(name);
-    }
-    
-    public void setUp() {
-  TestRecordFile.deleteTestFile();
-    }
-    public void tearDown() {
-  TestRecordFile.deleteTestFile();
+    public TestLocation( String name )
+    {
+        super( name );
     }
 
-    
-    /**
-     *  Basic tests
-     */
-    public void testBasics() {
-  
-  Location loc = new Location(10, (short) 20);
-  long longloc = loc.toLong();
-  Location loc2 = new Location(longloc);
-  assertEquals("longloc", longloc, loc2.toLong());
-  
-  
-  assertEquals("block2", 10, loc2.getBlock());
-  assertEquals("offset2", 20, loc2.getOffset());
-
+    public void setUp()
+    {
+        TestRecordFile.deleteTestFile();
     }
-    
+
+    public void tearDown()
+    {
+        TestRecordFile.deleteTestFile();
+    }
+
 
     /**
-     *  Runs all tests in this class
+     * Basic tests
      */
-    public static void main(String[] args) {
-  junit.textui.TestRunner.run(new TestSuite(TestLocation.class));
+    public void testBasics()
+    {
+
+        Location loc = new Location( 10, (short) 20 );
+        long longloc = loc.toLong();
+        Location loc2 = new Location( longloc );
+        assertEquals( "longloc", longloc, loc2.toLong() );
+
+
+        assertEquals( "block2", 10, loc2.getBlock() );
+        assertEquals( "offset2", 20, loc2.getOffset() );
+
+    }
+
+
+    /**
+     * Runs all tests in this class
+     */
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestLocation.class ) );
     }
 }

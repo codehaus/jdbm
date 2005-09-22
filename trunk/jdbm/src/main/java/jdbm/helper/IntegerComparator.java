@@ -75,15 +75,18 @@ public final class IntegerComparator
      */
     public int compare( Object obj1, Object obj2 )
     {
-        if ( obj1 == obj2 ) {
+        if ( obj1 == obj2 )
+        {
             return 0;
         }
 
-        if ( obj1 == null ) {
+        if ( obj1 == null )
+        {
             throw new IllegalArgumentException( "Argument 'obj1' is null" );
         }
 
-        if ( obj2 == null ) {
+        if ( obj2 == null )
+        {
             throw new IllegalArgumentException( "Argument 'obj2' is null" );
         }
 
@@ -91,14 +94,18 @@ public final class IntegerComparator
         // method is Java 1.2 only!
         int int1 = ( (Integer) obj1 ).intValue();
         int int2 = ( (Integer) obj2 ).intValue();
-        if ( int1 == int2 ) {
+        if ( int1 == int2 )
+        {
             return 0;
         }
 
-        if ( int1 < int2 ) {
-          return -1;
-        } else {
-          return 1;
+        if ( int1 < int2 )
+        {
+            return -1;
+        }
+        else
+        {
+            return 1;
         }
     }
 

@@ -49,73 +49,80 @@ package jdbm.htree;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.recman.TestRecordFile;
+
 import java.io.IOException;
 import java.util.Properties;
 
 import junit.framework.*;
 
 /**
- *  This class contains all Unit tests for {@link HashBucket}.
+ * This class contains all Unit tests for {@link HashBucket}.
  *
- *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id$
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id$
  */
-public class TestHashBucket extends TestCase {
+public class TestHashBucket extends TestCase
+{
 
-    public TestHashBucket(String name) {
-        super(name);
+    public TestHashBucket( String name )
+    {
+        super( name );
     }
 
-    public void setUp() {
+    public void setUp()
+    {
         TestRecordFile.deleteTestFile();
     }
 
-    public void tearDown() {
+    public void tearDown()
+    {
         TestRecordFile.deleteTestFile();
     }
 
 
     /**
-     *  Basic tests
+     * Basic tests
      */
-    public void testBasics() throws IOException {
+    public void testBasics() throws IOException
+    {
 
         Properties props = new Properties();
         RecordManager recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName, props );
-        HashBucket bucket = new HashBucket(0);
+        HashBucket bucket = new HashBucket( 0 );
 
         // add
-        bucket.addElement("key", "value");
-        String s = (String)bucket.getValue("key");
-        assertEquals("value", s);
+        bucket.addElement( "key", "value" );
+        String s = (String) bucket.getValue( "key" );
+        assertEquals( "value", s );
 
         // replace
-        bucket.addElement("key", "value2");
-        s = (String)bucket.getValue("key");
-        assertEquals("value2", s);
+        bucket.addElement( "key", "value2" );
+        s = (String) bucket.getValue( "key" );
+        assertEquals( "value2", s );
 
         // add
-        bucket.addElement("key2", "value3");
-        s = (String)bucket.getValue("key2");
-        assertEquals("value3", s);
+        bucket.addElement( "key2", "value3" );
+        s = (String) bucket.getValue( "key2" );
+        assertEquals( "value3", s );
 
         // remove
-        bucket.removeElement("key2");
-        s = (String)bucket.getValue("key2");
-        assertEquals(null, s);
-        bucket.removeElement("key");
-        s = (String)bucket.getValue("key");
-        assertEquals(null, s);
+        bucket.removeElement( "key2" );
+        s = (String) bucket.getValue( "key2" );
+        assertEquals( null, s );
+        bucket.removeElement( "key" );
+        s = (String) bucket.getValue( "key" );
+        assertEquals( null, s );
 
         recman.close();
     }
 
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestHashBucket.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestHashBucket.class ) );
     }
 
 }

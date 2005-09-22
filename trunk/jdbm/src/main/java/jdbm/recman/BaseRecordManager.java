@@ -58,23 +58,23 @@ import jdbm.helper.Serializer;
 import jdbm.helper.DefaultSerializer;
 
 /**
- *  This class manages records, which are uninterpreted blobs of data. The
- *  set of operations is simple and straightforward: you communicate with
- *  the class using long "rowids" and byte[] data blocks. Rowids are returned
- *  on inserts and you can stash them away someplace safe to be able to get
- *  back to them. Data blocks can be as long as you wish, and may have
- *  lengths different from the original when updating.
- *  <p>
- *  Operations are synchronized, so that only one of them will happen
- *  concurrently even if you hammer away from multiple threads. Operations
- *  are made atomic by keeping a transaction log which is recovered after
- *  a crash, so the operations specified by this interface all have ACID
- *  properties.
- *  <p>
- *  You identify a file by just the name. The package attaches <tt>.db</tt>
- *  for the database file, and <tt>.lg</tt> for the transaction log. The
- *  transaction log is synchronized regularly and then restarted, so don't
- *  worry if you see the size going up and down.
+ * This class manages records, which are uninterpreted blobs of data. The
+ * set of operations is simple and straightforward: you communicate with
+ * the class using long "rowids" and byte[] data blocks. Rowids are returned
+ * on inserts and you can stash them away someplace safe to be able to get
+ * back to them. Data blocks can be as long as you wish, and may have
+ * lengths different from the original when updating.
+ * <p/>
+ * Operations are synchronized, so that only one of them will happen
+ * concurrently even if you hammer away from multiple threads. Operations
+ * are made atomic by keeping a transaction log which is recovered after
+ * a crash, so the operations specified by this interface all have ACID
+ * properties.
+ * <p/>
+ * You identify a file by just the name. The package attaches <tt>.db</tt>
+ * for the database file, and <tt>.lg</tt> for the transaction log. The
+ * transaction log is synchronized regularly and then restarted, so don't
+ * worry if you see the size going up and down.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
@@ -119,7 +119,7 @@ public final class BaseRecordManager
      */
     public static final boolean DEBUG = false;
 
-    
+
     /**
      * Directory of named JDBMHashtables.  This directory is a persistent
      * directory, stored as a Hashtable.  It can be retrived by using
@@ -129,10 +129,10 @@ public final class BaseRecordManager
 
 
     /**
-     *  Creates a record manager for the indicated file
+     * Creates a record manager for the indicated file
      *
-     *  @throws IOException when the file cannot be opened or is not
-     *          a valid file content-wise.
+     * @throws IOException when the file cannot be opened or is not
+     *                     a valid file content-wise.
      */
     public BaseRecordManager( String filename )
         throws IOException
@@ -145,7 +145,7 @@ public final class BaseRecordManager
 
 
     /**
-     *  Get the underlying Transaction Manager
+     * Get the underlying Transaction Manager
      */
     public synchronized TransactionManager getTransactionManager()
     {
@@ -156,13 +156,13 @@ public final class BaseRecordManager
 
 
     /**
-     *  Switches off transactioning for the record manager. This means
-     *  that a) a transaction log is not kept, and b) writes aren't
-     *  synch'ed after every update. This is useful when batch inserting
-     *  into a new database.
-     *  <p>
-     *  Only call this method directly after opening the file, otherwise
-     *  the results will be undefined.
+     * Switches off transactioning for the record manager. This means
+     * that a) a transaction log is not kept, and b) writes aren't
+     * synch'ed after every update. This is useful when batch inserting
+     * into a new database.
+     * <p/>
+     * Only call this method directly after opening the file, otherwise
+     * the results will be undefined.
      */
     public synchronized void disableTransactions()
     {
@@ -171,11 +171,11 @@ public final class BaseRecordManager
         _file.disableTransactions();
     }
 
-    
+
     /**
-     *  Closes the record manager.
+     * Closes the record manager.
      *
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized void close()
         throws IOException
@@ -191,11 +191,11 @@ public final class BaseRecordManager
 
 
     /**
-     *  Inserts a new record using standard java object serialization.
+     * Inserts a new record using standard java object serialization.
      *
-     *  @param obj the object for the new record.
-     *  @returns the rowid for the new record.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param obj the object for the new record.
+     * @throws IOException when one of the underlying I/O operations fails.
+     * @returns the rowid for the new record.
      */
     public long insert( Object obj )
         throws IOException
@@ -203,50 +203,53 @@ public final class BaseRecordManager
         return insert( obj, DefaultSerializer.INSTANCE );
     }
 
-    
+
     /**
-     *  Inserts a new record using a custom serializer.
+     * Inserts a new record using a custom serializer.
      *
-     *  @param obj the object for the new record.
-     *  @param serializer a custom serializer
-     *  @returns the rowid for the new record.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param obj        the object for the new record.
+     * @param serializer a custom serializer
+     * @throws IOException when one of the underlying I/O operations fails.
+     * @returns the rowid for the new record.
      */
     public synchronized long insert( Object obj, Serializer serializer )
         throws IOException
     {
         byte[]    data;
-        long      recid;
-        Location  physRowId;
-        
+        long recid;
+        Location physRowId;
+
         checkIfClosed();
 
         data = serializer.serialize( obj );
         physRowId = _physMgr.insert( data, 0, data.length );
         recid = _logMgr.insert( physRowId ).toLong();
-        if ( DEBUG ) {
-            System.out.println( "BaseRecordManager.insert() recid " + recid + " length " + data.length ) ;
+        if ( DEBUG )
+        {
+            System.out.println( "BaseRecordManager.insert() recid " + recid + " length " + data.length );
         }
         return recid;
     }
 
     /**
-     *  Deletes a record.
+     * Deletes a record.
      *
-     *  @param rowid the rowid for the record that should be deleted.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param rowid the rowid for the record that should be deleted.
+     * @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized void delete( long recid )
         throws IOException
     {
         checkIfClosed();
-        if ( recid <= 0 ) {
+        if ( recid <= 0 )
+        {
             throw new IllegalArgumentException( "Argument 'recid' is invalid: "
-                                                + recid );
+                + recid );
         }
 
-        if ( DEBUG ) {
-            System.out.println( "BaseRecordManager.delete() recid " + recid ) ;
+        if ( DEBUG )
+        {
+            System.out.println( "BaseRecordManager.delete() recid " + recid );
         }
 
         Location logRowId = new Location( recid );
@@ -257,11 +260,11 @@ public final class BaseRecordManager
 
 
     /**
-     *  Updates a record using standard java object serialization.
+     * Updates a record using standard java object serialization.
      *
-     *  @param recid the recid for the record that is to be updated.
-     *  @param obj the new object for the record.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param recid the recid for the record that is to be updated.
+     * @param obj   the new object for the record.
+     * @throws IOException when one of the underlying I/O operations fails.
      */
     public void update( long recid, Object obj )
         throws IOException
@@ -269,45 +272,48 @@ public final class BaseRecordManager
         update( recid, obj, DefaultSerializer.INSTANCE );
     }
 
-    
+
     /**
-     *  Updates a record using a custom serializer.
+     * Updates a record using a custom serializer.
      *
-     *  @param recid the recid for the record that is to be updated.
-     *  @param obj the new object for the record.
-     *  @param serializer a custom serializer
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param recid      the recid for the record that is to be updated.
+     * @param obj        the new object for the record.
+     * @param serializer a custom serializer
+     * @throws IOException when one of the underlying I/O operations fails.
      */
     public synchronized void update( long recid, Object obj, Serializer serializer )
         throws IOException
     {
         checkIfClosed();
-        if ( recid <= 0 ) {
+        if ( recid <= 0 )
+        {
             throw new IllegalArgumentException( "Argument 'recid' is invalid: "
-                                                + recid );
+                + recid );
         }
 
         Location logRecid = new Location( recid );
         Location physRecid = _logMgr.fetch( logRecid );
-        
+
         byte[] data = serializer.serialize( obj );
-        if ( DEBUG ) {
-            System.out.println( "BaseRecordManager.update() recid " + recid + " length " + data.length ) ;
+        if ( DEBUG )
+        {
+            System.out.println( "BaseRecordManager.update() recid " + recid + " length " + data.length );
         }
-        
+
         Location newRecid = _physMgr.update( physRecid, data, 0, data.length );
-        if ( ! newRecid.equals( physRecid ) ) {
+        if ( ! newRecid.equals( physRecid ) )
+        {
             _logMgr.update( logRecid, newRecid );
         }
     }
 
 
     /**
-     *  Fetches a record using standard java object serialization.
+     * Fetches a record using standard java object serialization.
      *
-     *  @param recid the recid for the record that must be fetched.
-     *  @returns the object contained in the record.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param recid the recid for the record that must be fetched.
+     * @throws IOException when one of the underlying I/O operations fails.
+     * @returns the object contained in the record.
      */
     public Object fetch( long recid )
         throws IOException
@@ -317,12 +323,12 @@ public final class BaseRecordManager
 
 
     /**
-     *  Fetches a record using a custom serializer.
+     * Fetches a record using a custom serializer.
      *
-     *  @param recid the recid for the record that must be fetched.
-     *  @param serializer a custom serializer
-     *  @returns the object contained in the record.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param recid      the recid for the record that must be fetched.
+     * @param serializer a custom serializer
+     * @throws IOException when one of the underlying I/O operations fails.
+     * @returns the object contained in the record.
      */
     public synchronized Object fetch( long recid, Serializer serializer )
         throws IOException
@@ -330,23 +336,25 @@ public final class BaseRecordManager
         byte[] data;
 
         checkIfClosed();
-        if ( recid <= 0 ) {
+        if ( recid <= 0 )
+        {
             throw new IllegalArgumentException( "Argument 'recid' is invalid: "
-                                                + recid );
+                + recid );
         }
         data = _physMgr.fetch( _logMgr.fetch( new Location( recid ) ) );
-        if ( DEBUG ) {
-            System.out.println( "BaseRecordManager.fetch() recid " + recid + " length " + data.length ) ;
+        if ( DEBUG )
+        {
+            System.out.println( "BaseRecordManager.fetch() recid " + recid + " length " + data.length );
         }
         return serializer.deserialize( data );
     }
 
 
     /**
-     *  Returns the number of slots available for "root" rowids. These slots
-     *  can be used to store special rowids, like rowids that point to
-     *  other rowids. Root rowids are useful for bootstrapping access to
-     *  a set of data.
+     * Returns the number of slots available for "root" rowids. These slots
+     * can be used to store special rowids, like rowids that point to
+     * other rowids. Root rowids are useful for bootstrapping access to
+     * a set of data.
      */
     public int getRootCount()
     {
@@ -354,9 +362,9 @@ public final class BaseRecordManager
     }
 
     /**
-     *  Returns the indicated root rowid.
+     * Returns the indicated root rowid.
      *
-     *  @see getRootCount
+     * @see getRootCount
      */
     public synchronized long getRoot( int id )
         throws IOException
@@ -368,9 +376,9 @@ public final class BaseRecordManager
 
 
     /**
-     *  Sets the indicated root rowid.
+     * Sets the indicated root rowid.
      *
-     *  @see getRootCount
+     * @see getRootCount
      */
     public synchronized void setRoot( int id, long rowid )
         throws IOException
@@ -392,7 +400,8 @@ public final class BaseRecordManager
 
         Map nameDirectory = getNameDirectory();
         Long recid = (Long) nameDirectory.get( name );
-        if ( recid == null ) {
+        if ( recid == null )
+        {
             return 0;
         }
         return recid.longValue();
@@ -407,10 +416,13 @@ public final class BaseRecordManager
         checkIfClosed();
 
         Map nameDirectory = getNameDirectory();
-        if ( recid == 0 ) {
+        if ( recid == 0 )
+        {
             // remove from hashtable
             nameDirectory.remove( name );
-        } else {
+        }
+        else
+        {
             nameDirectory.put( name, new Long( recid ) );
         }
         saveNameDirectory( nameDirectory );
@@ -449,11 +461,14 @@ public final class BaseRecordManager
     {
         // retrieve directory of named hashtable
         long nameDirectory_recid = getRoot( NAME_DIRECTORY_ROOT );
-        if ( nameDirectory_recid == 0 ) {
+        if ( nameDirectory_recid == 0 )
+        {
             _nameDirectory = new HashMap();
             nameDirectory_recid = insert( _nameDirectory );
             setRoot( NAME_DIRECTORY_ROOT, nameDirectory_recid );
-        } else {
+        }
+        else
+        {
             _nameDirectory = (Map) fetch( nameDirectory_recid );
         }
         return _nameDirectory;
@@ -464,7 +479,8 @@ public final class BaseRecordManager
         throws IOException
     {
         long recid = getRoot( NAME_DIRECTORY_ROOT );
-        if ( recid == 0 ) {
+        if ( recid == 0 )
+        {
             throw new IOException( "Name directory must exist" );
         }
         update( recid, _nameDirectory );
@@ -478,7 +494,8 @@ public final class BaseRecordManager
     private void checkIfClosed()
         throws IllegalStateException
     {
-        if ( _file == null ) {
+        if ( _file == null )
+        {
             throw new IllegalStateException( "RecordManager has been closed" );
         }
     }

@@ -25,66 +25,75 @@ package jdbm.recman;
 import junit.framework.*;
 
 /**
- *  This class contains all Unit tests for {@link PageManager}.
+ * This class contains all Unit tests for {@link PageManager}.
  */
-public class TestPageManager extends TestCase {
+public class TestPageManager extends TestCase
+{
 
-    public TestPageManager(String name) {
-        super(name);
+    public TestPageManager( String name )
+    {
+        super( name );
     }
 
-    public void setUp() {
+    public void setUp()
+    {
         TestRecordFile.deleteTestFile();
     }
 
-    public void tearDown() {
+    public void tearDown()
+    {
         TestRecordFile.deleteTestFile();
     }
 
     /**
-     *  Test constructor
+     * Test constructor
      */
-    public void testCtor() throws Exception {
-        RecordFile f = new RecordFile(TestRecordFile.testFileName);
-        PageManager pm = new PageManager(f);
+    public void testCtor() throws Exception
+    {
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
+        PageManager pm = new PageManager( f );
 
         f.forceClose();
     }
 
     /**
-     *  Test allocations on a single list.
+     * Test allocations on a single list.
      */
-    public void testAllocSingleList() throws Exception {
-        RecordFile f = new RecordFile(TestRecordFile.testFileName);
-        PageManager pm = new PageManager(f);
-        for (int i = 0; i < 100; i++) {
-            assertEquals("allocate ", (long) i + 1,
-             pm.allocate(Magic.USED_PAGE));
+    public void testAllocSingleList() throws Exception
+    {
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
+        PageManager pm = new PageManager( f );
+        for ( int i = 0; i < 100; i++ )
+        {
+            assertEquals( "allocate ", (long) i + 1,
+                          pm.allocate( Magic.USED_PAGE ) );
         }
         pm.close();
         f.close();
 
-        f = new RecordFile(TestRecordFile.testFileName);
-        pm = new PageManager(f);
-        PageCursor curs = new PageCursor(pm, Magic.USED_PAGE);
+        f = new RecordFile( TestRecordFile.testFileName );
+        pm = new PageManager( f );
+        PageCursor curs = new PageCursor( pm, Magic.USED_PAGE );
         long i = 1;
-        while (true) {
+        while ( true )
+        {
             long cur = curs.next();
-            if (cur == 0)
-          break;
-            assertEquals("next", i++, cur);
-            if (i > 120)
-          fail("list structure not ok");
+            if ( cur == 0 )
+                break;
+            assertEquals( "next", i++, cur );
+            if ( i > 120 )
+                fail( "list structure not ok" );
         }
-        assertEquals("total", 101, i);
+        assertEquals( "total", 101, i );
         pm.close();
         f.close();
     }
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestPageManager.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestPageManager.class ) );
     }
 }

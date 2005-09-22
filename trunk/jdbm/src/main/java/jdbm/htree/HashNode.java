@@ -89,35 +89,25 @@
  */
 
 
-
 package jdbm.htree;
-
 
 
 import java.io.Serializable;
 
 
-
 /**
-
- *  Abstract class for Hashtable directory nodes
-
+ * Abstract class for Hashtable directory nodes
  *
-
- *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
-
- *  @version $Id$
-
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id$
  */
 
-class HashNode implements Serializable {
-
-
+class HashNode implements Serializable
+{
 
     // Empty, there's no common functionality.  We use this abstract
 
     // class for typing only.
-
 
 
 }

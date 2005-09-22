@@ -56,10 +56,12 @@ import junit.framework.TestSuite;
  * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
  * @version $Id$
  */
-public class AllTests extends TestCase {
+public class AllTests extends TestCase
+{
 
-    public AllTests(String name) {
-        super(name);
+    public AllTests( String name )
+    {
+        super( name );
     }
 
     /**
@@ -71,12 +73,13 @@ public class AllTests extends TestCase {
      * <li>{@link jdbm.htree.Test}</li>
      * </ol>
      */
-    public static junit.framework.Test suite() {
-      TestSuite suite = new TestSuite();
-        suite.addTest(jdbm.helper.Test.suite());
-        suite.addTest(jdbm.recman.Test.suite());
-        suite.addTest(jdbm.btree.Test.suite());
-        suite.addTest(jdbm.htree.Test.suite());
+    public static junit.framework.Test suite()
+    {
+        TestSuite suite = new TestSuite();
+        suite.addTest( jdbm.helper.Test.suite() );
+        suite.addTest( jdbm.recman.Test.suite() );
+        suite.addTest( jdbm.btree.Test.suite() );
+        suite.addTest( jdbm.htree.Test.suite() );
         return suite;
     }
 }

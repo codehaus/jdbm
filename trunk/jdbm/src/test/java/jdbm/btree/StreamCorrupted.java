@@ -89,9 +89,7 @@
  */
 
 
-
 package jdbm.btree;
-
 
 
 import jdbm.RecordManager;
@@ -105,81 +103,73 @@ import jdbm.recman.TestRecordFile;
 import jdbm.btree.BTree;
 
 
-
 import java.io.IOException;
-
 
 
 import junit.framework.*;
 
 
-
 /**
-
  * Contributed test case for BTree by Christof Dallermassl (cdaller@iicm.edu):
-
- *
-
+ * <p/>
+ * <p/>
+ * <p/>
  * -= quote from original message posted on jdbm-general =-
-
+ * <p/>
  * <pre>
-
- *
-
+ * <p/>
+ * <p/>
+ * <p/>
  * I tried to insert a couple of elements into a BTree and then remove
-
+ * <p/>
  * them one by one. After a number or removals, there is always (if more
-
+ * <p/>
  * than 20 elements in btree) a java.io.StreamCorruptedException thrown.
-
- *
-
+ * <p/>
+ * <p/>
+ * <p/>
  * The strange thing is, that on 50 elements, the exception is thrown
-
+ * <p/>
  * after removing 22, on 200 it is thrown after 36, on 1000 it is thrown
-
+ * <p/>
  * after 104, on 10000 it is thrown after 1003....
-
- *
-
+ * <p/>
+ * <p/>
+ * <p/>
  * The full stackTrace is here:
-
+ * <p/>
  * ---------------------- snip ------- snap -------------------------
-
+ * <p/>
  * java.io.StreamCorruptedException: Caught EOFException while reading the
-
+ * <p/>
  * stream header
-
+ * <p/>
  *   at java.io.ObjectInputStream.readStreamHeader(ObjectInputStream.java:845)
-
+ * <p/>
  *   at java.io.ObjectInputStream.<init>(ObjectInputStream.java:168)
-
+ * <p/>
  *   at jdbm.recman.RecordManager.byteArrayToObject(RecordManager.java:296)
-
+ * <p/>
  *   at jdbm.recman.RecordManager.fetchObject(RecordManager.java:239)
-
+ * <p/>
  *   at jdbm.helper.ObjectCache.fetchObject(ObjectCache.java:104)
-
+ * <p/>
  *   at jdbm.btree.BPage.loadBPage(BPage.java:670)
-
+ * <p/>
  *   at jdbm.btree.BPage.remove(BPage.java:492)
-
+ * <p/>
  *   at jdbm.btree.BPage.remove(BPage.java:437)
-
+ * <p/>
  *   at jdbm.btree.BTree.remove(BTree.java:313)
-
+ * <p/>
  *   at JDBMTest.main(JDBMTest.java:41)
-
- *
-
+ * <p/>
+ * <p/>
+ * <p/>
  * </pre>
-
  *
-
- *  @author <a href="mailto:cdaller@iicm.edu">Christof Dallermassl</a>
-
- *  @version $Id$
-
+ * @author <a href="mailto:cdaller@iicm.edu">Christof Dallermassl</a>
+ * @version $Id$
  */
 
 public class StreamCorrupted
@@ -189,37 +179,32 @@ public class StreamCorrupted
 {
 
 
-
-    public StreamCorrupted( String name ) {
+    public StreamCorrupted( String name )
+    {
 
         super( name );
 
     }
 
 
-
-    public void setUp() {
-
-        TestRecordFile.deleteTestFile();
-
-    }
-
-
-
-    public void tearDown() {
+    public void setUp()
+    {
 
         TestRecordFile.deleteTestFile();
 
     }
 
 
+    public void tearDown()
+    {
 
+        TestRecordFile.deleteTestFile();
+
+    }
 
 
     /**
-
-     *  Basic tests
-
+     * Basic tests
      */
 
     public void testStreamCorrupted()
@@ -228,23 +213,18 @@ public class StreamCorrupted
 
     {
 
-        RecordManager  recman;
+        RecordManager recman;
 
-        BTree          btree;
+        BTree btree;
 
-        int            iterations;
-
+        int iterations;
 
 
         iterations = 100; // 23 works :-(((((
 
-
-
         // open database
 
         recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
-
-
 
         // create a new B+Tree data structure
 
@@ -252,31 +232,25 @@ public class StreamCorrupted
 
         recman.setNamedObject( "testbtree", btree.getRecid() );
 
-
-
         // action:
-
-
 
         // insert data
 
-        for( int count = 0; count < iterations; count++ ) {
+        for ( int count = 0; count < iterations; count++ )
+        {
 
             btree.insert( "num" + count, new Integer( count ), true );
 
         }
 
-
-
         // delete data
 
-        for( int count = 0; count < iterations; count++ ) {
+        for ( int count = 0; count < iterations; count++ )
+        {
 
             btree.remove( "num" + count );
 
         }
-
-
 
         // close database
 
@@ -287,21 +261,16 @@ public class StreamCorrupted
     }
 
 
-
-
-
     /**
-
-     *  Runs all tests in this class
-
+     * Runs all tests in this class
      */
 
-    public static void main(String[] args) {
+    public static void main( String[] args )
+    {
 
         junit.textui.TestRunner.run( new TestSuite( StreamCorrupted.class ) );
 
     }
-
 
 
 }

@@ -24,35 +24,42 @@ package jdbm.recman;
 
 import junit.framework.*;
 
-public class Test extends TestCase {
+public class Test extends TestCase
+{
 
-  public Test(String name) { super(name); }
+    public Test( String name )
+    {
+        super( name );
+    }
 
-  public static junit.framework.Test suite() {
-    TestSuite retval = new TestSuite();
-    retval.addTest(new TestSuite(TestBlockIo.class));
-    retval.addTest(new TestSuite(TestLocation.class));
-    retval.addTest(new TestSuite(TestFileHeader.class));
-    retval.addTest(new TestSuite(TestPhysicalRowId.class));
-    retval.addTest(new TestSuite(TestFreePhysicalRowId.class));
-    retval.addTest(new TestSuite(TestFreePhysicalRowIdPage.class));
-    retval.addTest(new TestSuite(TestFreePhysicalRowIdPageManager.class));
-    retval.addTest(new TestSuite(TestFreeLogicalRowIdPage.class));
-    retval.addTest(new TestSuite(TestFreeLogicalRowIdPageManager.class));
-    retval.addTest(new TestSuite(TestRecordHeader.class));
-    retval.addTest(new TestSuite(TestTransactionManager.class));
-    retval.addTest(new TestSuite(TestRecordFile.class));
-    retval.addTest(new TestSuite(TestPageHeader.class));
-    retval.addTest(new TestSuite(TestPageCursor.class));
-    retval.addTest(new TestSuite(TestPageManager.class));
-    retval.addTest(new TestSuite(TestDataPage.class));
-    retval.addTest(new TestSuite(TestPhysicalRowIdManager.class));
-    retval.addTest(new TestSuite(TestLogicalRowIdManager.class));
-    retval.addTest(new TestSuite(TestRecordManager.class));
-    return retval;
-  }
-  public static void main(String[] args) {
-    junit.textui.TestRunner.run(suite());
-  }
+    public static junit.framework.Test suite()
+    {
+        TestSuite retval = new TestSuite();
+        retval.addTest( new TestSuite( TestBlockIo.class ) );
+        retval.addTest( new TestSuite( TestLocation.class ) );
+        retval.addTest( new TestSuite( TestFileHeader.class ) );
+        retval.addTest( new TestSuite( TestPhysicalRowId.class ) );
+        retval.addTest( new TestSuite( TestFreePhysicalRowId.class ) );
+        retval.addTest( new TestSuite( TestFreePhysicalRowIdPage.class ) );
+        retval.addTest( new TestSuite( TestFreePhysicalRowIdPageManager.class ) );
+        retval.addTest( new TestSuite( TestFreeLogicalRowIdPage.class ) );
+        retval.addTest( new TestSuite( TestFreeLogicalRowIdPageManager.class ) );
+        retval.addTest( new TestSuite( TestRecordHeader.class ) );
+        retval.addTest( new TestSuite( TestTransactionManager.class ) );
+        retval.addTest( new TestSuite( TestRecordFile.class ) );
+        retval.addTest( new TestSuite( TestPageHeader.class ) );
+        retval.addTest( new TestSuite( TestPageCursor.class ) );
+        retval.addTest( new TestSuite( TestPageManager.class ) );
+        retval.addTest( new TestSuite( TestDataPage.class ) );
+        retval.addTest( new TestSuite( TestPhysicalRowIdManager.class ) );
+        retval.addTest( new TestSuite( TestLogicalRowIdManager.class ) );
+        retval.addTest( new TestSuite( TestRecordManager.class ) );
+        return retval;
+    }
+
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( suite() );
+    }
 
 }

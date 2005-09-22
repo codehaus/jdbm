@@ -25,56 +25,64 @@ package jdbm.recman;
 import junit.framework.*;
 
 /**
- *  This class contains all Unit tests for {@link FreeLogicalRowIdPageManager}.
+ * This class contains all Unit tests for {@link FreeLogicalRowIdPageManager}.
  */
-public class TestFreeLogicalRowIdPageManager extends TestCase {
+public class TestFreeLogicalRowIdPageManager extends TestCase
+{
 
-    public TestFreeLogicalRowIdPageManager(String name) {
-  super(name);
+    public TestFreeLogicalRowIdPageManager( String name )
+    {
+        super( name );
     }
 
-    public void setUp() {
-  TestRecordFile.deleteTestFile();
-    }
-    public void tearDown() {
-  TestRecordFile.deleteTestFile();
+    public void setUp()
+    {
+        TestRecordFile.deleteTestFile();
     }
 
-    /**
-     *  Test constructor
-     */
-    public void testCtor() throws Exception {
-  RecordFile f = new RecordFile(TestRecordFile.testFileName);
-  PageManager pm = new PageManager(f);
-  FreeLogicalRowIdPageManager freeMgr =
-      new FreeLogicalRowIdPageManager(f, pm);
-
-      pm.close();
-      f.close();
+    public void tearDown()
+    {
+        TestRecordFile.deleteTestFile();
     }
 
     /**
-     *  Test basics
+     * Test constructor
      */
-    public void testBasics() throws Exception {
-  RecordFile f = new RecordFile(TestRecordFile.testFileName);
-  PageManager pm = new PageManager(f);
-  FreeLogicalRowIdPageManager freeMgr =
-      new FreeLogicalRowIdPageManager(f, pm);
+    public void testCtor() throws Exception
+    {
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
+        PageManager pm = new PageManager( f );
+        FreeLogicalRowIdPageManager freeMgr =
+            new FreeLogicalRowIdPageManager( f, pm );
 
-  // allocate a rowid - should fail on an empty file
-  Location loc = freeMgr.get();
-  assertTrue("loc is not null?", loc == null);
+        pm.close();
+        f.close();
+    }
 
-      pm.close();
-      f.close();
+    /**
+     * Test basics
+     */
+    public void testBasics() throws Exception
+    {
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
+        PageManager pm = new PageManager( f );
+        FreeLogicalRowIdPageManager freeMgr =
+            new FreeLogicalRowIdPageManager( f, pm );
+
+        // allocate a rowid - should fail on an empty file
+        Location loc = freeMgr.get();
+        assertTrue( "loc is not null?", loc == null );
+
+        pm.close();
+        f.close();
     }
 
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-  junit.textui.TestRunner.run(new TestSuite(TestFreeLogicalRowIdPageManager.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestFreeLogicalRowIdPageManager.class ) );
     }
 }

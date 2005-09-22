@@ -104,7 +104,7 @@ public class RecordManagerOptions
     /**
      * Use soft references {$link java.lang.ref.SoftReference} for the record
      * cache instead of the default normal object references.
-     * <p>
+     * <p/>
      * Soft references are cleared at the discretion of the garbage collector
      * in response to memory demand.
      */
@@ -114,7 +114,7 @@ public class RecordManagerOptions
     /**
      * Use weak references {$link java.lang.ref.WeakReference} for the record
      * cache instead of the default normal object references.
-     * <p>
+     * <p/>
      * Weak references do not prevent their referents from being made
      * finalizable, finalized, and then reclaimed.
      */

@@ -26,48 +26,53 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- *  This class contains all Unit tests for {@link DataPage}.
+ * This class contains all Unit tests for {@link DataPage}.
  */
-public class TestDataPage extends TestCase {
+public class TestDataPage extends TestCase
+{
 
-    public TestDataPage(String name) {
-  super(name);
-    }
-    
-
-    /**
-     *  Test basics - read and write at an offset
-     */
-    public void testReadWrite() throws Exception {
-  byte[] data = new byte[RecordFile.BLOCK_SIZE];
-  BlockIo test = new BlockIo(0, data);
-  test.writeShort(0, (short) (Magic.BLOCK + Magic.USED_PAGE));
-  
-  DataPage page = new DataPage(test);
-  page.setFirst((short) 1000);
-  
-  assertEquals("first", 1000, page.getFirst());
+    public TestDataPage( String name )
+    {
+        super( name );
     }
 
-    /**
-     *  Test factory method.
-     */
-    public void testFactory() throws Exception {
-  byte[] data = new byte[RecordFile.BLOCK_SIZE];
-  BlockIo test = new BlockIo(0, data);
-  test.writeShort(0, (short) (Magic.BLOCK + Magic.USED_PAGE));
 
-  DataPage page = DataPage.getDataPageView(test);
-  page.setFirst((short) 1000);
-  
-  assertEquals("first", 1000, page.getFirst());
-    }
-    
-    
     /**
-     *  Runs all tests in this class
+     * Test basics - read and write at an offset
      */
-    public static void main(String[] args) {
-  junit.textui.TestRunner.run(new TestSuite(TestDataPage.class));
+    public void testReadWrite() throws Exception
+    {
+        byte[] data = new byte[RecordFile.BLOCK_SIZE];
+        BlockIo test = new BlockIo( 0, data );
+        test.writeShort( 0, (short) ( Magic.BLOCK + Magic.USED_PAGE ) );
+
+        DataPage page = new DataPage( test );
+        page.setFirst( (short) 1000 );
+
+        assertEquals( "first", 1000, page.getFirst() );
+    }
+
+    /**
+     * Test factory method.
+     */
+    public void testFactory() throws Exception
+    {
+        byte[] data = new byte[RecordFile.BLOCK_SIZE];
+        BlockIo test = new BlockIo( 0, data );
+        test.writeShort( 0, (short) ( Magic.BLOCK + Magic.USED_PAGE ) );
+
+        DataPage page = DataPage.getDataPageView( test );
+        page.setFirst( (short) 1000 );
+
+        assertEquals( "first", 1000, page.getFirst() );
+    }
+
+
+    /**
+     * Runs all tests in this class
+     */
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestDataPage.class ) );
     }
 }

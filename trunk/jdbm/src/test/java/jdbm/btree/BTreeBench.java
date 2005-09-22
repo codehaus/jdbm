@@ -56,42 +56,51 @@ import java.util.Hashtable;
 import java.io.IOException;
 
 /**
- *  Random insertion/removal test for B+Tree data structure.
+ * Random insertion/removal test for B+Tree data structure.
  *
- *  @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
- *  @version $Id$
+ * @author <a href="mailto:boisvert@exoffice.com">Alex Boisvert</a>
+ * @version $Id$
  */
-public class BTreeBench {
+public class BTreeBench
+{
 
     static final int ITERATIONS = 1000000;
 
-    public static void main( String[] args ) {
+    public static void main( String[] args )
+    {
 
         RecordManager recman;
         BTree tree = null;
 
-        try {
+        try
+        {
             recman = RecordManagerFactory.createRecordManager( "test" );
             tree = BTree.createInstance( recman, new LongComparator(), null, null, 32 );
 
             Hashtable hash = new Hashtable();
 
-            for ( int i=0; i<ITERATIONS; i++) {
+            for ( int i = 0; i < ITERATIONS; i++ )
+            {
                 Long random = new Long( random( 0, 64000 ) );
 
-                if ( ( i % 5000 ) == 0 ) {
+                if ( ( i % 5000 ) == 0 )
+                {
                     System.out.println( "Iterations=" + i + " Objects=" + tree.size() );
                     recman.commit();
                 }
-                if ( hash.get( random ) == null ) {
+                if ( hash.get( random ) == null )
+                {
                     //System.out.println( "Insert " + random );
                     hash.put( random, random );
                     tree.insert( random, random, false );
-                } else {
+                }
+                else
+                {
                     //System.out.println( "Remove " + random );
                     hash.remove( random );
                     Object removed = (Object) tree.remove( random );
-                    if ( ( removed == null ) || ( ! removed.equals( random ) ) ) {
+                    if ( ( removed == null ) || ( ! removed.equals( random ) ) )
+                    {
                         throw new IllegalStateException( "Remove expected " + random + " got " + removed );
                     }
                 }
@@ -100,34 +109,42 @@ public class BTreeBench {
             }
 
             recman.close();
-        } catch ( Throwable except ) {
+        }
+        catch ( Throwable except )
+        {
             except.printStackTrace();
         }
     }
 
-    static long random( int min, int max ) {
-        return Math.round( Math.random() * ( max-min) ) + min;
+    static long random( int min, int max )
+    {
+        return Math.round( Math.random() * ( max - min ) ) + min;
     }
 
-    static void compare( BTree tree, Hashtable hash ) throws IOException {
+    static void compare( BTree tree, Hashtable hash ) throws IOException
+    {
         boolean failed = false;
         Enumeration enum;
 
-        if ( tree.size() != hash.size() ) {
+        if ( tree.size() != hash.size() )
+        {
             throw new IllegalStateException( "Tree size " + tree.size() + " Hash size " + hash.size() );
         }
 
         enum = hash.keys();
-        while ( enum.hasMoreElements() ) {
+        while ( enum.hasMoreElements() )
+        {
             Object key = (Object) enum.nextElement();
             Object hashValue = hash.get( key );
             Object treeValue = tree.find( key );
-            if ( ! hashValue.equals( treeValue ) ) {
+            if ( ! hashValue.equals( treeValue ) )
+            {
                 System.out.println( "Compare expected " + hashValue + " got " + treeValue );
                 failed = true;
             }
         }
-        if ( failed ) {
+        if ( failed )
+        {
             throw new IllegalStateException( "Compare failed" );
         }
     }

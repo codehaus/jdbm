@@ -73,26 +73,33 @@ public final class LongComparator
      * @return a positive integer if obj1 > obj2, 0 if obj1 == obj2,
      *         and a negative integer if obj1 < obj2
      */
-     public int compare( Object obj1, Object obj2 )
-     {
-        if ( obj1 == null ) {
+    public int compare( Object obj1, Object obj2 )
+    {
+        if ( obj1 == null )
+        {
             throw new IllegalArgumentException( "Argument 'obj1' is null" );
         }
 
-        if ( obj2 == null ) {
+        if ( obj2 == null )
+        {
             throw new IllegalArgumentException( "Argument 'obj2' is null" );
         }
 
         long l1 = ( (Long) obj1 ).longValue();
         long l2 = ( (Long) obj2 ).longValue();
 
-        if ( l1 > l2 ) {
+        if ( l1 > l2 )
+        {
             return 1;
-        } else if ( l1 == l2 ) {
+        }
+        else if ( l1 == l2 )
+        {
             return 0;
-        } else {
+        }
+        else
+        {
             return -1;
         }
-     }
+    }
 
 }

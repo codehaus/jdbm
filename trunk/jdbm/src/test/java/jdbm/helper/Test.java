@@ -49,24 +49,30 @@ package jdbm.helper;
 import junit.framework.*;
 
 /**
- *  Package test suite.
+ * Package test suite.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id$
  */
-public class Test extends TestCase {
+public class Test extends TestCase
+{
 
-  public Test(String name) { super(name); }
+    public Test( String name )
+    {
+        super( name );
+    }
 
-  public static junit.framework.Test suite() {
-      TestSuite retval = new TestSuite();
-      retval.addTest(new TestSuite(TestMRU.class));
-      retval.addTest(new TestSuite(TestSoftCache.class));
-      return retval;
-  }
+    public static junit.framework.Test suite()
+    {
+        TestSuite retval = new TestSuite();
+        retval.addTest( new TestSuite( TestMRU.class ) );
+        retval.addTest( new TestSuite( TestSoftCache.class ) );
+        return retval;
+    }
 
-  public static void main(String[] args) {
-      junit.textui.TestRunner.run(suite());
-  }
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( suite() );
+    }
 
 }

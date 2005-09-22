@@ -50,8 +50,8 @@ package jdbm.helper;
 import java.util.Enumeration;
 
 /**
- *  CachePolicity is an abstraction for different cache policies.
- *  (ie. MRU, time-based, soft-refs, ...)
+ * CachePolicity is an abstraction for different cache policies.
+ * (ie. MRU, time-based, soft-refs, ...)
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
@@ -65,7 +65,7 @@ public interface CachePolicy
      * an object for the key specified, this mapping is added. If an object
      * currently exists under the specified key, the current object is
      * replaced with the new object.
-     * <p>
+     * <p/>
      * If the changes to the cache cause the eviction of any objects
      * <strong>stored under other key(s)</strong>, events corresponding to
      * the evictions are fired for each object. If an event listener is
@@ -76,11 +76,11 @@ public interface CachePolicy
      * eviction failed is still in the cache, and the new insertion or
      * modification is reverted.
      *
-     * @param key key for the cached object
+     * @param key   key for the cached object
      * @param value the cached object
      * @throws CacheEvictionException propagated if, while evicting objects
-     *     to make room for new object, an eviction listener encountered
-     *     this problem.
+     *                                to make room for new object, an eviction listener encountered
+     *                                this problem.
      */
     public void put( Object key, Object value )
         throws CacheEvictionException;
@@ -121,7 +121,7 @@ public interface CachePolicy
 
     /**
      * Add a listener to this cache policy.
-     * <p>
+     * <p/>
      * If this cache policy already contains a listener that is equal to
      * the one being added, this call has no effect.
      *
@@ -129,9 +129,9 @@ public interface CachePolicy
      * @throws IllegalArgumentException if listener is null.
      */
     public void addListener( CachePolicyListener listener )
-            throws IllegalArgumentException;
+        throws IllegalArgumentException;
 
-    
+
     /**
      * Remove a listener from this cache policy. The listener is found
      * using object equality, not identity.

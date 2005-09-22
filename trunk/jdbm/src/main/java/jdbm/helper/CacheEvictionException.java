@@ -48,10 +48,10 @@
 package jdbm.helper;
 
 /**
- *  Exception that occurs during eviction of an object in the cache.
+ * Exception that occurs during eviction of an object in the cache.
  *
- *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id$
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id$
  */
 public class CacheEvictionException
     extends Exception

@@ -26,33 +26,37 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- *  This class contains all Unit tests for {@link PhysicalRowId}.
+ * This class contains all Unit tests for {@link PhysicalRowId}.
  */
-public class TestPhysicalRowId extends TestCase {
+public class TestPhysicalRowId extends TestCase
+{
 
-    public TestPhysicalRowId(String name) {
-  super(name);
+    public TestPhysicalRowId( String name )
+    {
+        super( name );
     }
-    
+
 
     /**
-     *  Test basics - read and write at an offset
+     * Test basics - read and write at an offset
      */
-    public void testReadWrite() throws Exception {
-  byte[] data = new byte[RecordFile.BLOCK_SIZE];
-  BlockIo test = new BlockIo(0, data);
-  PhysicalRowId rowid = new PhysicalRowId(test, (short) 6);
-  rowid.setBlock(1000);
-  rowid.setOffset((short) 2345);
-  
-  assertEquals("block", 1000, rowid.getBlock());
-  assertEquals("offset", 2345, rowid.getOffset());
+    public void testReadWrite() throws Exception
+    {
+        byte[] data = new byte[RecordFile.BLOCK_SIZE];
+        BlockIo test = new BlockIo( 0, data );
+        PhysicalRowId rowid = new PhysicalRowId( test, (short) 6 );
+        rowid.setBlock( 1000 );
+        rowid.setOffset( (short) 2345 );
+
+        assertEquals( "block", 1000, rowid.getBlock() );
+        assertEquals( "offset", 2345, rowid.getOffset() );
     }
-    
+
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-  junit.textui.TestRunner.run(new TestSuite(TestPhysicalRowId.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestPhysicalRowId.class ) );
     }
 }

@@ -52,8 +52,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- *  Provider of RecordManager implementation.  Classes implementing this
- *  interface act as a factory to provide implementations of RecordManager.
+ * Provider of RecordManager implementation.  Classes implementing this
+ * interface act as a factory to provide implementations of RecordManager.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id$
@@ -65,11 +65,11 @@ public interface RecordManagerProvider
      * Create a record manager.
      *
      * @param filename Base filename of the record file.
-     * @param options Record manager options.
+     * @param options  Record manager options.
      * @throw IOException if an I/O related exception occurs while creating
-     *                    or opening the record manager.
+     * or opening the record manager.
      * @throw UnsupportedOperationException if some options are not supported by the
-     *                                      implementation.
+     * implementation.
      * @throw IllegalArgumentException if some options are invalid.
      */
     public RecordManager createRecordManager( String filename,

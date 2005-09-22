@@ -23,122 +23,136 @@
 package jdbm.recman;
 
 import junit.framework.*;
+
 import java.io.*;
 
 /**
- *  This class contains all Unit tests for {@link TransactionManager}.
+ * This class contains all Unit tests for {@link TransactionManager}.
  */
-public class TestTransactionManager extends TestCase {
+public class TestTransactionManager extends TestCase
+{
 
-    public TestTransactionManager(String name) {
-        super(name);
+    public TestTransactionManager( String name )
+    {
+        super( name );
     }
 
-    public void setUp() {
+    public void setUp()
+    {
         TestRecordFile.deleteTestFile();
     }
 
-    public void tearDown() {
+    public void tearDown()
+    {
         TestRecordFile.deleteTestFile();
     }
 
     /**
-     *  Test constructor. Oops - can only be done indirectly :-)
+     * Test constructor. Oops - can only be done indirectly :-)
      */
-    public void testCtor() throws Exception {
-        RecordFile file = new RecordFile(TestRecordFile.testFileName);
+    public void testCtor() throws Exception
+    {
+        RecordFile file = new RecordFile( TestRecordFile.testFileName );
 
         file.forceClose();
     }
 
     /**
-     *  Test recovery
+     * Test recovery
      */
-    public void XtestRecovery() throws Exception {
-        RecordFile file1 = new RecordFile(TestRecordFile.testFileName);
+    public void XtestRecovery() throws Exception
+    {
+        RecordFile file1 = new RecordFile( TestRecordFile.testFileName );
 
         // Do three transactions.
-        for (int i = 0; i < 3; i++) {
-            BlockIo node = file1.get(i);
+        for ( int i = 0; i < 3; i++ )
+        {
+            BlockIo node = file1.get( i );
             node.setDirty();
-            file1.release(node);
+            file1.release( node );
             file1.commit();
         }
-        assertDataSizeEquals("len1", 0);
-        assertLogSizeNotZero("len1");
+        assertDataSizeEquals( "len1", 0 );
+        assertLogSizeNotZero( "len1" );
 
         file1.forceClose();
 
         // Leave the old record file in flux, and open it again.
         // The second instance should start recovery.
-        RecordFile file2 = new RecordFile(TestRecordFile.testFileName);
+        RecordFile file2 = new RecordFile( TestRecordFile.testFileName );
 
-        assertDataSizeEquals("len2", 3 * RecordFile.BLOCK_SIZE);
-        assertLogSizeEquals("len2", 8);
+        assertDataSizeEquals( "len2", 3 * RecordFile.BLOCK_SIZE );
+        assertLogSizeEquals( "len2", 8 );
 
         file2.forceClose();
 
         // assure we can recover this log file
-        RecordFile file3 = new RecordFile(TestRecordFile.testFileName);
+        RecordFile file3 = new RecordFile( TestRecordFile.testFileName );
 
         file3.forceClose();
     }
 
     /**
-     *  Test background synching
+     * Test background synching
      */
-    public void XtestSynching() throws Exception {
-        RecordFile file1 = new RecordFile(TestRecordFile.testFileName);
+    public void XtestSynching() throws Exception
+    {
+        RecordFile file1 = new RecordFile( TestRecordFile.testFileName );
 
         // Do enough transactions to fill the first slot
         int txnCount = TransactionManager.DEFAULT_TXNS_IN_LOG + 5;
-        for (int i = 0; i < txnCount; i++) {
-            BlockIo node = file1.get(i);
+        for ( int i = 0; i < txnCount; i++ )
+        {
+            BlockIo node = file1.get( i );
             node.setDirty();
-            file1.release(node);
+            file1.release( node );
             file1.commit();
         }
         file1.forceClose();
 
         // The data file now has the first slotfull
-        assertDataSizeEquals("len1", TransactionManager.DEFAULT_TXNS_IN_LOG *
-                             RecordFile.BLOCK_SIZE);
-        assertLogSizeNotZero("len1");
+        assertDataSizeEquals( "len1", TransactionManager.DEFAULT_TXNS_IN_LOG *
+            RecordFile.BLOCK_SIZE );
+        assertLogSizeNotZero( "len1" );
 
         // Leave the old record file in flux, and open it again.
         // The second instance should start recovery.
-        RecordFile file2 = new RecordFile(TestRecordFile.testFileName);
+        RecordFile file2 = new RecordFile( TestRecordFile.testFileName );
 
-        assertDataSizeEquals("len2", txnCount * RecordFile.BLOCK_SIZE);
-        assertLogSizeEquals("len2", 8);
+        assertDataSizeEquals( "len2", txnCount * RecordFile.BLOCK_SIZE );
+        assertLogSizeEquals( "len2", 8 );
 
         file2.forceClose();
     }
 
     //  Helpers
 
-    void assertDataSizeEquals(String msg, long size) {
-        assertEquals(msg + " data size", size,
-                     new File(TestRecordFile.testFileName
-                              + RecordFile.extension).length());
+    void assertDataSizeEquals( String msg, long size )
+    {
+        assertEquals( msg + " data size", size,
+                      new File( TestRecordFile.testFileName
+                          + RecordFile.extension ).length() );
     }
 
-    void assertLogSizeEquals(String msg, long size) {
-        assertEquals(msg + " log size", size,
-                     new File(TestRecordFile.testFileName
-                              + TransactionManager.extension).length());
+    void assertLogSizeEquals( String msg, long size )
+    {
+        assertEquals( msg + " log size", size,
+                      new File( TestRecordFile.testFileName
+                          + TransactionManager.extension ).length() );
     }
 
-    void assertLogSizeNotZero(String msg) {
-        assertTrue(msg + " log size",
-               new File(TestRecordFile.testFileName
-                        + TransactionManager.extension).length() != 0);
+    void assertLogSizeNotZero( String msg )
+    {
+        assertTrue( msg + " log size",
+                    new File( TestRecordFile.testFileName
+                        + TransactionManager.extension ).length() != 0 );
     }
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestTransactionManager.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestTransactionManager.class ) );
     }
 }

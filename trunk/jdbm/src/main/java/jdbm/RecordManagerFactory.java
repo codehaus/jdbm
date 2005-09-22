@@ -52,12 +52,12 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- *  This class manages records, which are uninterpreted blobs of data. The
- *  set of operations is simple and straightforward: you communicate with
- *  the class using long "rowids" and byte[] data blocks. Rowids are returned
- *  on inserts and you can stash them away someplace safe to be able to get
- *  back to them. Data blocks can be as long as you wish, and may have
- *  lengths different from the original when updating.
+ * This class manages records, which are uninterpreted blobs of data. The
+ * set of operations is simple and straightforward: you communicate with
+ * the class using long "rowids" and byte[] data blocks. Rowids are returned
+ * on inserts and you can stash them away someplace safe to be able to get
+ * back to them. Data blocks can be as long as you wish, and may have
+ * lengths different from the original when updating.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
@@ -71,9 +71,9 @@ public final class RecordManagerFactory
      *
      * @param name Name of the record file.
      * @throw IOException if an I/O related exception occurs while creating
-     *                    or opening the record manager.
+     * or opening the record manager.
      * @throw UnsupportedOperationException if some options are not supported by the
-     *                                      implementation.
+     * implementation.
      * @throw IllegalArgumentException if some options are invalid.
      */
     public static RecordManager createRecordManager( String name )
@@ -86,34 +86,37 @@ public final class RecordManagerFactory
     /**
      * Create a record manager.
      *
-     * @param name Name of the record file.
+     * @param name    Name of the record file.
      * @param options Record manager options.
      * @throw IOException if an I/O related exception occurs while creating
-     *                    or opening the record manager.
+     * or opening the record manager.
      * @throw UnsupportedOperationException if some options are not supported by the
-     *                                      implementation.
+     * implementation.
      * @throw IllegalArgumentException if some options are invalid.
      */
     public static RecordManager createRecordManager( String name,
                                                      Properties options )
         throws IOException
     {
-        String                 provider;
-        Class                  clazz;
-        RecordManagerProvider  factory;
+        String provider;
+        Class clazz;
+        RecordManagerProvider factory;
 
         provider = options.getProperty( RecordManagerOptions.PROVIDER_FACTORY,
                                         "jdbm.recman.Provider" );
 
-        try {
+        try
+        {
             clazz = Class.forName( provider );
             factory = (RecordManagerProvider) clazz.newInstance();
-        } catch ( Exception except ) {
+        }
+        catch ( Exception except )
+        {
             throw new IllegalArgumentException( "Invalid record manager provider: "
-                                                + provider
-                                                + "\n[" + except.getClass().getName()
-                                                + ": " + except.getMessage()
-                                                + "]" );
+                + provider
+                + "\n[" + except.getClass().getName()
+                + ": " + except.getMessage()
+                + "]" );
         }
         return factory.createRecordManager( name, options );
     }

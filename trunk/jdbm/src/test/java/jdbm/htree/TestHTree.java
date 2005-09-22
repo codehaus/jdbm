@@ -51,49 +51,57 @@ import jdbm.RecordManagerFactory;
 import jdbm.recman.TestRecordFile;
 import jdbm.helper.FastIterator;
 import junit.framework.*;
+
 import java.io.IOException;
 import java.util.Properties;
 
 /**
- *  This class contains all Unit tests for {@link HTree}.
+ * This class contains all Unit tests for {@link HTree}.
  *
- *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id$
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id$
  */
-public class TestHTree extends TestCase {
+public class TestHTree extends TestCase
+{
 
-    public TestHTree(String name) {
-        super(name);
+    public TestHTree( String name )
+    {
+        super( name );
     }
 
-    public void setUp() {
+    public void setUp()
+    {
         TestRecordFile.deleteTestFile();
     }
 
-    public void tearDown() {
+    public void tearDown()
+    {
         TestRecordFile.deleteTestFile();
     }
 
 
     /**
-     *  Basic tests
+     * Basic tests
      */
-    public void testIterator() throws IOException {
+    public void testIterator() throws IOException
+    {
         Properties props = new Properties();
         RecordManager recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName, props );
 
-        HTree testTree = getHtree(recman, "htree");
-    
+        HTree testTree = getHtree( recman, "htree" );
+
         int total = 10;
-        for ( int i = 0; i < total; i++ ) {
-            testTree.put( Long.valueOf("" + i), Long.valueOf("" + i) );
+        for ( int i = 0; i < total; i++ )
+        {
+            testTree.put( Long.valueOf( "" + i ), Long.valueOf( "" + i ) );
         }
         recman.commit();
-    
+
         FastIterator fi = testTree.values();
         Object item;
         int count = 0;
-        while( (item = fi.next()) != null ) {
+        while ( ( item = fi.next() ) != null )
+        {
             count++;
         }
         assertEquals( count, total );
@@ -103,13 +111,16 @@ public class TestHTree extends TestCase {
 
 
     private static HTree getHtree( RecordManager recman, String name )
-      throws IOException
+        throws IOException
     {
-        long recId = recman.getNamedObject("htree");  
+        long recId = recman.getNamedObject( "htree" );
         HTree testTree;
-        if ( recId != 0 ) {
+        if ( recId != 0 )
+        {
             testTree = HTree.load( recman, recId );
-        } else {
+        }
+        else
+        {
             testTree = HTree.createInstance( recman );
             recman.setNamedObject( "htree", testTree.getRecid() );
         }
@@ -118,10 +129,11 @@ public class TestHTree extends TestCase {
 
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestHTree.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestHTree.class ) );
     }
 
 }

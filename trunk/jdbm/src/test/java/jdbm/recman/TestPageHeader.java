@@ -25,32 +25,36 @@ package jdbm.recman;
 import junit.framework.*;
 
 /**
- *  This class contains all Unit tests for {@link PageHeader}.
+ * This class contains all Unit tests for {@link PageHeader}.
  */
-public class TestPageHeader extends TestCase {
+public class TestPageHeader extends TestCase
+{
 
-    public TestPageHeader(String name) {
-  super(name);
+    public TestPageHeader( String name )
+    {
+        super( name );
     }
 
     /**
-     *  Test set, write, read
+     * Test set, write, read
      */
-    public void testSetWriteRead() throws Exception {
-  BlockIo data = new BlockIo(0, new byte[RecordFile.BLOCK_SIZE]);
-  PageHeader p = new PageHeader(data, Magic.FREE_PAGE);
-  p.setNext(10);
-  p.setPrev(33);
-  
-  p = new PageHeader(data);
-  assertEquals("next", 10, p.getNext());
-  assertEquals("prev", 33, p.getPrev());
+    public void testSetWriteRead() throws Exception
+    {
+        BlockIo data = new BlockIo( 0, new byte[RecordFile.BLOCK_SIZE] );
+        PageHeader p = new PageHeader( data, Magic.FREE_PAGE );
+        p.setNext( 10 );
+        p.setPrev( 33 );
+
+        p = new PageHeader( data );
+        assertEquals( "next", 10, p.getNext() );
+        assertEquals( "prev", 33, p.getPrev() );
     }
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-  junit.textui.TestRunner.run(new TestSuite(TestPageHeader.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestPageHeader.class ) );
     }
 }

@@ -55,7 +55,8 @@ import java.io.IOException;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id$
  */
-public abstract class TupleBrowser {
+public abstract class TupleBrowser
+{
 
     /**
      * Get the next tuple.

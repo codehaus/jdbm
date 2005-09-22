@@ -50,7 +50,7 @@ package jdbm.helper;
 /**
  * Callback interface between {@link CachePolicy} and a Cache implementation
  * to notify about cached object eviction.
- * <p>
+ * <p/>
  * Note that <code>CachePolicy</code> implementations typically use
  * <em>object equality</em> when removing listeners, so concrete
  * implementations of this interface should also pay attention to
@@ -60,7 +60,8 @@ package jdbm.helper;
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @version $Id$
  */
-public interface CachePolicyListener {
+public interface CachePolicyListener
+{
 
     /**
      * Notification that the cache this listener is attached to is evicting
@@ -68,10 +69,10 @@ public interface CachePolicyListener {
      *
      * @param obj object being evited from cache
      * @throws CacheEvictionException if this listener encountered problems
-     *     while preparing for the specified object's eviction. For example,
-     *     a listener may try to persist the object to disk, and encounter
-     *     an <code>IOException</code>.
+     *                                while preparing for the specified object's eviction. For example,
+     *                                a listener may try to persist the object to disk, and encounter
+     *                                an <code>IOException</code>.
      */
-    public void cacheObjectEvicted(Object obj) throws CacheEvictionException;
+    public void cacheObjectEvicted( Object obj ) throws CacheEvictionException;
 
 }

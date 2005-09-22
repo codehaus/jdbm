@@ -70,26 +70,27 @@ public final class Provider
     /**
      * Create a default implementation record manager.
      *
-     * @param name Name of the record file.
+     * @param name    Name of the record file.
      * @param options Record manager options.
      * @throw IOException if an I/O related exception occurs while creating
-     *                    or opening the record manager.
+     * or opening the record manager.
      * @throw UnsupportedOperationException if some options are not supported by the
-     *                                      implementation.
+     * implementation.
      * @throw IllegalArgumentException if some options are invalid.
      */
     public RecordManager createRecordManager( String name,
                                               Properties options )
         throws IOException
     {
-        RecordManager  recman;
-        String         value;
-        int            cacheSize;
+        RecordManager recman;
+        String value;
+        int cacheSize;
 
         recman = new BaseRecordManager( name );
 
         value = options.getProperty( RecordManagerOptions.DISABLE_TRANSACTIONS, "false" );
-        if ( value.equalsIgnoreCase( "TRUE" ) ) {
+        if ( value.equalsIgnoreCase( "TRUE" ) )
+        {
             ( (BaseRecordManager) recman ).disableTransactions();
         }
 
@@ -98,14 +99,21 @@ public final class Provider
 
         value = options.getProperty( RecordManagerOptions.CACHE_TYPE,
                                      RecordManagerOptions.NORMAL_CACHE );
-        if ( value.equalsIgnoreCase( RecordManagerOptions.NORMAL_CACHE ) ) {
+        if ( value.equalsIgnoreCase( RecordManagerOptions.NORMAL_CACHE ) )
+        {
             MRU cache = new MRU( cacheSize );
             recman = new CacheRecordManager( recman, cache );
-        } else if ( value.equalsIgnoreCase( RecordManagerOptions.SOFT_REF_CACHE ) ) {
+        }
+        else if ( value.equalsIgnoreCase( RecordManagerOptions.SOFT_REF_CACHE ) )
+        {
             throw new IllegalArgumentException( "Soft reference cache not implemented" );
-        } else if ( value.equalsIgnoreCase( RecordManagerOptions.WEAK_REF_CACHE ) ) {
+        }
+        else if ( value.equalsIgnoreCase( RecordManagerOptions.WEAK_REF_CACHE ) )
+        {
             throw new IllegalArgumentException( "Weak reference cache not implemented" );
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException( "Invalid cache type: " + value );
         }
 

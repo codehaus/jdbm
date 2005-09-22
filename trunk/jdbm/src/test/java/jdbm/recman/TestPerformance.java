@@ -45,13 +45,11 @@
 package jdbm.recman;
 
 
-
 import jdbm.RecordManager;
 
 import jdbm.RecordManagerFactory;
 
 import jdbm.RecordManagerOptions;
-
 
 
 import junit.framework.*;
@@ -61,40 +59,36 @@ import java.util.Properties;
 import java.util.Random;
 
 
-
 /**
-
- *  This class contains performance tests for this package.
-
+ * This class contains performance tests for this package.
  */
 
-public class TestPerformance extends TestCase {
+public class TestPerformance extends TestCase
+{
 
 
+    public TestPerformance( String name )
+    {
 
-    public TestPerformance(String name) {
-
-        super(name);
+        super( name );
 
     }
 
 
-
-    public void setUp() {
+    public void setUp()
+    {
 
         TestRecordFile.deleteTestFile();
 
     }
 
 
-
-    public void tearDown() {
+    public void tearDown()
+    {
 
         //TestRecordFile.deleteTestFile();
 
     }
-
-
 
     // test parameter: maximum record size
 
@@ -105,52 +99,48 @@ public class TestPerformance extends TestCase {
     final int RECORDS = 10000;
 
 
-
-    Random rnd = new Random(42);
-
+    Random rnd = new Random( 42 );
 
 
     /**
-
-     *  Test insert performance
-
+     * Test insert performance
      */
 
-    public void testInserts() throws Exception {
+    public void testInserts() throws Exception
+    {
 
         RecordManager recman;
 
 
-
         recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
-
 
 
         int inserts = 0;
 
         long start = System.currentTimeMillis();
 
-        try {
-
+        try
+        {
 
 
             long stop = 0;
 
-            while (true) {
+            while ( true )
+            {
 
 
+                recman.insert( TestUtil.makeRecord( rnd.nextInt( MAXSIZE ),
 
-                recman.insert(TestUtil.makeRecord(rnd.nextInt(MAXSIZE),
-
-                                               (byte) rnd.nextInt()));
+                                                    (byte) rnd.nextInt() ) );
 
                 inserts++;
 
-                if ((inserts % 25) == 0) {
+                if ( ( inserts % 25 ) == 0 )
+                {
 
                     stop = System.currentTimeMillis();
 
-                    if (stop - start >= 60000)
+                    if ( stop - start >= 60000 )
 
                         break;
 
@@ -160,34 +150,33 @@ public class TestPerformance extends TestCase {
 
             recman.close();
 
-            System.out.println("Inserts: " + inserts + " in "
+            System.out.println( "Inserts: " + inserts + " in "
 
-                               + (stop - start) + " millisecs");
+                + ( stop - start ) + " millisecs" );
 
-        } catch (Throwable e) {
+        }
+        catch ( Throwable e )
+        {
 
-            fail("unexpected exception after " + inserts + " inserts, "
+            fail( "unexpected exception after " + inserts + " inserts, "
 
-                 + (System.currentTimeMillis() - start) + "ms: " + e);
+                + ( System.currentTimeMillis() - start ) + "ms: " + e );
 
         }
 
     }
 
 
-
     /**
-
-     *  Create a database, return array of rowids.
-
+     * Create a database, return array of rowids.
      */
 
-    private long[] makeRows() throws Exception {
+    private long[] makeRows() throws Exception
+    {
 
         RecordManager recman;
 
-        Properties    options;
-
+        Properties options;
 
 
         options = new Properties();
@@ -195,98 +184,96 @@ public class TestPerformance extends TestCase {
         options.setProperty( RecordManagerOptions.DISABLE_TRANSACTIONS, "true" );
 
 
-
         recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName,
 
                                                            options );
 
 
-
         long[] retval = new long[RECORDS];
 
-        System.out.print("Creating test database");
+        System.out.print( "Creating test database" );
 
         long start = System.currentTimeMillis();
 
-        try {
+        try
+        {
 
-            for (int i = 0; i < RECORDS; i++) {
+            for ( int i = 0; i < RECORDS; i++ )
+            {
 
-                retval[i] = recman.insert(TestUtil
+                retval[i] = recman.insert( TestUtil
 
-                                       .makeRecord(rnd.nextInt(MAXSIZE),
+                    .makeRecord( rnd.nextInt( MAXSIZE ),
 
-                                                   (byte) rnd.nextInt()));
+                                 (byte) rnd.nextInt() ) );
 
-                if ((i % 100) == 0)
+                if ( ( i % 100 ) == 0 )
 
-                    System.out.print(".");
+                    System.out.print( "." );
 
             }
 
             recman.close();
 
-        } catch (Throwable e) {
+        }
+        catch ( Throwable e )
+        {
 
             e.printStackTrace();
 
-            fail("unexpected exception during db creation: " + e);
+            fail( "unexpected exception during db creation: " + e );
 
         }
 
 
+        System.out.println( "done (" + RECORDS + " inserts in "
 
-        System.out.println("done (" + RECORDS + " inserts in "
-
-                           + (System.currentTimeMillis() - start) + "ms).");
+            + ( System.currentTimeMillis() - start ) + "ms)." );
 
         return retval;
 
     }
 
 
-
     /**
-
-     *  Test fetches
-
+     * Test fetches
      */
 
-    public void testFetches() throws Exception {
+    public void testFetches() throws Exception
+    {
 
         RecordManager recman;
-
 
 
         long[] rowids = makeRows();
 
 
-
         recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
-
 
 
         int fetches = 0;
 
         long start = System.currentTimeMillis();
 
-        try {
-
+        try
+        {
 
 
             long stop = 0;
 
-            while (true) {
+            while ( true )
+            {
 
-                recman.fetch( rowids[ rnd.nextInt( RECORDS ) ] );
+                recman.fetch( rowids[rnd.nextInt( RECORDS )] );
 
                 fetches++;
 
-                if ((fetches % 25) == 0) {
+                if ( ( fetches % 25 ) == 0 )
+                {
 
                     stop = System.currentTimeMillis();
 
-                    if (stop - start >= 60000)
+                    if ( stop - start >= 60000 )
 
                         break;
 
@@ -296,69 +283,67 @@ public class TestPerformance extends TestCase {
 
             recman.close();
 
-            System.out.println("Fetches: " + fetches + " in "
+            System.out.println( "Fetches: " + fetches + " in "
 
-                               + (stop - start) + " millisecs");
+                + ( stop - start ) + " millisecs" );
 
-        } catch (Throwable e) {
+        }
+        catch ( Throwable e )
+        {
 
-            fail("unexpected exception after " + fetches + " fetches, "
+            fail( "unexpected exception after " + fetches + " fetches, "
 
-                 + (System.currentTimeMillis() - start) + "ms: " + e);
+                + ( System.currentTimeMillis() - start ) + "ms: " + e );
 
         }
 
     }
 
 
-
     /**
-
-     *  Test updates.
-
+     * Test updates.
      */
 
-    public void testUpdates() throws Exception {
+    public void testUpdates() throws Exception
+    {
 
         RecordManager recman;
-
 
 
         long[] rowids = makeRows();
 
 
-
         recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
-
 
 
         int updates = 0;
 
         long start = System.currentTimeMillis();
 
-        try {
-
+        try
+        {
 
 
             long stop = 0;
 
-            while (true) {
+            while ( true )
+            {
 
 
+                recman.update( rowids[rnd.nextInt( RECORDS )],
 
-                recman.update(rowids[rnd.nextInt(RECORDS)],
+                               TestUtil.makeRecord( rnd.nextInt( MAXSIZE ),
 
-                           TestUtil.makeRecord(rnd.nextInt(MAXSIZE),
-
-                                               (byte) rnd.nextInt()));
+                                                    (byte) rnd.nextInt() ) );
 
                 updates++;
 
-                if ((updates % 25) == 0) {
+                if ( ( updates % 25 ) == 0 )
+                {
 
                     stop = System.currentTimeMillis();
 
-                    if (stop - start >= 60000)
+                    if ( stop - start >= 60000 )
 
                         break;
 
@@ -368,65 +353,64 @@ public class TestPerformance extends TestCase {
 
             recman.close();
 
-            System.out.println("Updates: " + updates + " in "
+            System.out.println( "Updates: " + updates + " in "
 
-                               + (stop - start) + " millisecs");
+                + ( stop - start ) + " millisecs" );
 
-        } catch (Throwable e) {
+        }
+        catch ( Throwable e )
+        {
 
-            fail("unexpected exception after " + updates + " updates, "
+            fail( "unexpected exception after " + updates + " updates, "
 
-                 + (System.currentTimeMillis() - start) + "ms: " + e);
+                + ( System.currentTimeMillis() - start ) + "ms: " + e );
 
         }
 
     }
 
 
-
     /**
-
-     *  Test deletes.
-
+     * Test deletes.
      */
 
-    public void testDeletes() throws Exception {
+    public void testDeletes() throws Exception
+    {
 
         RecordManager recman;
-
 
 
         long[] rowids = makeRows();
 
 
-
         recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
-
 
 
         int deletes = 0;
 
         long start = System.currentTimeMillis();
 
-        try {
-
+        try
+        {
 
 
             long stop = 0;
 
             // This can be done better...
 
-            for (int i = 0; i < RECORDS; i++) {
+            for ( int i = 0; i < RECORDS; i++ )
+            {
 
-                recman.delete(rowids[i]);
+                recman.delete( rowids[i] );
 
                 deletes++;
 
-                if ((deletes % 25) == 0) {
+                if ( ( deletes % 25 ) == 0 )
+                {
 
                     stop = System.currentTimeMillis();
 
-                    if (stop - start >= 60000)
+                    if ( stop - start >= 60000 )
 
                         break;
 
@@ -436,35 +420,33 @@ public class TestPerformance extends TestCase {
 
             recman.close();
 
-            System.out.println("Deletes: " + deletes + " in "
+            System.out.println( "Deletes: " + deletes + " in "
 
-                               + (stop - start) + " millisecs");
+                + ( stop - start ) + " millisecs" );
 
-        } catch (Throwable e) {
+        }
+        catch ( Throwable e )
+        {
 
             e.printStackTrace();
 
-            fail("unexpected exception after " + deletes + " deletes, "
+            fail( "unexpected exception after " + deletes + " deletes, "
 
-                 + (System.currentTimeMillis() - start) + "ms: " + e);
+                + ( System.currentTimeMillis() - start ) + "ms: " + e );
 
         }
 
     }
 
 
-
     /**
-
-     *  Runs all tests in this class
-
+     * Runs all tests in this class
      */
 
-    public static void main(String[] args) {
+    public static void main( String[] args )
+    {
 
-        junit.textui.TestRunner.run(new TestSuite(TestPerformance.class));
-
-
+        junit.textui.TestRunner.run( new TestSuite( TestPerformance.class ) );
 
         // if you just want one test:
 

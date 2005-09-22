@@ -70,33 +70,31 @@ public final class ByteArraySerializer
      * Static instance.
      */
     public static final ByteArraySerializer INSTANCE = new ByteArraySerializer();
-    
-    
-    /** 
+
+
+    /**
      * Serialize the content of an object into a byte array.
      *
      * @param obj Object to serialize
      * @return a byte array representing the object's state
-     *
      */
-    public byte[] serialize( Object obj ) 
+    public byte[] serialize( Object obj )
         throws IOException
     {
         return (byte[]) obj;
     }
 
-    
+
     /**
      * Deserialize the content of an object from a byte array.
      *
      * @param serialized Byte array representation of the object
      * @return deserialized object
-     *
      */
-    public Object deserialize( byte[] serialized ) 
+    public Object deserialize( byte[] serialized )
         throws IOException
     {
         return serialized;
-    }    
+    }
 
 }

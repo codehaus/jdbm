@@ -23,60 +23,66 @@
 package jdbm.recman;
 
 import junit.framework.*;
+
 import java.io.*;
 
 /**
- *  This class contains all Unit tests for {@link BlockIo}.
+ * This class contains all Unit tests for {@link BlockIo}.
  */
-public class TestBlockIo extends TestCase {
+public class TestBlockIo extends TestCase
+{
 
     private static final short SHORT_VALUE = 0x1234;
     private static final int INT_VALUE = 0xe7b3c8a1;
     private static final long LONG_VALUE = 0xfdebca9876543210L;
 
-    public TestBlockIo(String name) {
-  super(name);
-    }
-    
-
-    /**
-     *  Test writing
-     */
-    public void testWrite() throws Exception {
-  byte[] data = new byte[100];
-  BlockIo test = new BlockIo(0, data);
-  test.writeShort(0, SHORT_VALUE);
-  test.writeLong(2, LONG_VALUE);
-  test.writeInt(10, INT_VALUE);
-  
-  DataInputStream is = 
-      new DataInputStream(new ByteArrayInputStream(data));
-  assertEquals("short", SHORT_VALUE, is.readShort());
-  assertEquals("long", LONG_VALUE, is.readLong());
-  assertEquals("int", INT_VALUE, is.readInt());
+    public TestBlockIo( String name )
+    {
+        super( name );
     }
 
-    /**
-     *  Test reading
-     */
-    public void testRead() throws Exception {
-  ByteArrayOutputStream bos = new ByteArrayOutputStream(100);
-  DataOutputStream os = new DataOutputStream(bos);
-  os.writeShort(SHORT_VALUE);
-  os.writeLong(LONG_VALUE);
-  os.writeInt(INT_VALUE);
 
-  byte[] data = bos.toByteArray();
-  BlockIo test = new BlockIo(0, data);
-  assertEquals("short", SHORT_VALUE, test.readShort(0));
-  assertEquals("long", LONG_VALUE, test.readLong(2));
-  assertEquals("int", INT_VALUE, test.readInt(10));
-    }
-    
     /**
-     *  Runs all tests in this class
+     * Test writing
      */
-    public static void main(String[] args) {
-  junit.textui.TestRunner.run(new TestSuite(TestBlockIo.class));
+    public void testWrite() throws Exception
+    {
+        byte[] data = new byte[100];
+        BlockIo test = new BlockIo( 0, data );
+        test.writeShort( 0, SHORT_VALUE );
+        test.writeLong( 2, LONG_VALUE );
+        test.writeInt( 10, INT_VALUE );
+
+        DataInputStream is =
+            new DataInputStream( new ByteArrayInputStream( data ) );
+        assertEquals( "short", SHORT_VALUE, is.readShort() );
+        assertEquals( "long", LONG_VALUE, is.readLong() );
+        assertEquals( "int", INT_VALUE, is.readInt() );
+    }
+
+    /**
+     * Test reading
+     */
+    public void testRead() throws Exception
+    {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream( 100 );
+        DataOutputStream os = new DataOutputStream( bos );
+        os.writeShort( SHORT_VALUE );
+        os.writeLong( LONG_VALUE );
+        os.writeInt( INT_VALUE );
+
+        byte[] data = bos.toByteArray();
+        BlockIo test = new BlockIo( 0, data );
+        assertEquals( "short", SHORT_VALUE, test.readShort( 0 ) );
+        assertEquals( "long", LONG_VALUE, test.readLong( 2 ) );
+        assertEquals( "int", INT_VALUE, test.readInt( 10 ) );
+    }
+
+    /**
+     * Runs all tests in this class
+     */
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestBlockIo.class ) );
     }
 }

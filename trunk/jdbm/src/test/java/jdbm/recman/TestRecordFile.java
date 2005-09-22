@@ -23,11 +23,12 @@
 package jdbm.recman;
 
 import junit.framework.*;
+
 import java.io.File;
 import java.io.IOException;
 
 /**
- *  This class contains all Unit tests for {@link RecordFile}.
+ * This class contains all Unit tests for {@link RecordFile}.
  */
 public class TestRecordFile
     extends TestCase
@@ -44,13 +45,18 @@ public class TestRecordFile
     {
         File file = new File( filename );
 
-        if ( file.exists() ) {
-            try {
+        if ( file.exists() )
+        {
+            try
+            {
                 file.delete();
-            } catch ( Exception except ) {
+            }
+            catch ( Exception except )
+            {
                 except.printStackTrace();
             }
-            if ( file.exists() ) {
+            if ( file.exists() )
+            {
                 System.out.println( "WARNING:  Cannot delete file: " + file );
             }
         }
@@ -61,11 +67,11 @@ public class TestRecordFile
     {
         System.gc();
 
-        deleteFile(testFileName);
+        deleteFile( testFileName );
 
-        deleteFile(testFileName + RecordFile.extension);
+        deleteFile( testFileName + RecordFile.extension );
 
-        deleteFile(testFileName + TransactionManager.extension);
+        deleteFile( testFileName + TransactionManager.extension );
     }
 
     public void setUp()
@@ -80,7 +86,7 @@ public class TestRecordFile
 
 
     /**
-     *  Test constructor
+     * Test constructor
      */
     public void testCtor()
         throws Exception
@@ -91,26 +97,26 @@ public class TestRecordFile
 
 
     /**
-     *  Test addition of record 0
+     * Test addition of record 0
      */
     public void testAddZero()
         throws Exception
     {
         RecordFile file = new RecordFile( testFileName );
         byte[] data = file.get( 0 ).getData();
-        data[ 14 ] = (byte) 'b';
+        data[14] = (byte) 'b';
         file.release( 0, true );
         file.close();
         file = new RecordFile( testFileName );
         data = file.get( 0 ).getData();
-        assertEquals( (byte) 'b', data[ 14 ] );
+        assertEquals( (byte) 'b', data[14] );
         file.release( 0, false );
         file.close();
     }
 
 
     /**
-     *  Test addition of a number of records, with holes.
+     * Test addition of a number of records, with holes.
      */
     public void testWithHoles()
         throws Exception
@@ -119,32 +125,32 @@ public class TestRecordFile
 
         // Write recid 0, byte 0 with 'b'
         byte[] data = file.get( 0 ).getData();
-        data[ 0 ] = (byte) 'b';
+        data[0] = (byte) 'b';
         file.release( 0, true );
 
         // Write recid 10, byte 10 with 'c'
         data = file.get( 10 ).getData();
-        data[ 10 ] = (byte) 'c';
+        data[10] = (byte) 'c';
         file.release( 10, true );
 
         // Write recid 5, byte 5 with 'e' but don't mark as dirty
         data = file.get( 5 ).getData();
-        data[ 5 ] = (byte) 'e';
+        data[5] = (byte) 'e';
         file.release( 5, false );
 
         file.close();
 
         file = new RecordFile( testFileName );
         data = file.get( 0 ).getData();
-        assertEquals( "0 = b", (byte) 'b', data[ 0 ] );
+        assertEquals( "0 = b", (byte) 'b', data[0] );
         file.release( 0, false );
 
         data = file.get( 5 ).getData();
-        assertEquals( "5 = 0", 0, data[ 5 ] );
+        assertEquals( "5 = 0", 0, data[5] );
         file.release( 5, false );
 
         data = file.get( 10 ).getData();
-        assertEquals( "10 = c", (byte) 'c', data[ 10 ] );
+        assertEquals( "10 = c", (byte) 'c', data[10] );
         file.release( 10, false );
 
         file.close();
@@ -152,7 +158,7 @@ public class TestRecordFile
 
 
     /**
-     *  Test wrong release
+     * Test wrong release
      */
     public void testWrongRelease()
         throws Exception
@@ -161,11 +167,14 @@ public class TestRecordFile
 
         // Write recid 0, byte 0 with 'b'
         byte[] data = file.get( 0 ).getData();
-        data[ 0 ] = (byte) 'b';
-        try {
+        data[0] = (byte) 'b';
+        try
+        {
             file.release( 1, true );
             fail( "expected exception" );
-        } catch ( IOException except ) {
+        }
+        catch ( IOException except )
+        {
             // ignore
         }
         file.release( 0, false );
@@ -183,7 +192,7 @@ public class TestRecordFile
 
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
     public static void main( String[] args )
     {

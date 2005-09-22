@@ -25,56 +25,64 @@ package jdbm.recman;
 import junit.framework.*;
 
 /**
- *  This class contains all Unit tests for {@link FreePhysicalRowIdPageManager}.
+ * This class contains all Unit tests for {@link FreePhysicalRowIdPageManager}.
  */
-public class TestFreePhysicalRowIdPageManager extends TestCase {
+public class TestFreePhysicalRowIdPageManager extends TestCase
+{
 
-    public TestFreePhysicalRowIdPageManager(String name) {
-  super(name);
+    public TestFreePhysicalRowIdPageManager( String name )
+    {
+        super( name );
     }
 
-    public void setUp() {
-  TestRecordFile.deleteTestFile();
-    }
-    public void tearDown() {
-  TestRecordFile.deleteTestFile();
+    public void setUp()
+    {
+        TestRecordFile.deleteTestFile();
     }
 
-    /**
-     *  Test constructor
-     */
-    public void testCtor() throws Exception {
-  RecordFile f = new RecordFile(TestRecordFile.testFileName);
-  PageManager pm = new PageManager(f);
-  FreePhysicalRowIdPageManager freeMgr =
-      new FreePhysicalRowIdPageManager(f, pm);
-
-      pm.close();
-      f.close();
+    public void tearDown()
+    {
+        TestRecordFile.deleteTestFile();
     }
 
     /**
-     *  Test basics
+     * Test constructor
      */
-    public void testBasics() throws Exception {
-  RecordFile f = new RecordFile(TestRecordFile.testFileName);
-  PageManager pm = new PageManager(f);
-  FreePhysicalRowIdPageManager freeMgr =
-      new FreePhysicalRowIdPageManager(f, pm);
+    public void testCtor() throws Exception
+    {
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
+        PageManager pm = new PageManager( f );
+        FreePhysicalRowIdPageManager freeMgr =
+            new FreePhysicalRowIdPageManager( f, pm );
 
-  // allocate 10,000 bytes - should fail on an empty file.
-  Location loc = freeMgr.get(10000);
-  assertTrue("loc is not null?", loc == null);
+        pm.close();
+        f.close();
+    }
 
-      pm.close();
-      f.close();
+    /**
+     * Test basics
+     */
+    public void testBasics() throws Exception
+    {
+        RecordFile f = new RecordFile( TestRecordFile.testFileName );
+        PageManager pm = new PageManager( f );
+        FreePhysicalRowIdPageManager freeMgr =
+            new FreePhysicalRowIdPageManager( f, pm );
+
+        // allocate 10,000 bytes - should fail on an empty file.
+        Location loc = freeMgr.get( 10000 );
+        assertTrue( "loc is not null?", loc == null );
+
+        pm.close();
+        f.close();
     }
 
 
     /**
-     *  Runs all tests in this class
+     * Runs all tests in this class
      */
-    public static void main(String[] args) {
-  junit.textui.TestRunner.run(new TestSuite(TestFreePhysicalRowIdPageManager.class));
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( new TestSuite( TestFreePhysicalRowIdPageManager.class ) );
     }
 }

@@ -66,20 +66,20 @@ import java.util.Comparator;
  * one tree node (called <code>BPage</code>).  In addition, the leaf nodes
  * directly contain (inline) the values associated with the keys, allowing a
  * single (or sequential) disk read of all the values on the page.
- * <p>
+ * <p/>
  * B+Trees are n-airy, yeilding log(N) search cost.  They are self-balancing,
  * preventing search performance degradation when the size of the tree grows.
- * <p>
+ * <p/>
  * Keys and associated values must be <code>Serializable</code> objects. The
  * user is responsible to supply a serializable <code>Comparator</code> object
  * to be used for the ordering of entries, which are also called <code>Tuple</code>.
  * The B+Tree allows traversing the keys in forward and reverse order using a
  * TupleBrowser obtained from the browse() methods.
- * <p>
+ * <p/>
  * This implementation does not directly support duplicate keys, but it is
  * possible to handle duplicates by inlining or referencing an object collection
  * as a value.
- * <p>
+ * <p/>
  * There is no limit on key size or value size, but it is recommended to keep
  * both as small as possible to reduce disk I/O.   This is especially true for
  * the key size, which impacts all non-leaf <code>BPage</code> objects.
@@ -159,12 +159,12 @@ public class BTree
      */
     protected int _entries;
 
-    
+
     /**
      * Serializer used for BPages of this tree
      */
     private transient BPage _bpageSerializer;
-    
+
 
     /**
      * No-argument constructor used by serialization.
@@ -178,7 +178,7 @@ public class BTree
     /**
      * Create a new persistent BTree, with 16 entries per node.
      *
-     * @param recman Record manager used for persistence.
+     * @param recman     Record manager used for persistence.
      * @param comparator Comparator used to order index entries
      */
     public static BTree createInstance( RecordManager recman,
@@ -192,10 +192,10 @@ public class BTree
     /**
      * Create a new persistent BTree, with 16 entries per node.
      *
-     * @param recman Record manager used for persistence.
-     * @param keySerializer Serializer used to serialize index keys (optional)
+     * @param recman          Record manager used for persistence.
+     * @param keySerializer   Serializer used to serialize index keys (optional)
      * @param valueSerializer Serializer used to serialize index values (optional)
-     * @param comparator Comparator used to order index entries
+     * @param comparator      Comparator used to order index entries
      */
     public static BTree createInstance( RecordManager recman,
                                         Comparator comparator,
@@ -203,7 +203,7 @@ public class BTree
                                         Serializer valueSerializer )
         throws IOException
     {
-        return createInstance( recman, comparator, keySerializer, 
+        return createInstance( recman, comparator, keySerializer,
                                valueSerializer, DEFAULT_SIZE );
     }
 
@@ -211,10 +211,10 @@ public class BTree
     /**
      * Create a new persistent BTree with the given number of entries per node.
      *
-     * @param recman Record manager used for persistence.
+     * @param recman     Record manager used for persistence.
      * @param comparator Comparator used to order index entries
      * @param serializer Serializer used to serialize index entries (optional)
-     * @param pageSize Number of entries per page (must be even).
+     * @param pageSize   Number of entries per page (must be even).
      */
     public static BTree createInstance( RecordManager recman,
                                         Comparator comparator,
@@ -225,28 +225,34 @@ public class BTree
     {
         BTree btree;
 
-        if ( recman == null ) {
+        if ( recman == null )
+        {
             throw new IllegalArgumentException( "Argument 'recman' is null" );
         }
 
-        if ( comparator == null ) {
+        if ( comparator == null )
+        {
             throw new IllegalArgumentException( "Argument 'comparator' is null" );
         }
 
-        if ( ! ( comparator instanceof Serializable ) ) {
+        if ( ! ( comparator instanceof Serializable ) )
+        {
             throw new IllegalArgumentException( "Argument 'comparator' must be serializable" );
         }
 
-        if ( keySerializer != null && ! ( keySerializer instanceof Serializable ) ) {
+        if ( keySerializer != null && ! ( keySerializer instanceof Serializable ) )
+        {
             throw new IllegalArgumentException( "Argument 'keySerializer' must be serializable" );
         }
 
-        if ( valueSerializer != null && ! ( valueSerializer instanceof Serializable ) ) {
+        if ( valueSerializer != null && ! ( valueSerializer instanceof Serializable ) )
+        {
             throw new IllegalArgumentException( "Argument 'valueSerializer' must be serializable" );
         }
 
         // make sure there's an even number of entries per BPage
-        if ( ( pageSize & 1 ) != 0 ) {
+        if ( ( pageSize & 1 ) != 0 )
+        {
             throw new IllegalArgumentException( "Argument 'pageSize' must be even" );
         }
 
@@ -283,13 +289,13 @@ public class BTree
 
     /**
      * Insert an entry in the BTree.
-     * <p>
+     * <p/>
      * The BTree cannot store duplicate entries.  An existing entry can be
      * replaced using the <code>replace</code> flag.   If an entry with the
      * same key already exists in the BTree, its value is returned.
      *
-     * @param key Insert key
-     * @param value Insert value
+     * @param key     Insert key
+     * @param value   Insert value
      * @param replace Set to true to replace an existing key-value pair.
      * @return Existing value, if any.
      */
@@ -297,18 +303,22 @@ public class BTree
                                        boolean replace )
         throws IOException
     {
-        if ( key == null ) {
+        if ( key == null )
+        {
             throw new IllegalArgumentException( "Argument 'key' is null" );
         }
-        if ( value == null ) {
+        if ( value == null )
+        {
             throw new IllegalArgumentException( "Argument 'value' is null" );
         }
 
         BPage rootPage = getRoot();
 
-        if ( rootPage == null ) {
+        if ( rootPage == null )
+        {
             // BTree is currently empty, create a new root BPage
-            if (DEBUG) {
+            if ( DEBUG )
+            {
                 System.out.println( "BTree.insert() new root BPage" );
             }
             rootPage = new BPage( this, key, value );
@@ -317,12 +327,16 @@ public class BTree
             _entries = 1;
             _recman.update( _recid, this );
             return null;
-        } else {
+        }
+        else
+        {
             BPage.InsertResult insert = rootPage.insert( _height, key, value, replace );
             boolean dirty = false;
-            if ( insert._overflow != null ) {
+            if ( insert._overflow != null )
+            {
                 // current root page overflowed, we replace with a new root page
-                if ( DEBUG ) {
+                if ( DEBUG )
+                {
                     System.out.println( "BTree.insert() replace root BPage due to overflow" );
                 }
                 rootPage = new BPage( this, rootPage, insert._overflow );
@@ -330,11 +344,13 @@ public class BTree
                 _height += 1;
                 dirty = true;
             }
-            if ( insert._existing == null ) {
+            if ( insert._existing == null )
+            {
                 _entries++;
                 dirty = true;
             }
-            if ( dirty ) {
+            if ( dirty )
+            {
                 _recman.update( _recid, this );
             }
             // insert might have returned an existing value
@@ -353,32 +369,40 @@ public class BTree
     public synchronized Object remove( Object key )
         throws IOException
     {
-        if ( key == null ) {
+        if ( key == null )
+        {
             throw new IllegalArgumentException( "Argument 'key' is null" );
         }
 
         BPage rootPage = getRoot();
-        if ( rootPage == null ) {
+        if ( rootPage == null )
+        {
             return null;
         }
         boolean dirty = false;
         BPage.RemoveResult remove = rootPage.remove( _height, key );
-        if ( remove._underflow && rootPage.isEmpty() ) {
+        if ( remove._underflow && rootPage.isEmpty() )
+        {
             _height -= 1;
             dirty = true;
 
             // TODO:  check contract for BPages to be removed from recman.
-            if ( _height == 0 ) {
+            if ( _height == 0 )
+            {
                 _root = 0;
-            } else {
-                _root = rootPage.childBPage( _pageSize-1 )._recid;
+            }
+            else
+            {
+                _root = rootPage.childBPage( _pageSize - 1 )._recid;
             }
         }
-        if ( remove._value != null ) {
+        if ( remove._value != null )
+        {
             _entries--;
             dirty = true;
         }
-        if ( dirty ) {
+        if ( dirty )
+        {
             _recman.update( _recid, this );
         }
         return remove._value;
@@ -394,26 +418,34 @@ public class BTree
     public synchronized Object find( Object key )
         throws IOException
     {
-        if ( key == null ) {
+        if ( key == null )
+        {
             throw new IllegalArgumentException( "Argument 'key' is null" );
         }
         BPage rootPage = getRoot();
-        if ( rootPage == null ) {
+        if ( rootPage == null )
+        {
             return null;
         }
 
         Tuple tuple = new Tuple( null, null );
         TupleBrowser browser = rootPage.find( _height, key );
 
-        if ( browser.getNext( tuple ) ) {
+        if ( browser.getNext( tuple ) )
+        {
             // find returns the matching key or the next ordered key, so we must
             // check if we have an exact match
-            if ( _comparator.compare( key, tuple.getKey() ) != 0 ) {
+            if ( _comparator.compare( key, tuple.getKey() ) != 0 )
+            {
                 return null;
-            } else {
+            }
+            else
+            {
                 return tuple.getValue();
             }
-        } else {
+        }
+        else
+        {
             return null;
         }
     }
@@ -430,10 +462,11 @@ public class BTree
     public synchronized Tuple findGreaterOrEqual( Object key )
         throws IOException
     {
-        Tuple         tuple;
-        TupleBrowser  browser;
+        Tuple tuple;
+        TupleBrowser browser;
 
-        if ( key == null ) {
+        if ( key == null )
+        {
             // there can't be a key greater than or equal to "null"
             // because null is considered an infinite key.
             return null;
@@ -441,9 +474,12 @@ public class BTree
 
         tuple = new Tuple( null, null );
         browser = browse( key );
-        if ( browser.getNext( tuple ) ) {
+        if ( browser.getNext( tuple ) )
+        {
             return tuple;
-        } else {
+        }
+        else
+        {
             return null;
         }
     }
@@ -452,7 +488,7 @@ public class BTree
     /**
      * Get a browser initially positioned at the beginning of the BTree.
      * <p><b>
-     * WARNING:  If you make structural modifications to the BTree during
+     * WARNING: ï¿½If you make structural modifications to the BTree during
      * browsing, you will get inconsistent browing results.
      * </b>
      *
@@ -462,7 +498,8 @@ public class BTree
         throws IOException
     {
         BPage rootPage = getRoot();
-        if ( rootPage == null ) {
+        if ( rootPage == null )
+        {
             return EmptyBrowser.INSTANCE;
         }
         TupleBrowser browser = rootPage.findFirst();
@@ -473,7 +510,7 @@ public class BTree
     /**
      * Get a browser initially positioned just before the given key.
      * <p><b>
-     * WARNING:  If you make structural modifications to the BTree during
+     * WARNING: ï¿½If you make structural modifications to the BTree during
      * browsing, you will get inconsistent browing results.
      * </b>
      *
@@ -486,7 +523,8 @@ public class BTree
         throws IOException
     {
         BPage rootPage = getRoot();
-        if ( rootPage == null ) {
+        if ( rootPage == null )
+        {
             return EmptyBrowser.INSTANCE;
         }
         TupleBrowser browser = rootPage.find( _height, key );
@@ -518,7 +556,8 @@ public class BTree
     private BPage getRoot()
         throws IOException
     {
-        if ( _root == 0 ) {
+        if ( _root == 0 )
+        {
             return null;
         }
         BPage root = (BPage) _recman.fetch( _root, _bpageSerializer );
@@ -558,7 +597,6 @@ public class BTree
         out.writeInt( _entries );
     }
 
-
     /*
     public void assert() throws IOException {
         BPage root = getRoot();
@@ -567,7 +605,6 @@ public class BTree
         }
     }
     */
-
 
     /*
     public void dump() throws IOException {
@@ -579,8 +616,9 @@ public class BTree
     */
 
 
-    /** PRIVATE INNER CLASS
-     *  Browser returning no element.
+    /**
+     * PRIVATE INNER CLASS
+     * Browser returning no element.
      */
     static class EmptyBrowser
         extends TupleBrowser

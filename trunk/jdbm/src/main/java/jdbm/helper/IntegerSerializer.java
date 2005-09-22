@@ -58,10 +58,10 @@ public class IntegerSerializer
     implements Serializer
 {
 
-    
+
     public static final IntegerSerializer INSTANCE = new IntegerSerializer();
-    
-    
+
+
     /**
      * Construct an IntegerSerializer.
      */
@@ -70,32 +70,32 @@ public class IntegerSerializer
         // no op
     }
 
-    
+
     /**
      * Serialize the content of an object into a byte array.
      *
      * @param obj Object to serialize
      * @return a byte array representing the object's state
      */
-     public byte[] serialize( Object obj )
+    public byte[] serialize( Object obj )
         throws IOException
-     {
-         Integer number = (Integer) obj;
-         return Conversion.convertToByteArray( number.intValue() );
-     }
-        
-        
+    {
+        Integer number = (Integer) obj;
+        return Conversion.convertToByteArray( number.intValue() );
+    }
+
+
     /**
      * Deserialize the content of an object from a byte array.
      *
      * @param serialized Byte array representation of the object
      * @return deserialized object
      */
-     public Object deserialize( byte[] serialized )
+    public Object deserialize( byte[] serialized )
         throws IOException
-     {
-         int number = Conversion.convertToInt( serialized );
-         return new Integer( number );
-     }
+    {
+        int number = Conversion.convertToInt( serialized );
+        return new Integer( number );
+    }
 
 }

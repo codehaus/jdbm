@@ -49,16 +49,17 @@
 package jdbm;
 
 import java.io.IOException;
+
 import jdbm.helper.Serializer;
 
 /**
- *  An interface to manages records, which are uninterpreted blobs of data.
- *  <p>
- *  The set of record operations is simple: fetch, insert, update and delete.
- *  Each record is identified using a "rowid" and contains a byte[] data block.
- *  Rowids are returned on inserts and you can store them someplace safe
- *  to be able to get  back to them.  Data blocks can be as long as you wish,
- *  and may have lengths different from the original when updating.
+ * An interface to manages records, which are uninterpreted blobs of data.
+ * <p/>
+ * The set of record operations is simple: fetch, insert, update and delete.
+ * Each record is identified using a "rowid" and contains a byte[] data block.
+ * Rowids are returned on inserts and you can store them someplace safe
+ * to be able to get  back to them.  Data blocks can be as long as you wish,
+ * and may have lengths different from the original when updating.
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
@@ -74,115 +75,115 @@ public interface RecordManager
 
 
     /**
-     *  Inserts a new record using standard java object serialization.
+     * Inserts a new record using standard java object serialization.
      *
-     *  @param obj the object for the new record.
-     *  @returns the rowid for the new record.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param obj the object for the new record.
+     * @throws IOException when one of the underlying I/O operations fails.
+     * @returns the rowid for the new record.
      */
     public abstract long insert( Object obj )
         throws IOException;
 
-    
+
     /**
-     *  Inserts a new record using a custom serializer.
+     * Inserts a new record using a custom serializer.
      *
-     *  @param obj the object for the new record.
-     *  @param serializer a custom serializer
-     *  @returns the rowid for the new record.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param obj        the object for the new record.
+     * @param serializer a custom serializer
+     * @throws IOException when one of the underlying I/O operations fails.
+     * @returns the rowid for the new record.
      */
     public abstract long insert( Object obj, Serializer serializer )
         throws IOException;
 
 
     /**
-     *  Deletes a record.
+     * Deletes a record.
      *
-     *  @param rowid the rowid for the record that should be deleted.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param rowid the rowid for the record that should be deleted.
+     * @throws IOException when one of the underlying I/O operations fails.
      */
     public abstract void delete( long recid )
         throws IOException;
 
 
     /**
-     *  Updates a record using standard java object serialization.
+     * Updates a record using standard java object serialization.
      *
-     *  @param recid the recid for the record that is to be updated.
-     *  @param obj the new object for the record.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param recid the recid for the record that is to be updated.
+     * @param obj   the new object for the record.
+     * @throws IOException when one of the underlying I/O operations fails.
      */
     public abstract void update( long recid, Object obj )
         throws IOException;
 
 
     /**
-     *  Updates a record using a custom serializer.
+     * Updates a record using a custom serializer.
      *
-     *  @param recid the recid for the record that is to be updated.
-     *  @param obj the new object for the record.
-     *  @param serializer a custom serializer
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param recid      the recid for the record that is to be updated.
+     * @param obj        the new object for the record.
+     * @param serializer a custom serializer
+     * @throws IOException when one of the underlying I/O operations fails.
      */
     public abstract void update( long recid, Object obj, Serializer serializer )
         throws IOException;
 
-    
+
     /**
-     *  Fetches a record using standard java object serialization.
+     * Fetches a record using standard java object serialization.
      *
-     *  @param recid the recid for the record that must be fetched.
-     *  @returns the object contained in the record.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param recid the recid for the record that must be fetched.
+     * @throws IOException when one of the underlying I/O operations fails.
+     * @returns the object contained in the record.
      */
     public abstract Object fetch( long recid )
         throws IOException;
 
 
     /**
-     *  Fetches a record using a custom serializer.
+     * Fetches a record using a custom serializer.
      *
-     *  @param recid the recid for the record that must be fetched.
-     *  @param serializer a custom serializer
-     *  @returns the object contained in the record.
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @param recid      the recid for the record that must be fetched.
+     * @param serializer a custom serializer
+     * @throws IOException when one of the underlying I/O operations fails.
+     * @returns the object contained in the record.
      */
     public abstract Object fetch( long recid, Serializer serializer )
         throws IOException;
 
 
     /**
-     *  Closes the record manager.
+     * Closes the record manager.
      *
-     *  @throws IOException when one of the underlying I/O operations fails.
+     * @throws IOException when one of the underlying I/O operations fails.
      */
     public abstract void close()
         throws IOException;
 
 
     /**
-     *  Returns the number of slots available for "root" rowids. These slots
-     *  can be used to store special rowids, like rowids that point to
-     *  other rowids. Root rowids are useful for bootstrapping access to
-     *  a set of data.
+     * Returns the number of slots available for "root" rowids. These slots
+     * can be used to store special rowids, like rowids that point to
+     * other rowids. Root rowids are useful for bootstrapping access to
+     * a set of data.
      */
     public abstract int getRootCount();
 
 
     /**
-     *  Returns the indicated root rowid.
+     * Returns the indicated root rowid.
      *
-     *  @see getRootCount
+     * @see getRootCount
      */
     public abstract long getRoot( int id )
         throws IOException;
 
 
     /**
-     *  Sets the indicated root rowid.
+     * Sets the indicated root rowid.
      *
-     *  @see getRootCount
+     * @see getRootCount
      */
     public abstract void setRoot( int id, long rowid )
         throws IOException;
@@ -200,8 +201,6 @@ public interface RecordManager
      */
     public abstract void rollback()
         throws IOException;
-
-
 
 
     /**

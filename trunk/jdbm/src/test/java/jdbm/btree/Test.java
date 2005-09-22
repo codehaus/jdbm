@@ -49,18 +49,21 @@ package jdbm.btree;
 import junit.framework.*;
 
 /**
- *  "jdbm.btree.*" package test suite
+ * "jdbm.btree.*" package test suite
  *
- *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id$
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id$
  */
-public class Test extends TestCase {
+public class Test extends TestCase
+{
 
-    public Test(String name) {
-        super(name);
+    public Test( String name )
+    {
+        super( name );
     }
 
-    public static junit.framework.Test suite() {
+    public static junit.framework.Test suite()
+    {
         TestSuite retval = new TestSuite();
         retval.addTest( new TestSuite( TestBPage.class ) );
         retval.addTest( new TestSuite( TestBTree.class ) );
@@ -68,8 +71,9 @@ public class Test extends TestCase {
         return retval;
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+    public static void main( String[] args )
+    {
+        junit.textui.TestRunner.run( suite() );
     }
 
 }

@@ -58,7 +58,7 @@ import java.util.HashMap;
  * J2SE's {@link SoftReference soft references}. Soft references allow
  * this cache to keep references to objects until the memory they occupy
  * is required elsewhere.
- * <p>
+ * <p/>
  * Since the {@link CachePolicy} interface requires an event be fired
  * when an object is evicted, and the event contains the actual object,
  * this class cannot be a stand-alone implementation of
@@ -69,17 +69,18 @@ import java.util.HashMap;
  * evicted from the internal cache. Consequently, the soft cache may return
  * a non-null object when <code>get( )</code> is called, even if that
  * object was said to have been evicted.
- * <p>
+ * <p/>
  * The current implementation uses a hash structure for its internal key
  * to value mappings.
- * <p>
+ * <p/>
  * Note: this component's publicly exposed methods are not threadsafe;
  * potentially concurrent code should synchronize on the cache instance.
  *
  * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
  * @version $Id$
  */
-public class SoftCache implements CachePolicy {
+public class SoftCache implements CachePolicy
+{
     private static final int INITIAL_CAPACITY = 128;
     private static final float DEFAULT_LOAD_FACTOR = 1.5f;
 
@@ -95,8 +96,9 @@ public class SoftCache implements CachePolicy {
      * {@link #get(Object) get( )s} first try the L1 cache anyway. The
      * internal MRU is given a capacity of 128 elements.
      */
-    public SoftCache() {
-        this(new MRU(INITIAL_CAPACITY));
+    public SoftCache()
+    {
+        this( new MRU( INITIAL_CAPACITY ) );
     }
 
     /**
@@ -106,8 +108,9 @@ public class SoftCache implements CachePolicy {
      * @param internal non null internal cache.
      * @throws NullPointerException if the internal cache is null.
      */
-    public SoftCache(CachePolicy internal) throws NullPointerException {
-        this(DEFAULT_LOAD_FACTOR, internal);
+    public SoftCache( CachePolicy internal ) throws NullPointerException
+    {
+        this( DEFAULT_LOAD_FACTOR, internal );
     }
 
     /**
@@ -117,81 +120,96 @@ public class SoftCache implements CachePolicy {
      * instead.
      *
      * @param loadFactor load factor that the soft cache's hash structure
-     *        should use.
-     * @param internal non null internal cache.
+     *                   should use.
+     * @param internal   non null internal cache.
      * @throws IllegalArgumentException if the load factor is nonpositive.
-     * @throws NullPointerException if the internal cache is null.
+     * @throws NullPointerException     if the internal cache is null.
      */
-    public SoftCache(float loadFactor, CachePolicy internal) throws IllegalArgumentException, NullPointerException {
-        if (internal == null) {
-            throw new NullPointerException("Internal cache cannot be null.");
+    public SoftCache( float loadFactor, CachePolicy internal ) throws IllegalArgumentException, NullPointerException
+    {
+        if ( internal == null )
+        {
+            throw new NullPointerException( "Internal cache cannot be null." );
         }
         _internal = internal;
-        _cacheMap = new HashMap(INITIAL_CAPACITY, loadFactor);
+        _cacheMap = new HashMap( INITIAL_CAPACITY, loadFactor );
     }
 
     /**
      * Adds the specified value to the cache under the specified key. Note
      * that the object is added to both this and the internal cache.
-     * @param key the (non-null) key to store the object under
+     *
+     * @param key   the (non-null) key to store the object under
      * @param value the (non-null) object to place in the cache
      * @throws CacheEvictionException exception that the internal cache
-     *         would have experienced while evicting an object it currently
-     *         cached.
+     *                                would have experienced while evicting an object it currently
+     *                                cached.
      */
-    public void put(Object key, Object value) throws CacheEvictionException {
-        if (key == null) {
-            throw new IllegalArgumentException("key cannot be null.");
-        } else if (value == null) {
-            throw new IllegalArgumentException("value cannot be null.");
+    public void put( Object key, Object value ) throws CacheEvictionException
+    {
+        if ( key == null )
+        {
+            throw new IllegalArgumentException( "key cannot be null." );
         }
-        _internal.put(key, value);
+        else if ( value == null )
+        {
+            throw new IllegalArgumentException( "value cannot be null." );
+        }
+        _internal.put( key, value );
         removeClearedEntries();
-        _cacheMap.put(key, new Entry(key, value, _clearQueue));
+        _cacheMap.put( key, new Entry( key, value, _clearQueue ) );
     }
 
     /**
      * Gets the object cached under the specified key.
-     * <p>
+     * <p/>
      * The cache is looked up in the following manner:
      * <ol>
      * <li>The internal (L1) cache is checked. If the object is found, it is
-     *     returned.</li>
+     * returned.</li>
      * <li>This (L2) cache is checked. If the object is not found, then
-     *     the caller is informed that the object is inaccessible.</li>
+     * the caller is informed that the object is inaccessible.</li>
      * <li>Since the object exists in L2, but not in L1, the object is
-     *     readded to L1 using {@link CachePolicy#put(Object, Object)}.</li>
+     * readded to L1 using {@link CachePolicy#put(Object, Object)}.</li>
      * <li>If the readding succeeds, the value is returned to caller.</li>
      * <li>If a cache eviction exception is encountered instead, we
-     *     remove the object from L2 and behave as if the object was
-     *     inaccessible.</li>
+     * remove the object from L2 and behave as if the object was
+     * inaccessible.</li>
      * </ol>
+     *
      * @param key the key that the object was stored under.
      * @return the object stored under the key specified; null if the
      *         object is not (nolonger) accessible via this cache.
      */
-    public Object get(Object key) {
+    public Object get( Object key )
+    {
         // first try the internal cache.
-        Object value = _internal.get(key);
-        if (value != null) {
+        Object value = _internal.get( key );
+        if ( value != null )
+        {
             return value;
         }
         // poll and remove cleared references.
         removeClearedEntries();
-        Entry entry = (Entry)_cacheMap.get(key);
-        if (entry == null) { // object is not in cache.
+        Entry entry = (Entry) _cacheMap.get( key );
+        if ( entry == null )
+        { // object is not in cache.
             return null;
         }
         value = entry.getValue();
-        if (value == null) { // object was in cache, but it was cleared.
+        if ( value == null )
+        { // object was in cache, but it was cleared.
             return null;
         }
         // we have the object. so we try to re-insert it into internal cache
-        try {
-            _internal.put(key, value);
-        } catch (CacheEvictionException e) {
+        try
+        {
+            _internal.put( key, value );
+        }
+        catch ( CacheEvictionException e )
+        {
             // if the internal cache causes a fuss, we kick the object out.
-            _cacheMap.remove(key);
+            _cacheMap.remove( key );
             return null;
         }
         return value;
@@ -201,46 +219,55 @@ public class SoftCache implements CachePolicy {
      * Removes any object stored under the key specified. Note that the
      * object is removed from both this (L2) and the internal (L1)
      * cache.
+     *
      * @param key the key whose object should be removed
      */
-    public void remove(Object key) {
-        _cacheMap.remove(key);
-        _internal.remove(key);
+    public void remove( Object key )
+    {
+        _cacheMap.remove( key );
+        _internal.remove( key );
     }
 
     /**
      * Removes all objects in this (L2) and its internal (L1) cache.
      */
-    public void removeAll() {
+    public void removeAll()
+    {
         _cacheMap.clear();
         _internal.removeAll();
     }
 
     /**
      * Gets all the objects stored by the internal (L1) cache.
+     *
      * @return an enumeration of objects in internal cache.
      */
-    public Enumeration elements() {
+    public Enumeration elements()
+    {
         return _internal.elements();
     }
 
     /**
      * Adds the specified listener to this cache. Note that the events
      * fired by this correspond to the <em>internal</em> cache's events.
+     *
      * @param listener the (non-null) listener to add to this policy
      * @throws IllegalArgumentException if listener is null.
      */
-    public void addListener(CachePolicyListener listener)
-            throws IllegalArgumentException {
-        _internal.addListener(listener);
+    public void addListener( CachePolicyListener listener )
+        throws IllegalArgumentException
+    {
+        _internal.addListener( listener );
     }
 
     /**
      * Removes a listener that was added earlier.
+     *
      * @param listener the listener to remove.
      */
-    public void removeListener(CachePolicyListener listener) {
-        _internal.removeListener(listener);
+    public void removeListener( CachePolicyListener listener )
+    {
+        _internal.removeListener( listener );
     }
 
     /**
@@ -249,10 +276,12 @@ public class SoftCache implements CachePolicy {
      * runtime of this is usually very small, but it can be as expensive as
      * n * log(n) if a large number of soft references were recently cleared.
      */
-    private final void removeClearedEntries() {
-        for (Reference r = _clearQueue.poll(); r != null; r = _clearQueue.poll()) {
-            Object key = ((Entry)r).getKey();
-            _cacheMap.remove(key);
+    private final void removeClearedEntries()
+    {
+        for ( Reference r = _clearQueue.poll(); r != null; r = _clearQueue.poll() )
+        {
+            Object key = ( (Entry) r ).getKey();
+            _cacheMap.remove( key );
         }
     }
 
@@ -263,31 +292,37 @@ public class SoftCache implements CachePolicy {
      * keys drastically improves the performance of removing the pair
      * from the map (see {@link SoftCache#removeClearedEntries()}.)
      */
-    private static class Entry extends SoftReference {
+    private static class Entry extends SoftReference
+    {
         private final Object _key;
 
         /**
          * Constructor that uses <code>value</code> as the soft
          * reference's referent.
          */
-        public Entry(Object key, Object value, ReferenceQueue queue) {
-            super(value, queue);
+        public Entry( Object key, Object value, ReferenceQueue queue )
+        {
+            super( value, queue );
             _key = key;
         }
 
         /**
          * Gets the key
+         *
          * @return the key associated with this value.
          */
-        final Object getKey() {
+        final Object getKey()
+        {
             return _key;
         }
 
         /**
          * Gets the value
+         *
          * @return the value; null if it is no longer accessible
          */
-        final Object getValue() {
+        final Object getValue()
+        {
             return this.get();
         }
     }

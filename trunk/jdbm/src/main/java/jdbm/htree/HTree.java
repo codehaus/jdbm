@@ -48,17 +48,18 @@ package jdbm.htree;
 
 import jdbm.RecordManager;
 import jdbm.helper.FastIterator;
+
 import java.io.IOException;
 
 /**
- *  Persistent hashtable implementation for PageManager.
- *  Implemented as an H*Tree structure.
+ * Persistent hashtable implementation for PageManager.
+ * Implemented as an H*Tree structure.
+ * <p/>
+ * WARNING!  If this instance is used in a transactional context, it
+ * *must* be discarded after a rollback.
  *
- *  WARNING!  If this instance is used in a transactional context, it
- *            *must* be discarded after a rollback.
- *
- *  @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
- *  @version $Id$
+ * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
+ * @version $Id$
  */
 public class HTree
 {
@@ -74,7 +75,8 @@ public class HTree
      *
      * @param root Root hash directory.
      */
-    private HTree( HashDirectory root ) {
+    private HTree( HashDirectory root )
+    {
         _root = root;
     }
 
@@ -87,8 +89,8 @@ public class HTree
     public static HTree createInstance( RecordManager recman )
         throws IOException
     {
-        HashDirectory  root;
-        long           recid;
+        HashDirectory root;
+        long recid;
 
         root = new HashDirectory( (byte) 0 );
         recid = recman.insert( root );
@@ -123,10 +125,10 @@ public class HTree
      * @arg key key with which the specified value is to be assocated.
      * @arg value value to be associated with the specified key.
      */
-    public synchronized void put(Object key, Object value)
+    public synchronized void put( Object key, Object value )
         throws IOException
     {
-        _root.put(key, value);
+        _root.put( key, value );
     }
 
 
@@ -136,10 +138,10 @@ public class HTree
      *
      * @arg key key whose associated value is to be returned
      */
-    public synchronized Object get(Object key)
+    public synchronized Object get( Object key )
         throws IOException
     {
-        return _root.get(key);
+        return _root.get( key );
     }
 
 
@@ -149,10 +151,10 @@ public class HTree
      *
      * @arg key key whose associated value is to be removed
      */
-    public synchronized void remove(Object key)
+    public synchronized void remove( Object key )
         throws IOException
     {
-        _root.remove(key);
+        _root.remove( key );
     }
 
 

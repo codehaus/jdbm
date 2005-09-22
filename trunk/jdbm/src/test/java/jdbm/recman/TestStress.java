@@ -45,15 +45,12 @@
 package jdbm.recman;
 
 
-
 import jdbm.RecordManager;
 
 import jdbm.RecordManagerFactory;
 
 
-
 import jdbm.helper.ByteArraySerializer;
-
 
 
 import junit.framework.*;
@@ -61,40 +58,28 @@ import junit.framework.*;
 import java.util.Random;
 
 
-
 /**
-
- *  This class contains stress tests for this package.
-
+ * This class contains stress tests for this package.
  */
 
-public class TestStress extends TestCase {
-
-
-
-    public TestStress(String name) {
-
-      super(name);
-
+public class TestStress extends TestCase
+{
+    public TestStress( String name )
+    {
+        super( name );
     }
 
 
-
-    public void setUp() {
-
+    public void setUp()
+    {
         TestRecordFile.deleteTestFile();
-
     }
 
 
-
-    public void tearDown() {
-
+    public void tearDown()
+    {
         TestRecordFile.deleteTestFile();
-
     }
-
-
 
     // test parameters
 
@@ -105,20 +90,15 @@ public class TestStress extends TestCase {
     final int ROUNDS = 1 * 1000 * 1000;
 
 
-
     final int RPPROMILLE = ROUNDS / 1000;
 
 
-
-    Random rnd = new Random(42);
-
-
-
-
+    Random rnd = new Random( 42 );
 
     // holder for record data so we can compare
 
-    class RecordData {
+    class RecordData
+    {
 
         long rowid;
 
@@ -127,8 +107,8 @@ public class TestStress extends TestCase {
         byte b;
 
 
-
-        RecordData(long rowid, int size, byte b) {
+        RecordData( long rowid, int size, byte b )
+        {
 
             this.rowid = rowid;
 
@@ -139,8 +119,8 @@ public class TestStress extends TestCase {
         }
 
 
-
-        public String toString() {
+        public String toString()
+        {
 
             return "slot(" + rowid + ",sz=" + size + ",b=" + b + ")";
 
@@ -149,16 +129,17 @@ public class TestStress extends TestCase {
     }
 
 
+    private int getRandomAllocatedSlot( RecordData[] d )
+    {
 
-    private int getRandomAllocatedSlot(RecordData[] d) {
+        int slot = rnd.nextInt( RECORDS );
 
-        int slot = rnd.nextInt(RECORDS);
-
-        while (d[slot] == null) {
+        while ( d[slot] == null )
+        {
 
             slot++;
 
-            if (slot == RECORDS)
+            if ( slot == RECORDS )
 
                 slot = 0; // wrap
 
@@ -167,24 +148,23 @@ public class TestStress extends TestCase {
         return slot;
 
     }
-
-
 
     // holder for root records
 
     long[] roots = new long[FileHeader.NROOTS];
 
 
+    private int getRandomAllocatedRoot()
+    {
 
-    private int getRandomAllocatedRoot() {
+        int slot = rnd.nextInt( FileHeader.NROOTS );
 
-        int slot = rnd.nextInt(FileHeader.NROOTS);
-
-        while (roots[slot] == 0) {
+        while ( roots[slot] == 0 )
+        {
 
             slot++;
 
-            if (slot == FileHeader.NROOTS)
+            if ( slot == FileHeader.NROOTS )
 
                 slot = 0; // wrap
 
@@ -195,22 +175,17 @@ public class TestStress extends TestCase {
     }
 
 
-
     /**
-
-     *  Test basics
-
+     * Test basics
      */
 
-    public void testBasics() throws Exception {
+    public void testBasics() throws Exception
+    {
 
         RecordManager recman;
 
 
-
         recman = RecordManagerFactory.createRecordManager( TestRecordFile.testFileName );
-
-
 
         // as this code is meant to test data structure calculcations
 
@@ -219,7 +194,6 @@ public class TestStress extends TestCase {
         // that just slow us down.
 
         //  mgr.disableTransactions();
-
 
 
         RecordData[] d = new RecordData[RECORDS];
@@ -233,30 +207,29 @@ public class TestStress extends TestCase {
         int slot = -1;
 
 
-
-        try {
-
-
-
-            for (int i = 0; i < ROUNDS; i++) {
-
-                if ((i % RPPROMILLE) == 0)
-
-                    System.out.print("\rComplete: "
-
-                        + i/RPPROMILLE + "/1000th");
+        try
+        {
 
 
+            for ( int i = 0; i < ROUNDS; i++ )
+            {
+
+                if ( ( i % RPPROMILLE ) == 0 )
+
+                    System.out.print( "\rComplete: "
+
+                        + i / RPPROMILLE + "/1000th" );
 
                 // close and re-open a couple of times during the
 
                 // test, in order to check flushing etcetera.
 
-                if ((i % (ROUNDS / 5)) == 0) {
+                if ( ( i % ( ROUNDS / 5 ) ) == 0 )
+                {
 
-                    System.out.print(" (reopened at round "
+                    System.out.print( " (reopened at round "
 
-                    + i/RPPROMILLE + ")");
+                        + i / RPPROMILLE + ")" );
 
                     recman.close();
 
@@ -266,21 +239,21 @@ public class TestStress extends TestCase {
 
                 }
 
-
-
                 // generate a random number and assign ranges to operations:
 
                 // 0-10 = insert, 20 = delete, 30-50 = update, 51 = set root,
 
                 // 52 = get root, rest = fetch.
 
-                int op = rnd.nextInt(100);
+                int op = rnd.nextInt( 100 );
 
-                if (op <= 10) {
+                if ( op <= 10 )
+                {
 
                     // INSERT RECORD
 
-                    if (recordCount == RECORDS) {
+                    if ( recordCount == RECORDS )
+                    {
 
                         i -= 1;
 
@@ -289,24 +262,22 @@ public class TestStress extends TestCase {
                     }
 
 
-
                     slot = 0;
 
-                    while (d[slot] != null)
+                    while ( d[slot] != null )
 
                         slot++;
 
 
+                    d[slot] = new RecordData( 0, rnd.nextInt( MAXSIZE ),
 
-                    d[slot] = new RecordData(0, rnd.nextInt(MAXSIZE),
-
-                    (byte) rnd.nextInt());
+                                              (byte) rnd.nextInt() );
 
                     d[slot].rowid =
 
-                        recman.insert(TestUtil.makeRecord(d[slot].size,
+                        recman.insert( TestUtil.makeRecord( d[slot].size,
 
-                    d[slot].b));
+                                                            d[slot].b ) );
 
                     recordCount++;
 
@@ -314,11 +285,13 @@ public class TestStress extends TestCase {
 
                 }
 
-                else if (op == 20) {
+                else if ( op == 20 )
+                {
 
                     // DELETE RECORD
 
-                    if (recordCount == 0) {
+                    if ( recordCount == 0 )
+                    {
 
                         i -= 1;
 
@@ -327,10 +300,9 @@ public class TestStress extends TestCase {
                     }
 
 
+                    slot = getRandomAllocatedSlot( d );
 
-                    slot = getRandomAllocatedSlot(d);
-
-                    recman.delete(d[slot].rowid);
+                    recman.delete( d[slot].rowid );
 
                     d[slot] = null;
 
@@ -340,11 +312,13 @@ public class TestStress extends TestCase {
 
                 }
 
-                else if (op <= 50) {
+                else if ( op <= 50 )
+                {
 
                     // UPDATE RECORD
 
-                    if (recordCount == 0) {
+                    if ( recordCount == 0 )
+                    {
 
                         i -= 1;
 
@@ -353,42 +327,44 @@ public class TestStress extends TestCase {
                     }
 
 
+                    slot = getRandomAllocatedSlot( d );
 
-                    slot = getRandomAllocatedSlot(d);
-
-                    d[slot].size = rnd.nextInt(MAXSIZE);
+                    d[slot].size = rnd.nextInt( MAXSIZE );
 
                     d[slot].b = (byte) rnd.nextInt();
 
-                    recman.update(d[slot].rowid,
+                    recman.update( d[slot].rowid,
 
-                    TestUtil.makeRecord(d[slot].size,
+                                   TestUtil.makeRecord( d[slot].size,
 
-                    d[slot].b));
+                                                        d[slot].b ) );
 
                     updates++;
 
                 }
 
-                else if (op == 51) {
+                else if ( op == 51 )
+                {
 
                     // SET ROOT
 
-                    int root = rnd.nextInt(FileHeader.NROOTS);
+                    int root = rnd.nextInt( FileHeader.NROOTS );
 
                     roots[root] = rnd.nextLong();
 
-                    recman.setRoot(root, roots[root]);
+                    recman.setRoot( root, roots[root] );
 
                     rootsets++;
 
                 }
 
-                else if (op == 52) {
+                else if ( op == 52 )
+                {
 
                     // GET ROOT
 
-                    if (rootCount == 0) {
+                    if ( rootCount == 0 )
+                    {
 
                         i -= 1;
 
@@ -397,20 +373,21 @@ public class TestStress extends TestCase {
                     }
 
 
-
                     int root = getRandomAllocatedRoot();
 
-                    assertEquals("root", roots[root], recman.getRoot(root));
+                    assertEquals( "root", roots[root], recman.getRoot( root ) );
 
                     rootgets++;
 
                 }
 
-                else {
+                else
+                {
 
                     // FETCH RECORD
 
-                    if (recordCount == 0) {
+                    if ( recordCount == 0 )
+                    {
 
                         i -= 1;
 
@@ -419,16 +396,15 @@ public class TestStress extends TestCase {
                     }
 
 
+                    slot = getRandomAllocatedSlot( d );
 
-                    slot = getRandomAllocatedSlot(d);
+                    byte[] data = (byte[]) recman.fetch( d[slot].rowid, ByteArraySerializer.INSTANCE );
 
-                    byte[] data = (byte[]) recman.fetch(d[slot].rowid, ByteArraySerializer.INSTANCE );
+                    assertTrue( "fetch round=" + i + ", slot=" + slot
 
-                    assertTrue("fetch round=" + i + ", slot=" + slot
+                        + ", " + d[slot],
 
-                    + ", " + d[slot],
-
-                    TestUtil.checkRecord(data, d[slot].size, d[slot].b));
+                                TestUtil.checkRecord( data, d[slot].size, d[slot].b ) );
 
                     fetches++;
 
@@ -438,39 +414,41 @@ public class TestStress extends TestCase {
 
             recman.close();
 
-        } catch (Throwable e) {
+        }
+        catch ( Throwable e )
+        {
 
             e.printStackTrace();
 
-            fail("aborting test at slot " + slot + ": " + e);
+            fail( "aborting test at slot " + slot + ": " + e );
 
-        } finally {
+        }
+        finally
+        {
 
-            System.out.println("records : " + recordCount);
+            System.out.println( "records : " + recordCount );
 
-            System.out.println("deletes : " + deletes);
+            System.out.println( "deletes : " + deletes );
 
-            System.out.println("inserts : " + inserts);
+            System.out.println( "inserts : " + inserts );
 
-            System.out.println("updates : " + updates);
+            System.out.println( "updates : " + updates );
 
-            System.out.println("fetches : " + fetches);
+            System.out.println( "fetches : " + fetches );
 
-            System.out.println("rootget : " + rootgets);
+            System.out.println( "rootget : " + rootgets );
 
-            System.out.println("rootset : " + rootsets);
+            System.out.println( "rootset : " + rootsets );
 
             int totalSize = 0;
 
-            for (int i = 0; i < RECORDS; i++)
+            for ( int i = 0; i < RECORDS; i++ )
 
-            if (d[i] != null)
+                if ( d[i] != null )
 
-                totalSize += d[i].size;
+                    totalSize += d[i].size;
 
-            System.out.println("total outstanding size: " + totalSize);
-
-
+            System.out.println( "total outstanding size: " + totalSize );
 
             //System.out.println("---");
 
@@ -483,20 +461,17 @@ public class TestStress extends TestCase {
         }
 
 
-
     }
 
 
-
     /**
-
-     *  Runs all tests in this class
-
+     * Runs all tests in this class
      */
 
-    public static void main(String[] args) {
+    public static void main( String[] args )
+    {
 
-        junit.textui.TestRunner.run(new TestSuite(TestStress.class));
+        junit.textui.TestRunner.run( new TestSuite( TestStress.class ) );
 
     }
 

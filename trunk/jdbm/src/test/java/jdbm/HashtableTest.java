@@ -1,10 +1,10 @@
-
 package jdbm;
 
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.helper.FastIterator;
 import jdbm.htree.HTree;
+
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -15,7 +15,8 @@ import java.io.PrintStream;
  *
  * @version $Id$
  */
-public class HashtableTest {
+public class HashtableTest
+{
 
     private RecordManager recman;
     private HTree hashtable;
@@ -38,10 +39,13 @@ public class HashtableTest {
 
         // create or reload HTree
         long recid = recman.getNamedObject( name );
-        if ( recid == 0 ) {
+        if ( recid == 0 )
+        {
             hashtable = HTree.createInstance( recman );
             recman.setNamedObject( name, hashtable.getRecid() );
-        } else {
+        }
+        else
+        {
             hashtable = HTree.load( recman, recid );
         }
 
@@ -54,17 +58,21 @@ public class HashtableTest {
     protected void populate()
         throws IOException
     {
-        try {
+        try
+        {
             int max = 1000;
-            for ( int i=0; i<max; i++ ) {
+            for ( int i = 0; i < max; i++ )
+            {
                 String key = "key" + i;
                 String val = "val" + i;
-                hashtable.put( key,val );
+                hashtable.put( key, val );
                 System.out.println( "put key=" + key + " val=" + val );
             }
 
             System.out.println( "populate completed" );
-        } finally {
+        }
+        finally
+        {
             recman.close();
         }
     }
@@ -78,11 +86,14 @@ public class HashtableTest {
     {
         init();
 
-        try {
+        try
+        {
             Object val = hashtable.get( key );
             System.out.println( "retrieve key=" + key + " val=" + val );
             return val;
-        } finally {
+        }
+        finally
+        {
             recman.close();
         }
     }
@@ -96,14 +107,18 @@ public class HashtableTest {
     {
         init();
 
-        try {
+        try
+        {
             FastIterator iter = hashtable.keys();
             Object key = iter.next();
-            while ( key != null ) {
+            while ( key != null )
+            {
                 Object val = hashtable.get( key );
                 System.out.println( "enum key=" + key + " val=" + val );
             }
-        } finally {
+        }
+        finally
+        {
             recman.close();
         }
     }
@@ -115,15 +130,18 @@ public class HashtableTest {
     protected void doCommands()
         throws IOException
     {
-        if ( enum ) {
+        if ( enum )
+        {
             enum();
         }
 
-        if ( populate ) {
+        if ( populate )
+        {
             populate();
         }
 
-        if ( retrieve ) {
+        if ( retrieve )
+        {
             retrieve( onekey );
         }
     }
@@ -134,21 +152,35 @@ public class HashtableTest {
      */
     protected void parseArgs( String args[] )
     {
-        for ( int argn = 0; argn < args.length; argn++ ) {
-            if ( args[ argn ].equals( "-enum" ) ) {
+        for ( int argn = 0; argn < args.length; argn++ )
+        {
+            if ( args[argn].equals( "-enum" ) )
+            {
                 enum = true;
-            } else if ( args[ argn ].equals( "-populate" ) ) {
+            }
+            else if ( args[argn].equals( "-populate" ) )
+            {
                 populate = true;
-            } else if ( args[ argn ].equals( "-retrieve" ) ) {
+            }
+            else if ( args[argn].equals( "-retrieve" ) )
+            {
                 retrieve = true;
-            } else if ( args[ argn ].equals( "-jdbmName" ) && argn < args.length - 1 ) {
-                jdbmName = args[ ++argn ];
-            } else if (args[ argn ].equals( "-key" ) && argn < args.length - 1 ) {
-                onekey = args[ ++argn ];
-            } else if ( args[ argn ].equals( "-name" ) && argn < args.length - 1) {
-                name = args[ ++argn ];
-            } else {
-                System.err.println( "Unrecognized option: " + args[ argn ] );
+            }
+            else if ( args[argn].equals( "-jdbmName" ) && argn < args.length - 1 )
+            {
+                jdbmName = args[++argn];
+            }
+            else if ( args[argn].equals( "-key" ) && argn < args.length - 1 )
+            {
+                onekey = args[++argn];
+            }
+            else if ( args[argn].equals( "-name" ) && argn < args.length - 1 )
+            {
+                name = args[++argn];
+            }
+            else
+            {
+                System.err.println( "Unrecognized option: " + args[argn] );
                 usage( System.err );
             }
         }
@@ -174,9 +206,12 @@ public class HashtableTest {
     {
         HashtableTest instance = new HashtableTest();
         instance.parseArgs( args );
-        try {
+        try
+        {
             instance.doCommands();
-        } catch ( IOException except ) {
+        }
+        catch ( IOException except )
+        {
             except.printStackTrace();
         }
     }

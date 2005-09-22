@@ -73,17 +73,19 @@ public final class StringComparator
      * @return a positive integer if obj1 > obj2, 0 if obj1 == obj2,
      *         and a negative integer if obj1 < obj2
      */
-     public int compare( Object obj1, Object obj2 )
-     {
-        if ( obj1 == null ) {
+    public int compare( Object obj1, Object obj2 )
+    {
+        if ( obj1 == null )
+        {
             throw new IllegalArgumentException( "Argument 'obj1' is null" );
         }
 
-        if ( obj2 == null ) {
+        if ( obj2 == null )
+        {
             throw new IllegalArgumentException( "Argument 'obj2' is null" );
         }
 
         return ( (String) obj1 ).compareTo( obj2 );
-     }
+    }
 
 }

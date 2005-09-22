@@ -48,6 +48,7 @@
 package jdbm.helper;
 
 import java.util.ArrayList;
+
 import junit.framework.TestCase;
 
 /**
@@ -58,42 +59,46 @@ import junit.framework.TestCase;
  * Concrete subclasses must provide {@link #createInstance(int)}. They may
  * also need to override {@link #causeEviction(CachePolicy, int)} if the
  * default strategy will not suffice for the implementation of being tested.
- * 
+ *
  * @author <a href="mailto:dranatunga@users.sourceforge.net">Dilum Ranatunga</a>
  * @version $Id$
  */
-public abstract class TestCachePolicy extends TestCase {
+public abstract class TestCachePolicy extends TestCase
+{
 
-    protected TestCachePolicy(String string) {
-        super(string);
+    public TestCachePolicy( String string )
+    {
+        super( string );
     }
 
     /**
      * Factory that test methods use to create test instances. The instance
      * should be capable of storing the specified number of <q>large objects</q>
      * without an eviction. Large objects are created by {@link #createLargeObject()}.
-     * 
+     *
      * @param capacity the number of large objects the instance should be
-     *     capable of containing.
+     *                 capable of containing.
      * @return a non-null cache instance.
      */
-    protected abstract CachePolicy createInstance(int capacity);
+    protected abstract CachePolicy createInstance( int capacity );
 
     /**
      * Causes at least one eviction from the specified cache.
-     * <p>
+     * <p/>
      * Note: take care when overriding this with implementations that depend
      * on adding a temporary listener to the cache. Such a scheme can cause
      * an infinite loop when <em>testing adding and removing listeners</em>.
      *
-     * @param cache a cache object. It is generally safe to assume that this
-     *     was created using {@link #createInstance(int)}.
+     * @param cache    a cache object. It is generally safe to assume that this
+     *                 was created using {@link #createInstance(int)}.
      * @param capacity the capacity used when cache was created.
      * @throws CacheEvictionException
      */
-    protected void causeEviction(final CachePolicy cache, final int capacity) throws CacheEvictionException {
-        for (int i = 0; i < capacity; ++i) {
-            cache.put(new Object(), new Object());
+    protected void causeEviction( final CachePolicy cache, final int capacity ) throws CacheEvictionException
+    {
+        for ( int i = 0; i < capacity; ++i )
+        {
+            cache.put( new Object(), new Object() );
         }
     }
 
@@ -101,87 +106,95 @@ public abstract class TestCachePolicy extends TestCase {
      * Tests {@link CachePolicy#addListener(CachePolicyListener)},
      * {@link CachePolicy#removeListener(CachePolicyListener)}.
      */
-    public void testAddRemoveListeners() {
-        try {
-            final CountingListener listener1 = new CountingListener("Listener1");
-            final CountingListener listener2_1 = new CountingListener("Listener2");
-            final CountingListener listener2_2 = new CountingListener("Listener2");
+    public void testAddRemoveListeners()
+    {
+        try
+        {
+            final CountingListener listener1 = new CountingListener( "Listener1" );
+            final CountingListener listener2_1 = new CountingListener( "Listener2" );
+            final CountingListener listener2_2 = new CountingListener( "Listener2" );
             final int capacity = 2;
-            final CachePolicy cache = createInstance(capacity);
+            final CachePolicy cache = createInstance( capacity );
 
             { // quick check of assumptions
-                assertTrue("Listeners should be equal.",
-                           listener2_1.equals(listener2_2));
-                assertTrue("Equal listeners' hashcodes should be equal.",
-                           listener2_1.hashCode() == listener2_2.hashCode());
+                assertTrue( "Listeners should be equal.",
+                            listener2_1.equals( listener2_2 ) );
+                assertTrue( "Equal listeners' hashcodes should be equal.",
+                            listener2_1.hashCode() == listener2_2.hashCode() );
             }
 
             { // bad input test
-                try {
-                    cache.addListener(null);
-                    fail("cache.addListener(null) should throw IllegalArgumentRxception.");
-                } catch (IllegalArgumentException e) { }
+                try
+                {
+                    cache.addListener( null );
+                    fail( "cache.addListener(null) should throw IllegalArgumentRxception." );
+                }
+                catch ( IllegalArgumentException e )
+                {
+                }
             }
 
             { // null test
-                causeEviction(cache, capacity);
-                assertEquals(0, listener1.count());
-                assertEquals(0, listener2_1.count());
-                assertEquals(0, listener2_2.count());
+                causeEviction( cache, capacity );
+                assertEquals( 0, listener1.count() );
+                assertEquals( 0, listener2_1.count() );
+                assertEquals( 0, listener2_2.count() );
             }
 
             { // show that add affects cache, listener
-                cache.addListener(listener1);
-                causeEviction(cache, capacity);
-                assertTrue("listener not getting added, "
-                           + "not getting eviction event "
-                           + " or causeEviction not working)",
-                           listener1.count() > 0);
+                cache.addListener( listener1 );
+                causeEviction( cache, capacity );
+                assertTrue( "listener not getting added, "
+                    + "not getting eviction event "
+                    + " or causeEviction not working)",
+                            listener1.count() > 0 );
             }
 
             { // show that remove affects cache, listener
                 listener1.reset();
-                cache.removeListener(listener1);
-                causeEviction(cache, capacity);
-                assertTrue("listener not getting removed",
-                           listener1.count() == 0);
+                cache.removeListener( listener1 );
+                causeEviction( cache, capacity );
+                assertTrue( "listener not getting removed",
+                            listener1.count() == 0 );
             }
 
             { // show that multiple listeners are used
                 listener1.reset();
                 listener2_1.reset();
                 listener2_2.reset();
-                cache.addListener(listener1);
-                cache.addListener(listener2_1);
-                cache.addListener(listener2_2);
-                causeEviction(cache, capacity);
-                assertTrue(listener1.count() > 0);
+                cache.addListener( listener1 );
+                cache.addListener( listener2_1 );
+                cache.addListener( listener2_2 );
+                causeEviction( cache, capacity );
+                assertTrue( listener1.count() > 0 );
                 // note XOR: only one of the listeners should have received the event.
-                assertTrue((listener2_1.count() > 0) ^ (listener2_2.count() > 0));
+                assertTrue( ( listener2_1.count() > 0 ) ^ ( listener2_2.count() > 0 ) );
             }
 
             {
                 // show that multiple adds of equal listeners is undone with single remove
-                cache.removeListener(listener2_1);
-                cache.removeListener(listener2_2);
+                cache.removeListener( listener2_1 );
+                cache.removeListener( listener2_2 );
                 listener2_1.reset();
                 listener2_2.reset();
-                causeEviction(cache, capacity);
-                assertTrue((listener2_1.count() == 0) && (listener2_2.count() == 0));
+                causeEviction( cache, capacity );
+                assertTrue( ( listener2_1.count() == 0 ) && ( listener2_2.count() == 0 ) );
 
-                cache.addListener(listener2_1);
-                cache.addListener(listener2_2);
-                causeEviction(cache, capacity);
-                assertTrue((listener2_1.count() > 0) ^ (listener2_2.count() > 0));
+                cache.addListener( listener2_1 );
+                cache.addListener( listener2_2 );
+                causeEviction( cache, capacity );
+                assertTrue( ( listener2_1.count() > 0 ) ^ ( listener2_2.count() > 0 ) );
 
                 listener2_1.reset();
                 listener2_2.reset();
-                cache.removeListener(listener2_1); // note: only one is removed.
-                causeEviction(cache, capacity);
-                assertTrue((listener2_1.count() == 0) && (listener2_2.count() == 0));
+                cache.removeListener( listener2_1 ); // note: only one is removed.
+                causeEviction( cache, capacity );
+                assertTrue( ( listener2_1.count() == 0 ) && ( listener2_2.count() == 0 ) );
             }
-        } catch (CacheEvictionException cex) {
-            fail("Cache is throwing eviction exceptions even though none of the listeners are.");
+        }
+        catch ( CacheEvictionException cex )
+        {
+            fail( "Cache is throwing eviction exceptions even though none of the listeners are." );
         }
     }
 
@@ -189,50 +202,66 @@ public abstract class TestCachePolicy extends TestCase {
      * Ensures that the {@link CachePolicy} implementation propagates
      * {@link CacheEvictionException}s back to the caller.
      */
-    public void testEvictionExceptionPropagation() throws CacheEvictionException {
-        final CachePolicyListener quietListener = new CountingListener("quiet");
+    public void testEvictionExceptionPropagation() throws CacheEvictionException
+    {
+        final CachePolicyListener quietListener = new CountingListener( "quiet" );
         final CachePolicyListener throwingListener = new ThrowingListener();
         final int capacity = 1;
-        final CachePolicy cache = createInstance(capacity);
+        final CachePolicy cache = createInstance( capacity );
         { // null test.
-            cache.addListener(quietListener);
+            cache.addListener( quietListener );
             cache.removeAll();
-            try {
-                causeEviction(cache, capacity);
-            } catch (CacheEvictionException cex) {
-                fail("Threw eviction exception when it wasn't supposed to: " + cex);
+            try
+            {
+                causeEviction( cache, capacity );
             }
-            cache.removeListener(quietListener);
+            catch ( CacheEvictionException cex )
+            {
+                fail( "Threw eviction exception when it wasn't supposed to: " + cex );
+            }
+            cache.removeListener( quietListener );
         }
 
         { // propagation test
-            cache.addListener(throwingListener);
-            try {
-                causeEviction(cache, capacity);
-                fail("Did not propagate expected exception.");
-            } catch (CacheEvictionException cex) { }
-            cache.removeListener(throwingListener);
+            cache.addListener( throwingListener );
+            try
+            {
+                causeEviction( cache, capacity );
+                fail( "Did not propagate expected exception." );
+            }
+            catch ( CacheEvictionException cex )
+            {
+            }
+            cache.removeListener( throwingListener );
         }
     }
 
-    protected void causeGarbageCollection() {
-        try {
+    protected void causeGarbageCollection()
+    {
+        try
+        {
             ArrayList l = new ArrayList();
-            for (int i = 0; i < 500; ++i) {
-                l.add(createLargeObject());
+            for ( int i = 0; i < 500; ++i )
+            {
+                l.add( createLargeObject() );
             }
-        } catch (OutOfMemoryError oome) {
         }
-        for (int i = 0; i < 10; ++i) {
+        catch ( OutOfMemoryError oome )
+        {
+        }
+        for ( int i = 0; i < 10; ++i )
+        {
             System.gc();
         }
     }
 
-    protected Object createLargeObject() {
+    protected Object createLargeObject()
+    {
         int[] a = new int[1024 * 1024]; // 1M of ints.
         // Fill the array. This is done to prevent any sneaky VMs from
         // saving  space by lazily allocating the full array.
-        for (int i = a.length; --i >= 0;) {
+        for ( int i = a.length; --i >= 0; )
+        {
             a[i] = i;
         }
         return a;
@@ -251,55 +280,65 @@ public abstract class TestCachePolicy extends TestCase {
      * assertTrue(listener.count() > 0);
      * </pre>
      */
-    protected static final class CountingListener implements CachePolicyListener {
+    protected static final class CountingListener implements CachePolicyListener
+    {
         private String _name;
         private int _count = 0;
 
         /**
          * Creates a counting listener with the name specified.
+         *
          * @param name the (non-null) name of the listener.
          */
-        CountingListener(String name) {
-            _name = new String(name); // this automatically throws NPE if name is null.
+        CountingListener( String name )
+        {
+            _name = new String( name ); // this automatically throws NPE if name is null.
         }
 
         /**
          * Implimentation of callback method that increments count.
          */
-        public void cacheObjectEvicted(Object obj) throws CacheEvictionException {
+        public void cacheObjectEvicted( Object obj ) throws CacheEvictionException
+        {
             _count++;
         }
 
         /**
          * Reset's this listener's count to zero.
          */
-        void reset() {
+        void reset()
+        {
             _count = 0;
         }
 
         /**
          * Gets this listener's current count: the number of times the
          * callback method's been invoked since creation/reset.
+         *
          * @return
          */
-        int count() {
+        int count()
+        {
             return _count;
         }
 
         /**
          * Equality defined as (same type) AND (names equal).
          */
-        public boolean equals(Object obj) {
-            if (!(obj instanceof CountingListener)) {
+        public boolean equals( Object obj )
+        {
+            if ( !( obj instanceof CountingListener ) )
+            {
                 return false;
             }
-            return _name.equals(((CountingListener) obj)._name);
+            return _name.equals( ( (CountingListener) obj )._name );
         }
 
         /**
          * Defined as hashcode of name; consistent with {@link #equals(Object)}.
          */
-        public int hashCode() {
+        public int hashCode()
+        {
             return _name.hashCode();
         }
     }
@@ -319,7 +358,8 @@ public abstract class TestCachePolicy extends TestCase {
      * } catch (CacheEvictionException e) { }
      * </pre>
      */
-    protected static final class ThrowingListener implements CachePolicyListener {
+    protected static final class ThrowingListener implements CachePolicyListener
+    {
 
         protected static final String MESSAGE = "Intentionally thrown for testing purposes.";
 
@@ -327,8 +367,9 @@ public abstract class TestCachePolicy extends TestCase {
          * Always throws a {@link CacheEvictionException} wrapping a
          * runtime exception with the message {@link #MESSAGE}.
          */
-        public void cacheObjectEvicted(Object obj) throws CacheEvictionException {
-            throw new CacheEvictionException(new RuntimeException(MESSAGE));
+        public void cacheObjectEvicted( Object obj ) throws CacheEvictionException
+        {
+            throw new CacheEvictionException( new RuntimeException( MESSAGE ) );
         }
     }
 }
